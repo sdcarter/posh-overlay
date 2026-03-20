@@ -15,6 +15,7 @@ jobs:
     env:
       CONFIGURATION: Release
       RUNTIME: win-x64
+      FRAMEWORK: net10.0-windows10.0.19041.0
       APP_PROJECT: src/PrecisionDash.App/PrecisionDash.App.csproj
       DOMAIN_TESTS: tests/PrecisionDash.Domain.Unit/PrecisionDash.Domain.Unit.csproj
       INTEGRATION_TESTS: tests/PrecisionDash.Adapters.Integration/PrecisionDash.Adapters.Integration.csproj
@@ -60,6 +61,7 @@ jobs:
         run: |
           dotnet publish ${{ env.APP_PROJECT }} `
             -c ${{ env.CONFIGURATION }} `
+            -f ${{ env.FRAMEWORK }} `
             -r ${{ env.RUNTIME }} `
             -p:PublishAot=true `
             -p:PublishSingleFile=true `
