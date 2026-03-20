@@ -160,7 +160,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX [P] Constitution-mandated unit tests and coverage verification in tests/unit/
 - [ ] TXXX Security hardening
 - [ ] TXXX Run quickstart.md validation
-- [ ] TXXX Verify release artifact is Native AOT single-file and < 15 MB
+- [ ] TXXX Capture and justify release artifact size and any deviation from preferred Native AOT single-file delivery
 - [ ] TXXX Verify active-session performance gates (60 Hz, <= 20 MB, < 0.3% CPU)
 - [ ] TXXX Verify click-through window behavior and actionable-metric filtering
 

@@ -33,7 +33,7 @@ Define build-time data ingestion and generation contract for Lovely car data use
 
 - Generated artifact:
   - Static `CarLookup` API with allocation-free lookup by `driverCarId`
-  - Precomputed segment thresholds/colors and flash rules
+  - Runtime profile-presence lookup; current runtime rev-strip thresholds/colors use compact default profile values
 
 - Runtime guarantees:
   - No runtime HTTP calls for car profiles

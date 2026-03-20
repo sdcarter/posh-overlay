@@ -133,5 +133,6 @@
 - **PR-002**: Active-session working set remains <= 20 MB on target hardware class.
 - **PR-003**: Active-session total CPU utilization remains < 0.3% on target
   hardware class.
-- **PR-004**: Release artifact remains < 15 MB and is produced as Native AOT,
-  single-file, self-contained, and trimmed.
+- **PR-004**: Release artifact size is measured and justified for the chosen
+  delivery model, and any deviation from preferred Native AOT, single-file,
+  self-contained, and trimmed output is explicitly explained.

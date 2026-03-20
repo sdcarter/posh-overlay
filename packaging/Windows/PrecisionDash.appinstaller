@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AppInstaller
+  Uri="https://github.com/sdcarter/posh-overlay/releases/latest/download/PrecisionDash.appinstaller"
+  Version="1.0.0.0"
+  xmlns="http://schemas.microsoft.com/appx/appinstaller/2018">
+
+  <MainPackage
+    Name="PrecisionDash"
+    Version="1.0.0.0"
+    Publisher="CN=PrecisionDash"
+    ProcessorArchitecture="x64"
+    Uri="https://github.com/sdcarter/posh-overlay/releases/latest/download/PrecisionDash-1.0.0.0-win-x64.msix" />
+
+  <UpdateSettings>
+    <OnLaunch HoursBetweenUpdateChecks="24" ShowPrompt="true" UpdateBlocksActivation="false" />
+    <AutomaticBackgroundTask />
+    <ForceUpdateFromAnyVersion>false</ForceUpdateFromAnyVersion>
+  </UpdateSettings>
+
+</AppInstaller>

@@ -1,15 +1,10 @@
 <!--
 Sync Impact Report
-- Version change: N/A (template) -> 1.0.0
+- Version change: 1.0.0 -> 2.0.0
 - Modified principles:
-  - PRINCIPLE_1_NAME -> I. Stack and Runtime Non-Negotiable
-  - PRINCIPLE_2_NAME -> II. Architecture and Performance Budgets
-  - PRINCIPLE_3_NAME -> III. Engineering Excellence and Resiliency
-  - PRINCIPLE_4_NAME -> IV. UI/UX Signal-First Overlay
-  - PRINCIPLE_5_NAME -> V. Deterministic Delivery and Compliance
-- Added sections:
-  - Technical Standards and Constraints
-  - Development Workflow and Quality Gates
+  - I. Stack and Runtime Non-Negotiable (hard size ceiling replaced with smallest-practical artifact rule)
+  - V. Deterministic Delivery and Compliance (hard artifact-size merge gate replaced with evidence + justification gate)
+- Added sections: None
 - Removed sections: None
 - Templates requiring updates:
   - ✅ .specify/templates/plan-template.md
@@ -18,6 +13,13 @@ Sync Impact Report
   - ⚠ pending .specify/templates/commands/*.md (directory not present in repository)
   - ✅ .github/prompts/*.md (reviewed; no outdated agent-name references found)
   - ✅ .github/agents/*.md (reviewed; no outdated agent-name references found)
+- Runtime/spec artifacts requiring updates:
+  - ✅ specs/001-core-overlay/plan.md
+  - ✅ specs/001-core-overlay/quickstart.md
+  - ✅ specs/001-core-overlay/tasks.md
+  - ✅ specs/002-packaged-auto-update/spec.md
+  - ✅ specs/002-packaged-auto-update/plan.md
+  - ✅ specs/002-packaged-auto-update/research.md
 - Follow-up TODOs: None
 -->
 
@@ -29,13 +31,18 @@ Sync Impact Report
 
 All deliverables MUST target .NET 10.0.x LTS and C# 14, and MUST use C# 14 `field`
 backing properties and extension members where telemetry processing extensions are
-introduced. The executable MUST be built as Native AOT, self-contained, trimmed,
-single-file, and under 15 MB. Telemetry integration MUST use `SVappsLAB.iRacingTelemetrySDK`
-v1.1+ with source-generated, compile-time type-safe telemetry structs. Rendering
+introduced. The chosen distribution model MUST keep the executable as small as
+practical and MUST prefer Native AOT, self-contained, trimmed, single-file delivery
+when technically compatible with packaging, update, and platform requirements.
+When those requirements make a larger or different release shape necessary, the
+exception MUST be documented with technical rationale and release evidence.
+Telemetry integration MUST use `SVappsLAB.iRacingTelemetrySDK` v1.1+ with
+source-generated, compile-time type-safe telemetry structs. Rendering
 MUST use `SkiaSharp` 3.119+ through `GRContext` on hardware-accelerated Vulkan/DirectX;
 WPF and WinForms are prohibited.
 Rationale: fixed runtime and rendering contracts prevent framework drift and preserve
-the latency and footprint targets required for competitive overlays.
+the latency and footprint discipline required for competitive overlays without
+forcing inferior packaging choices.
 
 ### II. Architecture and Performance Budgets
 
@@ -76,8 +83,9 @@ usability requirements during high-speed driving.
 Every feature proposal, plan, and task breakdown MUST declare how it preserves
 Native AOT compatibility, hot-path zero-allocation behavior, telemetry resiliency,
 and UI click-through guarantees before implementation begins. Pull requests MUST
-include objective evidence for package size, CPU, memory, and coverage gates, and
-MUST be rejected when evidence is absent or fails thresholds.
+include objective evidence for release artifact size, CPU, memory, and coverage
+gates, and MUST be rejected when evidence is absent, unjustified, or fails explicit
+runtime thresholds.
 Rationale: governance is only enforceable when each change carries measurable proof
 instead of intent statements.
 
@@ -85,7 +93,9 @@ instead of intent statements.
 
 - Runtime baseline: .NET 10.0.x LTS (March 2026 servicing baseline or newer patch)
   and C# 14.
-- Build output: single-file, trimmed, self-contained Native AOT executable under 15 MB.
+- Build output: the release payload MUST be as small as practical for the chosen
+  delivery model, and any deviation from Native AOT, single-file, trimmed,
+  self-contained delivery MUST be documented with technical rationale.
 - Telemetry pipeline: `SVappsLAB.iRacingTelemetrySDK` v1.1+ with source generators.
 - Graphics pipeline: `SkiaSharp` 3.119+ using `GRContext` and hardware acceleration.
 - Polling cadence: 60 Hz telemetry polling under active session load.
@@ -96,16 +106,16 @@ instead of intent statements.
 
 1. Define feature scope and acceptance criteria with explicit references to each
    Core Principle impacted.
-2. Implement with hot-path allocation audits and channel-based concurrency design
+1. Implement with hot-path allocation audits and channel-based concurrency design
    captured in plan artifacts.
-3. Execute required quality gates before merge:
+1. Execute required quality gates before merge:
 
-   - Unit test coverage for `TelemetryMath` and `PhysicsEngine` remains at 100%.
-   - Native AOT, single-file, trimmed build succeeds and artifact size is < 15 MB.
-   - Performance evidence confirms 60 Hz operation within memory and CPU budgets.
-   - Click-through overlay behavior is validated with required window styles.
+- Unit test coverage for `TelemetryMath` and `PhysicsEngine` remains at 100%.
+- Preferred Native AOT, single-file, trimmed build path succeeds where technically compatible, and release artifact size is measured and justified.
+- Performance evidence confirms 60 Hz operation within memory and CPU budgets.
+- Click-through overlay behavior is validated with required window styles.
 
-4. Reject and rework any change that violates a MUST-level statement in this
+1. Reject and rework any change that violates a MUST-level statement in this
    constitution.
 
 ## Governance
@@ -131,8 +141,9 @@ Compliance review expectations:
 
 - Every PR MUST include a constitution compliance checklist with objective evidence
   for MUST-level constraints.
-- Reviewers MUST block merges for missing evidence or threshold failures.
+- Reviewers MUST block merges for missing evidence, unjustified artifact growth,
+  or threshold failures.
 - Periodic governance review MUST occur at least once per quarter to verify that
   tooling, templates, and enforcement logic remain aligned.
 
-**Version**: 1.0.0 | **Ratified**: 2026-03-20 | **Last Amended**: 2026-03-20
+**Version**: 2.0.0 | **Ratified**: 2026-03-20 | **Last Amended**: 2026-03-20

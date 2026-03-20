@@ -34,5 +34,7 @@
     <ProjectReference Include="../PrecisionDash.Adapters.Windowing.Win32/PrecisionDash.Adapters.Windowing.Win32.csproj" />
     <ProjectReference Include="../PrecisionDash.Adapters.Telemetry.iRacing/PrecisionDash.Adapters.Telemetry.iRacing.csproj" />
     <ProjectReference Include="../PrecisionDash.Adapters.Telemetry.Mock/PrecisionDash.Adapters.Telemetry.Mock.csproj" />
+    <ProjectReference Include="../PrecisionDash.Adapters.Update.GitHub/PrecisionDash.Adapters.Update.GitHub.csproj" />
+    <ProjectReference Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041.0'" Include="../PrecisionDash.Adapters.Update.Windows/PrecisionDash.Adapters.Update.Windows.csproj" />
   </ItemGroup>
 </Project>
