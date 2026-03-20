@@ -14,8 +14,8 @@ internal sealed class WindowsStartup : IDisposable
     {
         StartupLog.Write("Windows startup initializing.");
 
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
+        global::System.Windows.Forms.Application.EnableVisualStyles();
+        global::System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
 
         _overlayForm = new OverlayForm();
         _overlayForm.Show();
@@ -35,9 +35,12 @@ internal sealed class WindowsStartup : IDisposable
         menu.Items.Add("Exit", null, (_, _) =>
         {
             StartupLog.Write("Exit requested from tray.");
-            _trayIcon.Visible = false;
+            if (_trayIcon is not null)
+            {
+                _trayIcon.Visible = false;
+            }
             _overlayForm.Close();
-            Application.ExitThread();
+            global::System.Windows.Forms.Application.ExitThread();
         });
 
         _trayIcon = new NotifyIcon
@@ -60,7 +63,7 @@ internal sealed class WindowsStartup : IDisposable
     public void Run()
     {
         StartupLog.Write("Entering Windows message loop.");
-        Application.Run();
+        global::System.Windows.Forms.Application.Run();
     }
 
     public void Dispose()
