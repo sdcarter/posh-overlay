@@ -9,7 +9,7 @@ public static class MockScenarioLoader
     public static TelemetrySnapshot LoadSingle(string path)
     {
         var text = File.ReadAllText(path);
-        var snapshot = JsonSerializer.Deserialize<TelemetrySnapshot>(text);
+        var snapshot = JsonSerializer.Deserialize(text, MockTelemetryJsonContext.Default.TelemetrySnapshot);
         return snapshot;
     }
 }
