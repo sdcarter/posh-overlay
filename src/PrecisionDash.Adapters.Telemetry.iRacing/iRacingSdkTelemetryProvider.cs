@@ -26,6 +26,8 @@ public sealed class iRacingSdkTelemetryProvider : ITelemetryProvider
     private ITelemetryClient<TelemetryData>? _client;
     private TelemetrySnapshot _latestSnapshot;
     private int _driverCarId = 1;
+    private float? _lastBrakeBiasPercent;
+    private int? _lastTractionControlLevel;
     private int _hasSnapshot;
 
     public async ValueTask StartAsync(CancellationToken cancellationToken)
@@ -43,7 +45,7 @@ public sealed class iRacingSdkTelemetryProvider : ITelemetryProvider
             _subscriptionTask = client.SubscribeToAllStreams(
                 onTelemetryUpdate: data =>
                 {
-                    var snapshot = MapSnapshot(data, Volatile.Read(ref _driverCarId));
+                    var snapshot = MapSnapshot(data, Volatile.Read(ref _driverCarId), ref _lastBrakeBiasPercent, ref _lastTractionControlLevel);
                     lock (_sync)
                     {
                         _latestSnapshot = snapshot;
@@ -146,12 +148,31 @@ public sealed class iRacingSdkTelemetryProvider : ITelemetryProvider
         }
     }
 
-    private static TelemetrySnapshot MapSnapshot(TelemetryData data, int driverCarId)
+    private static TelemetrySnapshot MapSnapshot(
+        TelemetryData data,
+        int driverCarId,
+        ref float? lastBrakeBiasPercent,
+        ref int? lastTractionControlLevel)
     {
         var maxRpm = data.PlayerCarSLShiftRPM
             ?? data.PlayerCarSLLastRPM
             ?? data.PlayerCarSLBlinkRPM
             ?? MathF.Max((data.RPM ?? 0f) * 1.05f, 1f);
+
+        if (data.dcBrakeBias.HasValue)
+        {
+            lastBrakeBiasPercent = data.dcBrakeBias.Value;
+        }
+
+        if (data.dcTractionControl.HasValue)
+        {
+            lastTractionControlLevel = (int)MathF.Round(data.dcTractionControl.Value);
+        }
+
+        var incidentCount = data.PlayerCarMyIncidentCount
+            ?? data.PlayerCarDriverIncidentCount
+            ?? data.PlayerIncidents
+            ?? 0;
 
         return new TelemetrySnapshot(
             TimestampTicks: DateTime.UtcNow.Ticks,
@@ -163,9 +184,9 @@ public sealed class iRacingSdkTelemetryProvider : ITelemetryProvider
             SessionLapsTotal: data.SessionLapsTotal,
             SessionTimeRemainSeconds: data.SessionTimeRemain.HasValue ? (float)data.SessionTimeRemain.Value : null,
             SessionLastLapTimeSeconds: data.LapLastLapTime,
-            IncidentCount: data.PlayerIncidents ?? 0,
+            IncidentCount: incidentCount,
             IncidentLimit: null,
-            BrakeBiasPercent: data.dcBrakeBias,
-            TractionControlLevel: data.dcTractionControl.HasValue ? (int)MathF.Round(data.dcTractionControl.Value) : null);
+            BrakeBiasPercent: lastBrakeBiasPercent,
+            TractionControlLevel: lastTractionControlLevel);
     }
 }

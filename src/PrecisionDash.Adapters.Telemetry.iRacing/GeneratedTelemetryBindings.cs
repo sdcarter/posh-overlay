@@ -18,6 +18,9 @@ public readonly record struct GeneratedTelemetryBindings(
     TelemetryVar.SessionTimeRemain,
     TelemetryVar.LapLastLapTime,
     TelemetryVar.PlayerIncidents,
+    TelemetryVar.PlayerCarMyIncidentCount,
+    TelemetryVar.PlayerCarDriverIncidentCount,
+    TelemetryVar.PlayerCarTeamIncidentCount,
     TelemetryVar.dcBrakeBias,
     TelemetryVar.dcTractionControl
 ])]
