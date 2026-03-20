@@ -2,6 +2,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Threading;
 using System.Windows.Forms;
 using PrecisionDash.App.Composition;
 using PrecisionDash.Application.Ports;
@@ -21,6 +22,8 @@ internal sealed class WindowsStartup : IDisposable
     private readonly ComposeRevStripUseCase _composeRevStripUseCase = new();
     private readonly ComposeRibbonUseCase _composeRibbonUseCase = new();
     private readonly bool _usingMockProvider;
+    private IUpdateService? _updateService;
+    private readonly CancellationTokenSource _updateCts = new();
 
     public WindowsStartup()
     {
@@ -81,6 +84,12 @@ internal sealed class WindowsStartup : IDisposable
         };
 
         StartupLog.Write("Tray icon initialized.");
+        // T018: bootstrap install record and launch background update check (off hot path)
+        UpdateServiceFactory.EnsureInstalledRecordAsync().GetAwaiter().GetResult();
+        var prompt = new WinFormsUpdatePrompt(_overlayForm);
+        _updateService = UpdateServiceFactory.Create(prompt);
+        _ = Task.Run(() => RunUpdateCheckAsync(_updateCts.Token));
+        StartupLog.Write("Update service registered; background update check scheduled.");
     }
 
     public void Run()
@@ -91,12 +100,32 @@ internal sealed class WindowsStartup : IDisposable
 
     public void Dispose()
     {
-        _refreshTimer.Stop();
+           _updateCts.Cancel();
+           _updateCts.Dispose();
+           _refreshTimer.Stop();
         _refreshTimer.Dispose();
         _telemetryProvider.StopAsync(CancellationToken.None).GetAwaiter().GetResult();
         _trayIcon.Dispose();
         _overlayForm.Dispose();
         StartupLog.Write("Windows startup disposed.");
+    }
+
+    // T027/T033/T042: background update check — off the hot path, never throws.
+    private async Task RunUpdateCheckAsync(CancellationToken cancellationToken)
+    {
+        try { await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken); }
+        catch (OperationCanceledException) { return; }
+        StartupLog.Write("Automatic update check starting.");
+        try
+        {
+            await _updateService!.RunAutoUpdateAsync(cancellationToken);
+            StartupLog.Write("Automatic update check completed.");
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            StartupLog.Write($"Update check failed (non-blocking): {ex.Message}");
+        }
     }
 
     private void RefreshOverlay()

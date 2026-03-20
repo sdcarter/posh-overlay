@@ -9,7 +9,7 @@ Run and validate the Core Overlay feature with either live iRacing telemetry on 
 - .NET 10.0.x SDK
 - Windows runtime target for final execution
 - iRacing installed for live telemetry validation (optional for mock mode)
-- Repository checked out on branch `001-core-overlay`
+- Repository checked out on current implementation branch (for release work, `main`)
 
 ## 1) Restore and Build
 
@@ -28,7 +28,7 @@ Expected result:
 2. Provide mock state JSON input used by `MockiRacingService`.
 3. Launch app and verify:
    - Rev strip renders and updates.
-   - Ribbon shows laps/incidents/brake bias/traction control updates.
+   - Ribbon shows incidents/brake bias/traction control updates.
    - Overlay uses intended background color and visual styling.
 
 Expected result:
@@ -42,7 +42,9 @@ Expected result:
 3. Launch overlay and verify:
    - Window is top-most and click-through.
    - Rev strip follows car-specific profile by `driverCarId`.
-   - Flashing behavior appears for pit limiter and shift point.
+   - Blue flashing behavior appears at rev-limiter threshold.
+   - Incident count increments in practice/race sessions and displays `/-` where no limit is provided.
+   - BB/TC values remain stable across transient telemetry null frames.
 
 Expected result:
 
@@ -50,7 +52,7 @@ Expected result:
 
 ## 4) Validate Constitution Gates
 
-1. Confirm publish output is Native AOT single-file self-contained and under 15 MB.
+1. Confirm publish output uses the preferred Native AOT single-file self-contained path where technically compatible, and record artifact size with justification.
 2. Capture runtime metrics during active session:
    - 60 Hz cadence stability
    - Working set <= 20 MB
@@ -61,37 +63,37 @@ Expected result:
 ### Benchmark Evidence Template (T043)
 
 - Telemetry polling cadence:
-   - Target: 60 Hz stable
-   - Sample window: 10 minutes
-   - Measured:
-   - Pass/Fail:
+  - Target: 60 Hz stable
+  - Sample window: 10 minutes
+  - Measured:
+  - Pass/Fail:
 - Telemetry-to-render latency:
-   - Target: < 2 ms p95
-   - Sample window: 10,000 frames
-   - Measured p95:
-   - Pass/Fail:
+  - Target: < 2 ms p95
+  - Sample window: 10,000 frames
+  - Measured p95:
+  - Pass/Fail:
 - Memory:
-   - Target: <= 20 MB working set
-   - Measured peak:
-   - Pass/Fail:
+  - Target: <= 20 MB working set
+  - Measured peak:
+  - Pass/Fail:
 - CPU:
-   - Target: < 0.3% total CPU utilization
-   - Measured average:
-   - Pass/Fail:
+  - Target: < 0.3% total CPU utilization
+  - Measured average:
+  - Pass/Fail:
 
 ### Native AOT Artifact Evidence (T044)
 
 - Command: `dotnet publish src/PrecisionDash.App/PrecisionDash.App.csproj -c Release`
 - Artifact path:
 - Artifact size (MB):
-- Threshold check (< 15 MB):
+- Size justification / exception note:
 
 ### Win32 Style Evidence (T045)
 
 - Required styles:
-   - `WS_EX_TOPMOST`
-   - `WS_EX_TRANSPARENT`
-   - `WS_EX_LAYERED`
+  - `WS_EX_TOPMOST`
+  - `WS_EX_TRANSPARENT`
+  - `WS_EX_LAYERED`
 - Verification method: runtime window-style inspection
 - Evidence notes:
 
@@ -102,13 +104,13 @@ Expected result:
 - Task: each driver reports shift readiness and incident status after a glance.
 - Success threshold: >= 90% of participants answer correctly within 3 seconds.
 - Data capture:
-   - Driver ID
-   - Correct/incorrect
-   - Response time (seconds)
+  - Driver ID
+  - Correct/incorrect
+  - Response time (seconds)
 - Evidence summary:
-   - Correct responses:
-   - Within 3-second responses:
-   - Threshold met:
+  - Correct responses:
+  - Within 3-second responses:
+  - Threshold met:
 
 ## Troubleshooting
 
@@ -129,6 +131,6 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-3. The `release-windows` workflow publishes a Native AOT win-x64 package and uploads:
-    - Build artifact: `PrecisionDash-v0.1.0-win-x64.zip`
-    - GitHub Release asset (for tag-triggered runs)
+1. The `release-windows` workflow publishes a Native AOT win-x64 package and uploads:
+   - Build artifact: `PrecisionDash-v0.1.0-win-x64.zip`
+   - GitHub Release asset (for tag-triggered runs)

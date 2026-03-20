@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="../../src/PrecisionDash.App/PrecisionDash.App.csproj" />
     <ProjectReference Include="../../src/PrecisionDash.Application/PrecisionDash.Application.csproj" />
+    <ProjectReference Include="../../src/PrecisionDash.Domain/PrecisionDash.Domain.csproj" />
     <ProjectReference Include="../../src/PrecisionDash.Adapters.Rendering.Skia/PrecisionDash.Adapters.Rendering.Skia.csproj" />
   </ItemGroup>
 </Project>

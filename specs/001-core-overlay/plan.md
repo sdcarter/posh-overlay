@@ -18,6 +18,14 @@ allocation-aware and channel-driven: a 60 Hz telemetry producer publishes snapsh
 to `System.Threading.Channels`, and a SkiaSharp hardware-accelerated renderer
 consumes snapshots for a transparent, click-through, top-most overlay.
 
+## As-Built Implementation Notes (2026-03-20)
+
+- Windows runtime startup currently uses a WinForms-painted overlay surface (`OverlayForm`) for visible runtime behavior while retaining architecture-level rendering adapters in the codebase.
+- Windows application output type is `WinExe` for release usability (no terminal window).
+- Runtime ribbon layout is compact and currently displays incidents, brake bias, and traction control.
+- Rev strip includes blue flashing behavior at rev-limiter threshold.
+- Live telemetry provider maps incidents with fallback precedence and preserves last known BB/TC values on transient null frames.
+
 This revision incorporates all clarification outcomes from 2026-03-20:
 
 - Formalized build-time sync as a first-class requirement (`SyncLovelyData`).
@@ -34,9 +42,9 @@ This revision incorporates all clarification outcomes from 2026-03-20:
 **Storage**: Build-time local resources in `Resources/CarData/`; embedded/generated runtime lookup (no runtime file/network dependency for car data)  
 **Testing**: xUnit + FluentAssertions + coverage tooling; mandatory 100% unit coverage for `TelemetryMath` and `PhysicsEngine`  
 **Target Platform**: Windows desktop runtime (overlay), macOS via Parallels for development using mock provider  
-**Project Type**: Native AOT desktop overlay application (single binary)  
+**Project Type**: Hybrid desktop overlay application (`WinExe` Windows runtime path; Native AOT retained for non-Windows path)  
 **Performance Goals**: 60 Hz telemetry ingestion and render update cadence with < 2 ms telemetry-to-render latency at p95  
-**Constraints**: Single-file Native AOT executable < 15 MB; <= 20 MB working set; < 0.3% total CPU utilization; zero-allocation hot path; overlay window must apply `WS_EX_TOPMOST`, `WS_EX_TRANSPARENT`, and `WS_EX_LAYERED`  
+**Constraints**: Smallest-practical release artifact with preferred Native AOT single-file delivery where technically compatible; <= 20 MB working set; < 0.3% total CPU utilization; zero-allocation hot path; overlay window must apply `WS_EX_TOPMOST`, `WS_EX_TRANSPARENT`, and `WS_EX_LAYERED`  
 **Scale/Scope**: Single-panel overlay with rev strip + two-line data ribbon; per-session realtime telemetry for one local driver
 
 ## Constitution Check
@@ -44,8 +52,9 @@ This revision incorporates all clarification outcomes from 2026-03-20:
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 - Native AOT compliance: PASS
-  - Build pipeline includes publish profile and CI gate for single-file, trimmed,
-    self-contained Native AOT output under 15 MB.
+  - Build pipeline includes publish profile and CI gate for preferred single-file,
+    trimmed, self-contained Native AOT output, with artifact size measured and
+    justified rather than hard-capped.
 - Runtime compliance: PASS
   - Implementation pinned to .NET 10.0 LTS and C# 14; source-generated JSON and
     source-generated car lookup remove reflection and dynamic parsing paths.

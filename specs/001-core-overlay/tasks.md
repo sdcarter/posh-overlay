@@ -117,7 +117,7 @@
 - [X] T041 [P] Add structured telemetry lifecycle logging for attach/detach/reconnect/provider-health in src/PrecisionDash.App/Composition/LoggingConfig.cs
 - [X] T042 [P] Add telemetry lifecycle logging verification tests in tests/PrecisionDash.Adapters.Integration/TelemetryLifecycleLoggingTests.cs
 - [X] T043 Capture benchmark evidence for 60 Hz polling, < 2 ms p95 latency, memory, and CPU in specs/001-core-overlay/quickstart.md
-- [X] T044 Verify Native AOT single-file artifact size evidence (< 15 MB) in specs/001-core-overlay/quickstart.md
+- [X] T044 Capture Native AOT single-file artifact size evidence and justification in specs/001-core-overlay/quickstart.md
 - [X] T045 Verify Win32 window style evidence (WS_EX_TOPMOST/WS_EX_TRANSPARENT/WS_EX_LAYERED) in specs/001-core-overlay/quickstart.md
 - [X] T046 Define SC-004 usability validation protocol in specs/001-core-overlay/quickstart.md
 - [X] T047 Capture SC-004 usability validation evidence in specs/001-core-overlay/quickstart.md

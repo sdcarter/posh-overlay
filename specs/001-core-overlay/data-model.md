@@ -112,10 +112,10 @@
 
 ## Entity: RibbonState
 
-- Description: Render-ready ribbon model for progress, safety, and vehicle controls.
+- Description: Render-ready ribbon model for safety and vehicle controls (with optional progress field retained for compatibility).
 
 - Fields:
-  - `lapProgressText` (string, required)
+  - `lapProgressText` (string, required, currently not displayed in runtime compact overlay)
   - `incidentsText` (string, required)
   - `brakeBiasText` (string, optional)
   - `tractionControlText` (string, optional)

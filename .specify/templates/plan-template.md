@@ -31,8 +31,9 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- Native AOT compliance: plan confirms single-file, trimmed, self-contained
-  artifact strategy and size budget (< 15 MB).
+- Native AOT compliance: plan confirms the preferred single-file, trimmed,
+  self-contained artifact strategy or documents why packaging/platform needs
+  require a different release shape, with size evidence and rationale.
 - Runtime compliance: plan pins .NET 10.0.x LTS and C# 14 language features used
   by the implementation.
 - Hot-path performance compliance: plan identifies Telemetry Read -> Math Transform

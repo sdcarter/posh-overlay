@@ -73,6 +73,9 @@ Define the application-facing telemetry contract used by Hexagonal adapters for 
 - Adapter-specific exceptions must be translated into domain-safe detach/reconnect signals.
 - Publication cadence target is 60 Hz.
 - The provider contract must be compatible with channel-based handoff to render pipeline.
+- Incident mapping SHOULD use player-centric fallback precedence when multiple incident counters are available.
+- `incidentLimit` MAY remain null in practice/open-limit sessions; consumer formatting should tolerate `count/-` output.
+- `brakeBiasPercent` and `tractionControlLevel` SHOULD preserve last known valid values during transient source-null frames.
 
 ## Implementations
 

@@ -35,11 +35,15 @@ jobs:
         shell: pwsh
         run: |
           if ("${{ github.ref }}" -like "refs/tags/*") {
-            $version = "${{ github.ref_name }}"
+            $semver = "${{ github.ref_name }}".TrimStart('v')
           } else {
-            $version = "dev-${{ github.run_number }}"
+            $semver = "0.0.${{ github.run_number }}"
           }
-          "version=$version" >> $env:GITHUB_OUTPUT
+          # Windows version string requires 4 components (e.g. 1.2.3.0)
+          $winver = "$semver.0"
+          "version=${{ github.ref_name }}" >> $env:GITHUB_OUTPUT
+          "semver=$semver" >> $env:GITHUB_OUTPUT
+          "winver=$winver" >> $env:GITHUB_OUTPUT
 
       - name: Restore
         run: dotnet restore ${{ env.APP_PROJECT }}
@@ -69,12 +73,82 @@ jobs:
             -p:PublishTrimmed=false `
             -o artifacts/win-x64
 
-      - name: Create zip
+      - name: Record payload size
+        shell: pwsh
+        run: |
+          $payloadMB = [math]::Round((Get-Item "artifacts/win-x64/PrecisionDash.App.exe").Length / 1MB, 2)
+          Write-Host "Payload size: $payloadMB MB"
+          "payload_mb=$payloadMB" >> $env:GITHUB_OUTPUT
+        id: payload_size
+
+      - name: Patch Package.appxmanifest with release version
+        shell: pwsh
+        run: |
+          $content = Get-Content packaging/Windows/Package.appxmanifest -Raw
+          $content = $content -replace '(?<=<Identity[^>]*Version=")[^"]*', '${{ steps.version.outputs.winver }}'
+          $content | Set-Content packaging/Windows/Package.appxmanifest
+
+      - name: Create MSIX package
+        id: msix
+        shell: pwsh
+        run: |
+          $winver  = "${{ steps.version.outputs.winver }}"
+          $semver  = "${{ steps.version.outputs.semver }}"
+          $msixName = "PrecisionDash-$semver-win-x64.msix"
+          New-Item -ItemType Directory -Force -Path artifacts/msix-layout | Out-Null
+          Copy-Item -Recurse -Force artifacts/win-x64/* artifacts/msix-layout/
+          Copy-Item packaging/Windows/Package.appxmanifest artifacts/msix-layout/
+          $makeappx = Join-Path "${env:ProgramFiles(x86)}" "Windows Kits\10\bin\10.0.22621.0\x64\makeappx.exe"
+          & $makeappx pack /d artifacts/msix-layout /p "artifacts/$msixName" /o /nv
+          $msixMB = [math]::Round((Get-Item "artifacts/$msixName").Length / 1MB, 2)
+          Write-Host "MSIX size: $msixMB MB"
+          "msix_name=$msixName" >> $env:GITHUB_OUTPUT
+          "msix_path=artifacts/$msixName" >> $env:GITHUB_OUTPUT
+          "msix_mb=$msixMB" >> $env:GITHUB_OUTPUT
+
+      - name: Sign MSIX
+        shell: pwsh
+        env:
+          SIGNING_CERT_BASE64: ${{ secrets['SIGNING_CERT_BASE64'] }}
+          SIGNING_CERT_PASSWORD: ${{ secrets['SIGNING_CERT_PASSWORD'] }}
+        run: |
+          $certPath = "artifacts/signing-temp.pfx"
+          [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($env:SIGNING_CERT_BASE64))
+          $signtool = Join-Path "${env:ProgramFiles(x86)}" "Windows Kits\10\bin\10.0.22621.0\x64\signtool.exe"
+          & $signtool sign /fd SHA256 /a /f $certPath /p $env:SIGNING_CERT_PASSWORD "${{ steps.msix.outputs.msix_path }}"
+          Remove-Item $certPath
+
+      - name: Generate SHA256 checksum
+        shell: pwsh
+        run: |
+          $msixPath = "${{ steps.msix.outputs.msix_path }}"
+          $hash = (Get-FileHash $msixPath -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  ${{ steps.msix.outputs.msix_name }}" | Out-File "$msixPath.sha256" -Encoding ASCII -NoNewline
+          Write-Host "SHA256: $hash"
+
+      - name: Patch and emit App Installer manifest
+        shell: pwsh
+        run: |
+          $winver  = "${{ steps.version.outputs.winver }}"
+          $tag     = "${{ steps.version.outputs.version }}"
+          $msixName = "${{ steps.msix.outputs.msix_name }}"
+          $baseUrl = "https://github.com/${{ github.repository }}/releases/download/$tag"
+          $content = Get-Content packaging/Windows/PrecisionDash.appinstaller -Raw
+          $content = $content -replace '(?<=AppInstaller[^>]*Version=")[^"]*', $winver
+          $content = $content -replace '(?<=AppInstaller[^>]*Uri=")[^"]*', "$baseUrl/PrecisionDash.appinstaller"
+          $content = $content -replace '(?<=MainPackage[^>]*Version=")[^"]*', $winver
+          $content = $content -replace '(?<=MainPackage[^>]*Uri=")[^"]*', "$baseUrl/$msixName"
+          $content | Set-Content artifacts/PrecisionDash.appinstaller
+
+      - name: Test application unit tests
+        run: dotnet test tests/PrecisionDash.Application.Unit/PrecisionDash.Application.Unit.csproj -c ${{ env.CONFIGURATION }}
+
+      - name: Create zip (legacy channel)
         id: archive
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path artifacts -Force | Out-Null
-          $zipPath = "artifacts/PrecisionDash-${{ steps.version.outputs.version }}-win-x64.zip"
+          $zipPath = "artifacts/PrecisionDash-${{ steps.version.outputs.semver }}-win-x64.zip"
           if (Test-Path $zipPath) {
             Remove-Item $zipPath -Force
           }
@@ -84,12 +158,28 @@ jobs:
       - name: Upload package artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PrecisionDash-${{ steps.version.outputs.version }}-win-x64
+          name: PrecisionDash-${{ steps.version.outputs.semver }}-win-x64
           path: ${{ steps.archive.outputs.zipPath }}
 
       - name: Create GitHub release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ steps.archive.outputs.zipPath }}
-          generate_release_notes: true
+          files: |
+            ${{ steps.archive.outputs.zipPath }}
+            ${{ steps.msix.outputs.msix_path }}
+            ${{ steps.msix.outputs.msix_path }}.sha256
+            artifacts/PrecisionDash.appinstaller
+          body: |
+            ## PrecisionDash ${{ steps.version.outputs.semver }}
+
+            ### Install
+            Download and double-click `PrecisionDash.appinstaller` – Windows installs PrecisionDash and registers it in the Start Menu.
+
+            ### Update
+            Launch the installed app. It checks for newer releases automatically and offers to install now or defer.
+
+            ### Artifact sizes
+            - Payload: ${{ steps.payload_size.outputs.payload_mb }} MB
+            - MSIX package: ${{ steps.msix.outputs.msix_mb }} MB
+          generate_release_notes: false
