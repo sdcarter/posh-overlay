@@ -199,7 +199,8 @@ internal sealed class OverlayForm : Form
         var stripBounds = new RectangleF(26, 24, ClientSize.Width - 52, 36);
         var gap = 6f;
         var segmentWidth = (stripBounds.Width - ((segmentCount - 1) * gap)) / segmentCount;
-        var shouldFlash = _revStripState.FlashMode != FlashMode.None && DateTime.UtcNow.Millisecond < 160;
+        var isAtRevLimiter = _snapshot.MaxRpm > 0f && _snapshot.Rpm >= (_snapshot.MaxRpm * 0.995f);
+        var shouldFlash = (_revStripState.FlashMode != FlashMode.None || isAtRevLimiter) && DateTime.UtcNow.Millisecond < 160;
 
         for (var index = 0; index < segmentCount; index++)
         {
@@ -210,7 +211,9 @@ internal sealed class OverlayForm : Form
 
             if (shouldFlash)
             {
-                color = _revStripState.FlashMode == FlashMode.PitLimiter ? Color.FromArgb(64, 196, 255) : Color.FromArgb(255, 244, 92);
+                color = isAtRevLimiter || _revStripState.FlashMode == FlashMode.PitLimiter
+                    ? Color.FromArgb(64, 196, 255)
+                    : Color.FromArgb(255, 244, 92);
             }
 
             using var fillBrush = new SolidBrush(color);
@@ -229,7 +232,6 @@ internal sealed class OverlayForm : Form
         using var secondaryBrush = new SolidBrush(Color.FromArgb(180, 191, 203));
 
         var topLine = string.Join("   ", [
-            _ribbonState.LapProgressText,
             _ribbonState.IncidentsText,
             _ribbonState.BrakeBiasText ?? "BB -",
             _ribbonState.TractionControlText ?? "TC -"
