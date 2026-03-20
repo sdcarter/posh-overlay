@@ -34,6 +34,9 @@ packages/
 .env
 .env.*
 
+# Build-synced external car data
+src/PrecisionDash.App/Resources/CarData/
+
 # Coverage outputs
 coverage/
 coverage-*/

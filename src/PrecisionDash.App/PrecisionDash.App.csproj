@@ -15,6 +15,11 @@
   <Target Name="EnsureSyncLovelyData" BeforeTargets="BeforeBuild" DependsOnTargets="SyncLovelyData" />
 
   <ItemGroup>
+    <Content Include="Resources/CarData/**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+
     <ProjectReference Include="../PrecisionDash.Application/PrecisionDash.Application.csproj" />
     <ProjectReference Include="../PrecisionDash.Domain/PrecisionDash.Domain.csproj" />
     <ProjectReference Include="../PrecisionDash.Adapters.Rendering.Skia/PrecisionDash.Adapters.Rendering.Skia.csproj" />
