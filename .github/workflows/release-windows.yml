@@ -1,0 +1,93 @@
+name: release-windows
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: windows-latest
+    env:
+      CONFIGURATION: Release
+      RUNTIME: win-x64
+      APP_PROJECT: src/PrecisionDash.App/PrecisionDash.App.csproj
+      DOMAIN_TESTS: tests/PrecisionDash.Domain.Unit/PrecisionDash.Domain.Unit.csproj
+      INTEGRATION_TESTS: tests/PrecisionDash.Adapters.Integration/PrecisionDash.Adapters.Integration.csproj
+      CONTRACT_TESTS: tests/PrecisionDash.Contracts/PrecisionDash.Contracts.csproj
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Resolve version
+        id: version
+        shell: pwsh
+        run: |
+          if ("${{ github.ref }}" -like "refs/tags/*") {
+            $version = "${{ github.ref_name }}"
+          } else {
+            $version = "dev-${{ github.run_number }}"
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Restore
+        run: dotnet restore ${{ env.APP_PROJECT }}
+
+      - name: Build
+        run: dotnet build ${{ env.APP_PROJECT }} -c ${{ env.CONFIGURATION }} --no-restore
+
+      - name: Test domain
+        run: dotnet test ${{ env.DOMAIN_TESTS }} -c ${{ env.CONFIGURATION }}
+
+      - name: Test integration
+        run: dotnet test ${{ env.INTEGRATION_TESTS }} -c ${{ env.CONFIGURATION }}
+
+      - name: Test contracts
+        run: dotnet test ${{ env.CONTRACT_TESTS }} -c ${{ env.CONFIGURATION }}
+
+      - name: Publish win-x64 package
+        shell: pwsh
+        run: |
+          dotnet publish ${{ env.APP_PROJECT }} `
+            -c ${{ env.CONFIGURATION }} `
+            -r ${{ env.RUNTIME }} `
+            -p:PublishAot=true `
+            -p:PublishSingleFile=true `
+            -p:SelfContained=true `
+            -p:PublishTrimmed=true `
+            -o artifacts/win-x64
+
+      - name: Create zip
+        id: archive
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path artifacts -Force | Out-Null
+          $zipPath = "artifacts/PrecisionDash-${{ steps.version.outputs.version }}-win-x64.zip"
+          if (Test-Path $zipPath) {
+            Remove-Item $zipPath -Force
+          }
+          Compress-Archive -Path artifacts/win-x64/* -DestinationPath $zipPath
+          "zipPath=$zipPath" >> $env:GITHUB_OUTPUT
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PrecisionDash-${{ steps.version.outputs.version }}-win-x64
+          path: ${{ steps.archive.outputs.zipPath }}
+
+      - name: Create GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.archive.outputs.zipPath }}
+          generate_release_notes: true

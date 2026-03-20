@@ -118,3 +118,17 @@ Expected result:
   - Verify iRacing process is active and provider attach state is healthy.
 - Overlay intercepting clicks:
   - Verify layered/transparent style flags are applied at window creation.
+
+## Windows Packaging via GitHub Actions
+
+1. Ensure current changes are merged into `main`.
+2. Create and push a version tag:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+3. The `release-windows` workflow publishes a Native AOT win-x64 package and uploads:
+    - Build artifact: `PrecisionDash-v0.1.0-win-x64.zip`
+    - GitHub Release asset (for tag-triggered runs)
