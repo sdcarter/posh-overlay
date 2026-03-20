@@ -1,6 +1,38 @@
 <Project>
-  <Target Name="SyncLovelyData" BeforeTargets="BeforeBuild">
-    <Message Importance="high" Text="SyncLovelyData: syncing manifest.json and referenced profiles into Resources/CarData" />
-    <MakeDir Directories="$(MSBuildProjectDirectory)/../PrecisionDash.App/Resources/CarData" />
+  <PropertyGroup>
+        <LovelyDataRepoUrl Condition="'$(LovelyDataRepoUrl)' == ''">https://github.com/Lovely-Sim-Racing/lovely-car-data.git</LovelyDataRepoUrl>
+        <LovelyDataRepoBranch Condition="'$(LovelyDataRepoBranch)' == ''">main</LovelyDataRepoBranch>
+        <LovelyDataTempDir Condition="'$(LovelyDataTempDir)' == ''">$(BaseIntermediateOutputPath)lovely-car-data-sync</LovelyDataTempDir>
+    <LovelyDataDestinationDir Condition="'$(LovelyDataDestinationDir)' == ''">$(MSBuildProjectDirectory)/../PrecisionDash.App/Resources/CarData</LovelyDataDestinationDir>
+    <SkipLovelyDataSync Condition="'$(SkipLovelyDataSync)' == ''">false</SkipLovelyDataSync>
+  </PropertyGroup>
+
+  <Target Name="SyncLovelyData"
+          BeforeTargets="BeforeBuild"
+          Condition="'$(SkipLovelyDataSync)' != 'true'">
+        <Message Importance="high" Text="SyncLovelyData: syncing from $(LovelyDataRepoUrl) [$(LovelyDataRepoBranch)] into $(LovelyDataDestinationDir)" />
+
+        <RemoveDir Directories="$(LovelyDataTempDir)" />
+        <Exec Command="git clone --depth 1 --filter=blob:none --sparse --branch $(LovelyDataRepoBranch) $(LovelyDataRepoUrl) &quot;$(LovelyDataTempDir)&quot;" />
+        <Exec WorkingDirectory="$(LovelyDataTempDir)" Command="git sparse-checkout set data/iracing" />
+
+        <RemoveDir Directories="$(LovelyDataDestinationDir)" />
+        <MakeDir Directories="$(LovelyDataDestinationDir)" />
+
+        <ItemGroup>
+            <_LovelyDataFiles Include="$(LovelyDataTempDir)/data/iracing/**" />
+        </ItemGroup>
+
+        <Copy
+            SourceFiles="@(_LovelyDataFiles)"
+            DestinationFiles="@(_LovelyDataFiles->'$(LovelyDataDestinationDir)/%(RecursiveDir)%(Filename)%(Extension)')"
+            SkipUnchangedFiles="true" />
+
+        <RemoveDir Directories="$(LovelyDataTempDir)" />
+
+        <ItemGroup>
+            <_SyncedManifest Include="$(LovelyDataDestinationDir)/manifest.json" />
+        </ItemGroup>
+        <Error Condition="'@(_SyncedManifest)' == ''" Text="SyncLovelyData: manifest.json was not synced. Build cannot continue." />
   </Target>
 </Project>
