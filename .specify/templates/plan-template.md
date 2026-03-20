@@ -31,7 +31,22 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- Native AOT compliance: plan confirms single-file, trimmed, self-contained
+  artifact strategy and size budget (< 15 MB).
+- Runtime compliance: plan pins .NET 10.0.x LTS and C# 14 language features used
+  by the implementation.
+- Hot-path performance compliance: plan identifies Telemetry Read -> Math Transform
+  -> Render path and details zero-allocation strategy.
+- Concurrency compliance: telemetry/render thread communication uses
+  `System.Threading.Channels` and avoids lock contention in the hot path.
+- Resiliency compliance: reconnection and attach/detach behavior includes `Polly`
+  policies and lifecycle handling for simulator process transitions.
+- Test compliance: plan declares how `TelemetryMath` and `PhysicsEngine` maintain
+  100% unit test coverage.
+- UX compliance: plan includes actionable-metrics filtering and click-through
+  overlay behavior (`WS_EX_TRANSPARENT`, `WS_EX_LAYERED`).
+- Evidence compliance: plan defines measurement method for 60 Hz operation,
+  <= 20 MB working set, and < 0.3% CPU utilization.
 
 ## Project Structure
 
@@ -99,6 +114,6 @@ directories captured above]
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
+| --------- | ---------- | ----------------------------------- |
 | [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
 | [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |

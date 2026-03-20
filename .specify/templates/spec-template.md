@@ -95,6 +95,19 @@
 - **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
 - **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
+### Constitution Constraints *(mandatory)*
+
+- **CC-001**: Feature MUST remain compatible with Native AOT single-file,
+  self-contained, trimmed deployment.
+- **CC-002**: Feature MUST preserve zero-allocation behavior on the hot path
+  (Telemetry Read -> Math Transform -> Render) during normal operation.
+- **CC-003**: Feature MUST preserve telemetry/render concurrency via
+  `System.Threading.Channels` where cross-thread messaging is required.
+- **CC-004**: Feature MUST not regress 100% unit test coverage expectations for
+  `TelemetryMath` and `PhysicsEngine`.
+- **CC-005**: Feature MUST preserve overlay click-through behavior and actionable
+  data presentation rules.
+
 ### Key Entities *(include if feature involves data)*
 
 - **[Entity 1]**: [What it represents, key attributes without implementation]
@@ -113,3 +126,12 @@
 - **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
 - **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
 - **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+
+### Performance and Runtime Outcomes *(mandatory for implementation specs)*
+
+- **PR-001**: 60 Hz telemetry polling remains stable under representative load.
+- **PR-002**: Active-session working set remains <= 20 MB on target hardware class.
+- **PR-003**: Active-session total CPU utilization remains < 0.3% on target
+  hardware class.
+- **PR-004**: Release artifact remains < 15 MB and is produced as Native AOT,
+  single-file, self-contained, and trimmed.
