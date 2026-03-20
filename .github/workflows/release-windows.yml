@@ -30,6 +30,39 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
+      - name: Resolve Windows SDK tools
+        id: windows_sdk
+        shell: pwsh
+        run: |
+          $kitsRoot = Join-Path "${env:ProgramFiles(x86)}" "Windows Kits\10\bin"
+          if (-not (Test-Path $kitsRoot)) {
+            throw "Windows SDK bin root not found: $kitsRoot"
+          }
+
+          $makeappxCandidates = Get-ChildItem -Path $kitsRoot -Filter makeappx.exe -Recurse -File |
+            Where-Object { $_.FullName -match '\\x64\\' }
+          $signtoolCandidates = Get-ChildItem -Path $kitsRoot -Filter signtool.exe -Recurse -File |
+            Where-Object { $_.FullName -match '\\x64\\' }
+
+          if ($makeappxCandidates.Count -eq 0) {
+            throw "makeappx.exe not found under $kitsRoot"
+          }
+          if ($signtoolCandidates.Count -eq 0) {
+            throw "signtool.exe not found under $kitsRoot"
+          }
+
+          $makeappx = $makeappxCandidates |
+            Sort-Object { [version]($_.Directory.Parent.Name) } -Descending |
+            Select-Object -First 1
+          $signtool = $signtoolCandidates |
+            Sort-Object { [version]($_.Directory.Parent.Name) } -Descending |
+            Select-Object -First 1
+
+          Write-Host "Using makeappx: $($makeappx.FullName)"
+          Write-Host "Using signtool: $($signtool.FullName)"
+          "makeappx=$($makeappx.FullName)" >> $env:GITHUB_OUTPUT
+          "signtool=$($signtool.FullName)" >> $env:GITHUB_OUTPUT
+
       - name: Resolve version
         id: version
         shell: pwsh
@@ -98,7 +131,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path artifacts/msix-layout | Out-Null
           Copy-Item -Recurse -Force artifacts/win-x64/* artifacts/msix-layout/
           Copy-Item packaging/Windows/Package.appxmanifest artifacts/msix-layout/
-          $makeappx = Join-Path "${env:ProgramFiles(x86)}" "Windows Kits\10\bin\10.0.22621.0\x64\makeappx.exe"
+          $makeappx = "${{ steps.windows_sdk.outputs.makeappx }}"
           & $makeappx pack /d artifacts/msix-layout /p "artifacts/$msixName" /o /nv
           $msixMB = [math]::Round((Get-Item "artifacts/$msixName").Length / 1MB, 2)
           Write-Host "MSIX size: $msixMB MB"
@@ -114,7 +147,7 @@ jobs:
         run: |
           $certPath = "artifacts/signing-temp.pfx"
           [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($env:SIGNING_CERT_BASE64))
-          $signtool = Join-Path "${env:ProgramFiles(x86)}" "Windows Kits\10\bin\10.0.22621.0\x64\signtool.exe"
+          $signtool = "${{ steps.windows_sdk.outputs.signtool }}"
           & $signtool sign /fd SHA256 /a /f $certPath /p $env:SIGNING_CERT_PASSWORD "${{ steps.msix.outputs.msix_path }}"
           Remove-Item $certPath
 
