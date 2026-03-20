@@ -1,5 +1,5 @@
-using PrecisionDash.Application.Ports;
 using PrecisionDash.Application.UseCases;
+using PrecisionDash.Domain.Telemetry;
 using Xunit;
 
 namespace PrecisionDash.Adapters.Integration;

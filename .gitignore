@@ -1,0 +1,41 @@
+# .NET build outputs
+bin/
+obj/
+Debug/
+Release/
+out/
+artifacts/
+TestResults/
+
+# Rider / Visual Studio / VS Code
+.vs/
+.vscode/
+*.user
+*.suo
+*.userprefs
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+
+# Local tooling caches
+.ai/
+
+# macOS
+.DS_Store
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment overrides
+.env
+.env.*
+
+# Coverage outputs
+coverage/
+coverage-*/
+*.coverage
+*.coveragexml

@@ -1,4 +1,4 @@
-using PrecisionDash.Application.Ports;
+using PrecisionDash.Domain.Telemetry;
 
 namespace PrecisionDash.Domain.Ribbon;
 

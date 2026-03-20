@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Polly;
 using PrecisionDash.Application.Ports;
+using PrecisionDash.Domain.Telemetry;
 
 namespace PrecisionDash.Adapters.Telemetry.iRacing;
 

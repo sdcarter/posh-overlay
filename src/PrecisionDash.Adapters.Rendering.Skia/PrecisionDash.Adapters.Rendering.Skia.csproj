@@ -5,6 +5,7 @@
 
   <ItemGroup>
     <PackageReference Include="SkiaSharp" />
+    <ProjectReference Include="../PrecisionDash.Application/PrecisionDash.Application.csproj" />
     <ProjectReference Include="../PrecisionDash.Domain/PrecisionDash.Domain.csproj" />
   </ItemGroup>
 </Project>
