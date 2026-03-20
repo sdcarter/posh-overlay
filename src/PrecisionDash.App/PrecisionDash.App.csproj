@@ -13,6 +13,7 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041.0'">
     <UseWindowsForms>true</UseWindowsForms>
+    <PublishTrimmed>false</PublishTrimmed>
   </PropertyGroup>
 
   <Import Project="../PrecisionDash.Build/SyncLovelyData.targets" />
