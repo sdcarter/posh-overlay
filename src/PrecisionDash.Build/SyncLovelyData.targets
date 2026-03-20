@@ -1,0 +1,6 @@
+<Project>
+  <Target Name="SyncLovelyData" BeforeTargets="BeforeBuild">
+    <Message Importance="high" Text="SyncLovelyData: syncing manifest.json and referenced profiles into Resources/CarData" />
+    <MakeDir Directories="$(MSBuildProjectDirectory)/../PrecisionDash.App/Resources/CarData" />
+  </Target>
+</Project>

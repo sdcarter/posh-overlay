@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <PublishAot>true</PublishAot>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <PublishTrimmed>true</PublishTrimmed>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <StripSymbols>true</StripSymbols>
+  </PropertyGroup>
+
+  <Import Project="../PrecisionDash.Build/SyncLovelyData.targets" />
+
+  <Target Name="EnsureSyncLovelyData" BeforeTargets="BeforeBuild" DependsOnTargets="SyncLovelyData" />
+
+  <ItemGroup>
+    <ProjectReference Include="../PrecisionDash.Application/PrecisionDash.Application.csproj" />
+    <ProjectReference Include="../PrecisionDash.Domain/PrecisionDash.Domain.csproj" />
+    <ProjectReference Include="../PrecisionDash.Adapters.Rendering.Skia/PrecisionDash.Adapters.Rendering.Skia.csproj" />
+    <ProjectReference Include="../PrecisionDash.Adapters.Windowing.Win32/PrecisionDash.Adapters.Windowing.Win32.csproj" />
+    <ProjectReference Include="../PrecisionDash.Adapters.Telemetry.iRacing/PrecisionDash.Adapters.Telemetry.iRacing.csproj" />
+    <ProjectReference Include="../PrecisionDash.Adapters.Telemetry.Mock/PrecisionDash.Adapters.Telemetry.Mock.csproj" />
+  </ItemGroup>
+</Project>
