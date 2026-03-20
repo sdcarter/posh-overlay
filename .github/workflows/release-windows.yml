@@ -63,7 +63,7 @@ jobs:
             -c ${{ env.CONFIGURATION }} `
             -f ${{ env.FRAMEWORK }} `
             -r ${{ env.RUNTIME }} `
-            -p:PublishAot=true `
+            -p:PublishAot=false `
             -p:PublishSingleFile=true `
             -p:SelfContained=true `
             -p:PublishTrimmed=false `
