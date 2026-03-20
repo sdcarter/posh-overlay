@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using PrecisionDash.Application.Ports;
+using PrecisionDash.Domain.Telemetry;
 
 namespace PrecisionDash.Adapters.Telemetry.Mock;
 

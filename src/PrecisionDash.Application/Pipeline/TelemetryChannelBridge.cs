@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using PrecisionDash.Application.Ports;
+using PrecisionDash.Domain.Telemetry;
 
 namespace PrecisionDash.Application.Pipeline;
 

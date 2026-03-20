@@ -1,6 +1,6 @@
 using System.IO;
 using System.Text.Json;
-using PrecisionDash.Application.Ports;
+using PrecisionDash.Domain.Telemetry;
 
 namespace PrecisionDash.Adapters.Telemetry.Mock;
 

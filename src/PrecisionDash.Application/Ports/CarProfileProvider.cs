@@ -1,6 +1,6 @@
-namespace PrecisionDash.Application.Ports;
+using PrecisionDash.Domain.Telemetry;
 
-public readonly record struct CarShiftProfile(int CarId, float[] SegmentTriggers, string[] SegmentColors);
+namespace PrecisionDash.Application.Ports;
 
 public interface ICarProfileProvider
 {

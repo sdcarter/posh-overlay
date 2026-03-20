@@ -1,5 +1,6 @@
 using PrecisionDash.Application.Ports;
 using PrecisionDash.Domain.RevStrip;
+using PrecisionDash.Domain.Telemetry;
 
 namespace PrecisionDash.Application.UseCases;
 
