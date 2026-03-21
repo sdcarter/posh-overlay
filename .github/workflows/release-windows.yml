@@ -150,10 +150,52 @@ jobs:
           SIGNING_CERT_BASE64: ${{ secrets['SIGNING_CERT_BASE64'] }}
           SIGNING_CERT_PASSWORD: ${{ secrets['SIGNING_CERT_PASSWORD'] }}
         run: |
+          $ErrorActionPreference = "Stop"
+
+          if ([string]::IsNullOrWhiteSpace($env:SIGNING_CERT_BASE64)) {
+            throw "SIGNING_CERT_BASE64 secret is empty or missing."
+          }
+          if ([string]::IsNullOrWhiteSpace($env:SIGNING_CERT_PASSWORD)) {
+            throw "SIGNING_CERT_PASSWORD secret is empty or missing."
+          }
+
+          try {
+            $certBytes = [Convert]::FromBase64String($env:SIGNING_CERT_BASE64)
+          } catch {
+            throw "SIGNING_CERT_BASE64 is not valid base64."
+          }
+
+          # Validate cert payload up front so signtool does not fail with opaque internal errors.
+          try {
+            $collection = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2Collection
+            $collection.Import($certBytes, $env:SIGNING_CERT_PASSWORD, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
+
+            if ($collection.Count -eq 0) {
+              throw "No certificates found in provided PFX payload."
+            }
+
+            $hasPrivateKey = $false
+            foreach ($cert in $collection) {
+              if ($cert.HasPrivateKey) {
+                $hasPrivateKey = $true
+                break
+              }
+            }
+
+            if (-not $hasPrivateKey) {
+              throw "The provided certificate does not include a private key."
+            }
+          } catch {
+            throw "Invalid code-signing PFX or incorrect SIGNING_CERT_PASSWORD: $($_.Exception.Message)"
+          }
+
           $certPath = "artifacts/signing-temp.pfx"
-          [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($env:SIGNING_CERT_BASE64))
+          [IO.File]::WriteAllBytes($certPath, $certBytes)
           $signtool = "${{ steps.windows_sdk.outputs.signtool }}"
           & $signtool sign /fd SHA256 /a /f $certPath /p $env:SIGNING_CERT_PASSWORD "${{ steps.msix.outputs.msix_path }}"
+          if ($LASTEXITCODE -ne 0) {
+            throw "signtool failed with exit code $LASTEXITCODE"
+          }
           Remove-Item $certPath
 
       - name: Generate SHA256 checksum
