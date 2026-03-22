@@ -8,17 +8,30 @@ interface IRacingSDKInstance {
 export class IRacingTelemetryProvider implements TelemetryProvider {
   private sdk: IRacingSDKInstance | null = null;
   private latest: TelemetrySnapshot | null = null;
+  private carPath: string | null = null;
 
   async start() {
     try {
       const irsdk = await import('node-irsdk');
       this.sdk = irsdk.default?.init?.() ?? irsdk.init?.();
       if (this.sdk) {
+        this.sdk.on('SessionInfo', (evt) => {
+          const info = evt.data as { DriverInfo?: { DriverCarIdx?: number; Drivers?: Array<{ CarPath?: string; CarIdx?: number }> } };
+          const idx = info.DriverInfo?.DriverCarIdx;
+          const drivers = info.DriverInfo?.Drivers;
+          if (idx != null && drivers) {
+            const me = drivers.find((d) => d.CarIdx === idx);
+            if (me?.CarPath) this.carPath = me.CarPath;
+          }
+        });
+
         this.sdk.on('Telemetry', (evt) => {
           const d = evt.data;
           this.latest = {
             timestampMs: Date.now(),
             driverCarId: (d.DriverCarIdx as number) ?? 1,
+            carPath: this.carPath,
+            gear: (d.Gear as number) ?? null,
             rpm: (d.RPM as number) ?? 0,
             maxRpm: (d.PlayerCarSLShiftRPM as number) ?? (d.PlayerCarSLBlinkRPM as number) ?? (d.PlayerCarSLLastRPM as number) ?? ((d.RPM as number) ?? 0) * 1.05,
             pitLimiterActive: !!d.EngineWarnings && ((d.EngineWarnings as number) & 0x10) !== 0,

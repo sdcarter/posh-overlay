@@ -6,7 +6,9 @@ import { MockTelemetryProvider } from '../adapters/telemetry-mock/mock-telemetry
 import { IRacingTelemetryProvider } from '../adapters/telemetry-iracing/iracing-telemetry-provider.js';
 import { composeRevStrip } from '../application/use-cases/compose-rev-strip.js';
 import { composeRibbon } from '../application/use-cases/compose-ribbon.js';
-import { resolveProfile } from '../domain/telemetry/car-profiles.js';
+import { resolveProfile, resolveProfileFromLovely } from '../domain/telemetry/car-profiles.js';
+import { fetchCarData } from '../adapters/car-data-lovely/lovely-car-data-client.js';
+import type { LovelyCarData } from '../adapters/car-data-lovely/lovely-car-data-client.js';
 import type { TelemetryProvider } from '../application/ports/telemetry-provider.js';
 
 let mainWindow: BrowserWindow | null = null;
@@ -93,6 +95,8 @@ function createTray() {
   tray.on('double-click', () => { mainWindow?.show(); });
 }
 
+let lovelyCache: { carPath: string; data: LovelyCarData } | null = null;
+
 function startTelemetryLoop() {
   refreshInterval = setInterval(() => {
     const snapshot = telemetryProvider.tryReadSnapshot();
@@ -100,7 +104,18 @@ function startTelemetryLoop() {
       mainWindow?.webContents.send('telemetry:waiting', useMock ? 'Mock telemetry starting.' : 'Waiting for iRacing telemetry.');
       return;
     }
-    const profile = resolveProfile(snapshot.driverCarId);
+
+    // Fetch lovely car data when car changes
+    if (snapshot.carPath && snapshot.carPath !== lovelyCache?.carPath) {
+      const carPath = snapshot.carPath;
+      fetchCarData(carPath).then((data) => {
+        if (data) lovelyCache = { carPath, data };
+      });
+    }
+
+    const profile = lovelyCache?.data
+      ? resolveProfileFromLovely(snapshot.driverCarId, lovelyCache.data, snapshot.gear, snapshot.maxRpm)
+      : resolveProfile(snapshot.driverCarId);
     const revStrip = composeRevStrip(snapshot, profile);
     const ribbon = composeRibbon(snapshot);
     mainWindow?.webContents.send('telemetry:update', { snapshot, revStrip, ribbon, useMock });
