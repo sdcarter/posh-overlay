@@ -41,6 +41,7 @@ function createWindow() {
 
   mainWindow.setAlwaysOnTop(true, 'screen-saver', 1);
   mainWindow.setIgnoreMouseEvents(true);
+  Menu.setApplicationMenu(null);
 
   const rendererPath = path.join(__dirname, '..', 'renderer', 'index.html');
   mainWindow.loadFile(rendererPath);

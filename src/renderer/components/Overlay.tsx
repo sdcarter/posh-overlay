@@ -11,27 +11,40 @@ interface Props {
   locked: boolean;
 }
 
-const PANEL_W = 960;
-const PANEL_H = 150;
-
 export function Overlay({ frame, waitingMessage, locked }: Props) {
   const [pos, setPos] = useState({ x: 80, y: 40 });
-  const dragging = useRef(false);
-  const dragOffset = useRef({ x: 0, y: 0 });
+  const [size, setSize] = useState({ w: 960, h: 150 });
+  const dragging = useRef<'move' | 'resize' | null>(null);
+  const dragStart = useRef({ mx: 0, my: 0, x: 0, y: 0, w: 0, h: 0 });
 
-  const onMouseDown = useCallback((e: React.MouseEvent) => {
+  const onDragStart = useCallback((e: React.MouseEvent) => {
     if (locked) return;
-    dragging.current = true;
-    dragOffset.current = { x: e.clientX - pos.x, y: e.clientY - pos.y };
-  }, [locked, pos]);
+    dragging.current = 'move';
+    dragStart.current = { mx: e.clientX, my: e.clientY, x: pos.x, y: pos.y, w: size.w, h: size.h };
+    e.preventDefault();
+  }, [locked, pos, size]);
+
+  const onResizeStart = useCallback((e: React.MouseEvent) => {
+    if (locked) return;
+    dragging.current = 'resize';
+    dragStart.current = { mx: e.clientX, my: e.clientY, x: pos.x, y: pos.y, w: size.w, h: size.h };
+    e.preventDefault();
+    e.stopPropagation();
+  }, [locked, pos, size]);
 
   useEffect(() => {
     if (locked) return;
     const onMove = (e: MouseEvent) => {
       if (!dragging.current) return;
-      setPos({ x: e.clientX - dragOffset.current.x, y: e.clientY - dragOffset.current.y });
+      const dx = e.clientX - dragStart.current.mx;
+      const dy = e.clientY - dragStart.current.my;
+      if (dragging.current === 'move') {
+        setPos({ x: dragStart.current.x + dx, y: dragStart.current.y + dy });
+      } else {
+        setSize({ w: Math.max(400, dragStart.current.w + dx), h: Math.max(100, dragStart.current.h + dy) });
+      }
     };
-    const onUp = () => { dragging.current = false; };
+    const onUp = () => { dragging.current = null; };
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
     return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
@@ -41,8 +54,8 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
     position: 'absolute',
     left: pos.x,
     top: pos.y,
-    width: PANEL_W,
-    height: PANEL_H,
+    width: size.w,
+    height: size.h,
     padding: '12px 18px',
     borderRadius: 18,
     background: 'rgba(18, 22, 28, 0.82)',
@@ -58,37 +71,43 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
     boxSizing: 'border-box',
   };
 
-  if (!frame) {
-    return (
-      <div style={panelStyle} onMouseDown={onMouseDown}>
-        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>
-          PrecisionDash Overlay Running &nbsp;|&nbsp; {waitingMessage}
-        </span>
-        {!locked && <UnlockedBadge />}
-      </div>
-    );
-  }
+  const resizeHandle: React.CSSProperties = {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    width: 20,
+    height: 20,
+    cursor: 'nwse-resize',
+    background: 'rgba(255, 209, 102, 0.4)',
+    borderRadius: '0 0 18px 0',
+  };
 
-  const { snapshot, revStrip, ribbon, useMock } = frame;
-  const source = useMock ? 'MOCK' : 'LIVE';
-  const statusText = useMock ? 'Mock telemetry stream' : 'Live iRacing telemetry stream';
-
-  return (
-    <div style={panelStyle} onMouseDown={onMouseDown}>
-      <RevStrip state={revStrip} rpm={snapshot.rpm} maxRpm={snapshot.maxRpm} />
-      <Ribbon state={ribbon} source={source} driverCarId={snapshot.driverCarId} pitLimiter={snapshot.pitLimiterActive} />
+  const content = frame ? (
+    <>
+      <RevStrip state={frame.revStrip} rpm={frame.snapshot.rpm} maxRpm={frame.snapshot.maxRpm} />
+      <Ribbon state={frame.ribbon} source={frame.useMock ? 'MOCK' : 'LIVE'} driverCarId={frame.snapshot.driverCarId} pitLimiter={frame.snapshot.pitLimiterActive} />
       <div style={{ fontSize: 9, color: 'rgba(255,209,102,0.58)', textAlign: 'right' }}>
-        {statusText}
-        {!locked && ' — UNLOCKED (drag to reposition)'}
+        {frame.useMock ? 'Mock telemetry stream' : 'Live iRacing telemetry stream'}
+        {!locked && ' — UNLOCKED (drag to move, corner to resize)'}
       </div>
-    </div>
+    </>
+  ) : (
+    <>
+      <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>
+        PrecisionDash Overlay Running &nbsp;|&nbsp; {waitingMessage}
+      </span>
+      {!locked && (
+        <div style={{ fontSize: 11, color: 'rgba(255,209,102,0.85)', marginTop: 4 }}>
+          🔓 Unlocked — drag to move, corner to resize. Lock via tray icon.
+        </div>
+      )}
+    </>
   );
-}
 
-function UnlockedBadge() {
   return (
-    <div style={{ fontSize: 11, color: 'rgba(255,209,102,0.85)', marginTop: 4 }}>
-      🔓 Unlocked — drag to reposition. Lock via tray icon.
+    <div style={panelStyle} onMouseDown={onDragStart}>
+      {content}
+      {!locked && <div style={resizeHandle} onMouseDown={onResizeStart} />}
     </div>
   );
 }
