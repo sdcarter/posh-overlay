@@ -78,7 +78,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
     flexDirection: 'column',
     gap: 4,
     overflow: 'hidden',
-    fontSize: `${size.w / 60}px`,
+    fontSize: `${size.h / 6}px`,
     fontFamily: "'Segoe UI', system-ui, sans-serif",
     color: '#eef0f4',
     userSelect: 'none',
