@@ -10,6 +10,8 @@ declare global {
       onTelemetryUpdate: (cb: (data: unknown) => void) => void;
       onTelemetryWaiting: (cb: (msg: string) => void) => void;
       onLockChange: (cb: (locked: boolean) => void) => void;
+      getLayout: () => Promise<{ x: number; y: number; w: number; h: number } | null>;
+      saveLayout: (layout: { x: number; y: number; w: number; h: number }) => void;
     };
   }
 }
