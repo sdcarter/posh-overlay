@@ -18,8 +18,8 @@ const useMock = ['1', 'true', 'yes'].includes((process.env.PRECISIONDASH_USE_MOC
 
 function applyLockState() {
   if (!mainWindow) return;
-  mainWindow.setResizable(!locked);
-  mainWindow.setMovable(!locked);
+  // Never toggle resizable/movable — that triggers Windows to re-add title bar chrome.
+  // Instead, dragging is handled in the renderer via -webkit-app-region.
   mainWindow.setIgnoreMouseEvents(locked, { forward: true });
   mainWindow.webContents.send('overlay:lock', locked);
   rebuildTrayMenu();
@@ -37,15 +37,12 @@ function createWindow() {
     skipTaskbar: true,
     resizable: false,
     hasShadow: false,
-    titleBarStyle: 'hidden',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
   });
-
-  mainWindow.setMenuBarVisibility(false);
 
   const rendererPath = path.join(__dirname, '..', 'renderer', 'index.html');
   mainWindow.loadFile(rendererPath);
