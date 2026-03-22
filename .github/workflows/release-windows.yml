@@ -131,6 +131,9 @@ jobs:
           $msixName = "PrecisionDash-$semver-win-x64.msix"
           New-Item -ItemType Directory -Force -Path artifacts/msix-layout | Out-Null
           Copy-Item -Recurse -Force artifacts/win-x64/* artifacts/msix-layout/
+            if (Test-Path packaging/Windows/Assets) {
+              Copy-Item -Recurse -Force packaging/Windows/Assets artifacts/msix-layout/Assets
+            }
           # makeappx requires the footprint manifest filename to be exactly AppxManifest.xml
           Copy-Item packaging/Windows/Package.appxmanifest artifacts/msix-layout/AppxManifest.xml
           $makeappx = "${{ steps.windows_sdk.outputs.makeappx }}"

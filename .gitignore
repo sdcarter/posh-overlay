@@ -42,3 +42,9 @@ coverage/
 coverage-*/
 *.coverage
 *.coveragexml
+
+# Local certificates and signing keys
+certs/
+*.pfx
+*.p12
+*.key
