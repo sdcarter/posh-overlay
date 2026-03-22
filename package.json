@@ -8,7 +8,7 @@
     "dev": "concurrently \"npm run dev:main\" \"npm run dev:renderer\"",
     "dev:main": "tsc -p tsconfig.main.json --watch",
     "dev:renderer": "vite dev",
-    "build": "tsc -p tsconfig.main.json && vite build",
+    "build": "node scripts/fetch-car-data.mjs && tsc -p tsconfig.main.json && vite build",
     "fetch-car-data": "node scripts/fetch-car-data.mjs",
     "lint": "eslint src/ --max-warnings 0",
     "start": "npm run build && electron dist/main/index.js",

@@ -5,3 +5,4 @@ release/
 *.log
 .env
 .env.*
+src/domain/telemetry/lovely-car-data.json
