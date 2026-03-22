@@ -1,6 +1,6 @@
 {
   "name": "posh-dash",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Sim racing telemetry overlay",
   "main": "dist/main/index.js",
   "type": "commonjs",
@@ -22,8 +22,10 @@
       "output": "release"
     },
     "files": [
-      "dist/**/*"
+      "dist/**/*",
+      "assets/**/*"
     ],
+    "icon": "assets/icon-256.png",
     "win": {
       "target": "nsis"
     },
