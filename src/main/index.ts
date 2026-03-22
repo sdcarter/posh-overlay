@@ -2,12 +2,16 @@ import { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, dialog, screen } 
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { MockTelemetryProvider } from '../adapters/telemetry-mock/mock-telemetry-provider.js';
 import { IRacingTelemetryProvider } from '../adapters/telemetry-iracing/iracing-telemetry-provider.js';
 import { composeRevStrip } from '../application/use-cases/compose-rev-strip.js';
 import { composeRibbon } from '../application/use-cases/compose-ribbon.js';
 import { resolveProfile } from '../domain/telemetry/car-profiles.js';
 import type { TelemetryProvider } from '../application/ports/telemetry-provider.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
@@ -44,7 +48,7 @@ function createWindow() {
     roundedCorners: false,
     backgroundColor: '#00000000',
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
     },
