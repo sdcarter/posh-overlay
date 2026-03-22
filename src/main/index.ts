@@ -13,29 +13,20 @@ let tray: Tray | null = null;
 let telemetryProvider: TelemetryProvider;
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let locked = true;
+let overlayBounds = { x: 80, y: 40, width: 960, height: 150 };
+let isQuitting = false;
 
 const useMock = ['1', 'true', 'yes'].includes((process.env.PRECISIONDASH_USE_MOCK ?? '').toLowerCase());
 
-function applyLockState() {
-  if (!mainWindow) return;
-  mainWindow.setIgnoreMouseEvents(locked, { forward: true });
-  mainWindow.setFocusable(!locked);
-  mainWindow.webContents.send('overlay:lock', locked);
-  rebuildTrayMenu();
-}
-
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 960,
-    height: 150,
-    x: 80,
-    y: 40,
+    ...overlayBounds,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
     skipTaskbar: true,
-    resizable: false,
-    focusable: false,
+    resizable: !locked,
+    focusable: !locked,
     hasShadow: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -44,39 +35,61 @@ function createWindow() {
     },
   });
 
-  // Prevent focus from triggering Windows title bar chrome on transparent windows
-  mainWindow.on('focus', () => {
-    if (locked) mainWindow?.blur();
-  });
+  mainWindow.setIgnoreMouseEvents(locked, { forward: true });
 
   const rendererPath = path.join(__dirname, '..', 'renderer', 'index.html');
   mainWindow.loadFile(rendererPath);
-  mainWindow.on('closed', () => { mainWindow = null; });
 
-  applyLockState();
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow?.webContents.send('overlay:lock', locked);
+  });
+
+  mainWindow.on('closed', () => { mainWindow = null; });
+}
+
+/** Destroy and recreate the window — the only reliable way to clear Windows title bar chrome. */
+function recreateWindow() {
+  if (mainWindow) {
+    overlayBounds = mainWindow.getBounds();
+    mainWindow.destroy();
+    mainWindow = null;
+  }
+  createWindow();
+}
+
+function toggleLock() {
+  locked = !locked;
+  if (locked) {
+    // Relocking: must recreate window to clear any Windows chrome artifacts
+    recreateWindow();
+  } else {
+    // Unlocking: just flip properties on the existing window
+    if (mainWindow) {
+      mainWindow.setIgnoreMouseEvents(false);
+      mainWindow.setFocusable(true);
+      mainWindow.setResizable(true);
+      mainWindow.webContents.send('overlay:lock', false);
+    }
+  }
+  rebuildTrayMenu();
 }
 
 function rebuildTrayMenu() {
   if (!tray) return;
-  const contextMenu = Menu.buildFromTemplate([
+  tray.setContextMenu(Menu.buildFromTemplate([
     { label: 'Show Overlay', click: () => mainWindow?.show() },
     { label: 'Hide Overlay', click: () => mainWindow?.hide() },
     { type: 'separator' },
-    {
-      label: locked ? 'Unlock Overlay' : 'Lock Overlay',
-      click: () => { locked = !locked; applyLockState(); },
-    },
+    { label: locked ? 'Unlock Overlay' : 'Lock Overlay', click: toggleLock },
     { type: 'separator' },
-    { label: 'Check for Updates', click: () => checkForUpdates() },
+    { label: 'Check for Updates', click: checkForUpdates },
     { type: 'separator' },
-    { label: 'Exit', click: () => app.quit() },
-  ]);
-  tray.setContextMenu(contextMenu);
+    { label: 'Exit', click: () => { isQuitting = true; app.quit(); } },
+  ]));
 }
 
 function createTray() {
-  const icon = nativeImage.createEmpty();
-  tray = new Tray(icon);
+  tray = new Tray(nativeImage.createEmpty());
   tray.setToolTip('PrecisionDash');
   rebuildTrayMenu();
   tray.on('double-click', () => { mainWindow?.show(); mainWindow?.focus(); });
@@ -96,28 +109,13 @@ function startTelemetryLoop() {
   }, 16);
 }
 
-app.whenReady().then(async () => {
-  telemetryProvider = useMock ? new MockTelemetryProvider() : new IRacingTelemetryProvider();
-  await telemetryProvider.start();
-
-  createWindow();
-  createTray();
-  startTelemetryLoop();
-
-  setTimeout(() => {
-    checkForUpdates();
-  }, 10_000);
-});
-
 function checkForUpdates() {
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = false;
   autoUpdater.checkForUpdates().catch(() => {});
 }
 
-autoUpdater.on('update-available', (info) => {
-  autoUpdater.downloadUpdate().catch(() => {});
-});
+autoUpdater.on('update-available', () => { autoUpdater.downloadUpdate().catch(() => {}); });
 
 autoUpdater.on('update-downloaded', (info) => {
   const response = dialog.showMessageBoxSync({
@@ -129,9 +127,16 @@ autoUpdater.on('update-downloaded', (info) => {
     defaultId: 0,
     cancelId: 1,
   });
-  if (response === 0) {
-    autoUpdater.quitAndInstall();
-  }
+  if (response === 0) autoUpdater.quitAndInstall();
+});
+
+app.whenReady().then(async () => {
+  telemetryProvider = useMock ? new MockTelemetryProvider() : new IRacingTelemetryProvider();
+  await telemetryProvider.start();
+  createWindow();
+  createTray();
+  startTelemetryLoop();
+  setTimeout(checkForUpdates, 10_000);
 });
 
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
