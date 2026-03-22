@@ -1,0 +1,21 @@
+export interface TelemetrySnapshot {
+  timestampMs: number;
+  driverCarId: number;
+  rpm: number;
+  maxRpm: number;
+  pitLimiterActive: boolean;
+  sessionLapsRemain: number | null;
+  sessionLapsTotal: number | null;
+  sessionTimeRemainSeconds: number | null;
+  sessionLastLapTimeSeconds: number | null;
+  incidentCount: number;
+  incidentLimit: number | null;
+  brakeBiasPercent: number | null;
+  tractionControlLevel: number | null;
+}
+
+export interface CarShiftProfile {
+  carId: number;
+  segmentTriggers: number[];
+  segmentColors: string[];
+}

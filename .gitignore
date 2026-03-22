@@ -1,50 +1,7 @@
-# .NET build outputs
-bin/
-obj/
-Debug/
-Release/
-out/
-artifacts/
-TestResults/
-
-# Rider / Visual Studio / VS Code
-.vs/
-.vscode/
-*.user
-*.suo
-*.userprefs
-
-# NuGet
-packages/
-*.nupkg
-*.snupkg
-
-# Local tooling caches
-.ai/
-
-# macOS
+node_modules/
+dist/
+release/
 .DS_Store
-
-# Logs and temp files
 *.log
-*.tmp
-*.swp
-
-# Environment overrides
 .env
 .env.*
-
-# Build-synced external car data
-src/PrecisionDash.App/Resources/CarData/
-
-# Coverage outputs
-coverage/
-coverage-*/
-*.coverage
-*.coveragexml
-
-# Local certificates and signing keys
-certs/
-*.pfx
-*.p12
-*.key
