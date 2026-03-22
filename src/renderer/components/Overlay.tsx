@@ -6,7 +6,7 @@ import type { RevStripState } from '../../domain/rev-strip/types';
 import type { RibbonState } from '../../domain/ribbon/types';
 
 interface Props {
-  frame: { snapshot: TelemetrySnapshot; revStrip: RevStripState; ribbon: RibbonState; useMock: boolean } | null;
+  frame: { snapshot: TelemetrySnapshot; revStrip: RevStripState | null; ribbon: RibbonState; useMock: boolean } | null;
   waitingMessage: string;
   locked: boolean;
 }
@@ -100,9 +100,11 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
 
   const content = frame ? (
     <>
-      <div style={{ flex: 1, minHeight: 0 }}>
-        <RevStrip state={frame.revStrip} />
-      </div>
+      {frame.revStrip && (
+        <div style={{ flex: 1, minHeight: 0 }}>
+          <RevStrip state={frame.revStrip} />
+        </div>
+      )}
       <Ribbon state={frame.ribbon} rpm={frame.snapshot.rpm} maxRpm={frame.snapshot.maxRpm} pitLimiter={frame.snapshot.pitLimiterActive} />
       {!locked && (
         <div style={{ fontSize: '0.65em', color: 'rgba(255,209,102,0.58)', textAlign: 'right' }}>
