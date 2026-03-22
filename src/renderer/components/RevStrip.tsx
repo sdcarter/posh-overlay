@@ -26,12 +26,10 @@ export function RevStrip({ state }: Props) {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [state.flashMode, state.redlineBlinkInterval]);
 
-  const ledCount = state.ledColors.length;
-
   return (
-    <div style={{ display: 'flex', gap: '3%', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-      {Array.from({ length: ledCount }, (_, i) => {
-        const isSpacer = state.ledColors[i] === 'transparent';
+    <div style={{ display: 'flex', gap: '2%', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+      {state.ledColors.map((ledColor, i) => {
+        const isSpacer = ledColor === 'transparent';
         let color: string;
         if (isSpacer) {
           color = 'transparent';
@@ -40,7 +38,7 @@ export function RevStrip({ state }: Props) {
         } else if (state.flashMode === 'pit-limiter') {
           color = flashOn ? PIT_COLOR : OFF_COLOR;
         } else {
-          color = state.ledOn[i] ? state.ledColors[i] : OFF_COLOR;
+          color = state.ledOn[i] ? ledColor : OFF_COLOR;
         }
 
         const active = !isSpacer && (state.flashMode !== 'none' || state.ledOn[i]);
@@ -48,9 +46,8 @@ export function RevStrip({ state }: Props) {
           <div
             key={i}
             style={{
-              flex: 1,
+              height: '100%',
               aspectRatio: '1',
-              maxHeight: '100%',
               borderRadius: '50%',
               background: color,
               border: isSpacer ? 'none' : `${active ? 1.4 : 1}px solid rgba(255,255,255,${active ? 0.86 : 0.35})`,

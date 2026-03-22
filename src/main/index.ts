@@ -127,6 +127,8 @@ function checkForUpdates() {
 autoUpdater.on('update-available', () => { autoUpdater.downloadUpdate().catch(() => {}); });
 
 autoUpdater.on('update-downloaded', (info) => {
+  // Lock overlay before showing modal so the transparent window doesn't block it
+  if (!locked) toggleLock();
   const response = dialog.showMessageBoxSync({
     type: 'info',
     title: 'PoshDash Update',

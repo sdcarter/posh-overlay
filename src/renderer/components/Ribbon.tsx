@@ -18,7 +18,7 @@ export function Ribbon({ state, rpm, maxRpm, pitLimiter }: Props) {
   ].filter(Boolean);
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexShrink: 0 }}>
       <span style={{ fontSize: '1.1em', fontWeight: 700, color: '#eef0f4' }}>
         {rpm.toFixed(0)} / {maxRpm.toFixed(0)} RPM
       </span>
