@@ -9,6 +9,7 @@ declare global {
     electronAPI: {
       onTelemetryUpdate: (cb: (data: TelemetryFrame) => void) => void;
       onTelemetryWaiting: (cb: (msg: string) => void) => void;
+      onLockChange: (cb: (locked: boolean) => void) => void;
       setIgnoreMouse: (ignore: boolean) => void;
     };
   }
@@ -24,11 +25,13 @@ interface TelemetryFrame {
 export function App() {
   const [frame, setFrame] = useState<TelemetryFrame | null>(null);
   const [waitingMsg, setWaitingMsg] = useState('Waiting for iRacing telemetry.');
+  const [locked, setLocked] = useState(true);
 
   useEffect(() => {
     window.electronAPI.onTelemetryUpdate((data) => setFrame(data));
     window.electronAPI.onTelemetryWaiting((msg) => { setFrame(null); setWaitingMsg(msg); });
+    window.electronAPI.onLockChange((l) => setLocked(l));
   }, []);
 
-  return <Overlay frame={frame} waitingMessage={waitingMsg} />;
+  return <Overlay frame={frame} waitingMessage={waitingMsg} locked={locked} />;
 }

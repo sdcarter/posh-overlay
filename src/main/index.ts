@@ -12,8 +12,18 @@ let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let telemetryProvider: TelemetryProvider;
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
+let locked = true;
 
 const useMock = ['1', 'true', 'yes'].includes((process.env.PRECISIONDASH_USE_MOCK ?? '').toLowerCase());
+
+function applyLockState() {
+  if (!mainWindow) return;
+  mainWindow.setResizable(!locked);
+  mainWindow.setMovable(!locked);
+  mainWindow.setIgnoreMouseEvents(locked, { forward: true });
+  mainWindow.webContents.send('overlay:lock', locked);
+  rebuildTrayMenu();
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -34,30 +44,36 @@ function createWindow() {
     },
   });
 
-  // Click-through when not hovering interactive elements
-  mainWindow.setIgnoreMouseEvents(true, { forward: true });
-
   const rendererPath = path.join(__dirname, '..', 'renderer', 'index.html');
   mainWindow.loadFile(rendererPath);
-
   mainWindow.on('closed', () => { mainWindow = null; });
+
+  applyLockState();
+}
+
+function rebuildTrayMenu() {
+  if (!tray) return;
+  const contextMenu = Menu.buildFromTemplate([
+    { label: 'Show Overlay', click: () => mainWindow?.show() },
+    { label: 'Hide Overlay', click: () => mainWindow?.hide() },
+    { type: 'separator' },
+    {
+      label: locked ? 'Unlock Overlay' : 'Lock Overlay',
+      click: () => { locked = !locked; applyLockState(); },
+    },
+    { type: 'separator' },
+    { label: 'Check for Updates', click: () => autoUpdater.checkForUpdatesAndNotify() },
+    { type: 'separator' },
+    { label: 'Exit', click: () => app.quit() },
+  ]);
+  tray.setContextMenu(contextMenu);
 }
 
 function createTray() {
   const icon = nativeImage.createEmpty();
   tray = new Tray(icon);
   tray.setToolTip('PrecisionDash');
-
-  const contextMenu = Menu.buildFromTemplate([
-    { label: 'Show Overlay', click: () => mainWindow?.show() },
-    { label: 'Hide Overlay', click: () => mainWindow?.hide() },
-    { type: 'separator' },
-    { label: 'Check for Updates', click: () => autoUpdater.checkForUpdatesAndNotify() },
-    { type: 'separator' },
-    { label: 'Exit', click: () => app.quit() },
-  ]);
-
-  tray.setContextMenu(contextMenu);
+  rebuildTrayMenu();
   tray.on('double-click', () => { mainWindow?.show(); mainWindow?.focus(); });
 }
 
@@ -83,7 +99,6 @@ app.whenReady().then(async () => {
   createTray();
   startTelemetryLoop();
 
-  // Auto-update: check after 10s delay, non-blocking
   setTimeout(() => {
     autoUpdater.checkForUpdatesAndNotify().catch(() => {});
   }, 10_000);
@@ -96,7 +111,6 @@ app.on('before-quit', async () => {
   await telemetryProvider?.stop();
 });
 
-// Allow renderer to toggle mouse events
 ipcMain.on('set-ignore-mouse', (_event, ignore: boolean) => {
-  mainWindow?.setIgnoreMouseEvents(ignore, { forward: true });
+  if (locked) mainWindow?.setIgnoreMouseEvents(ignore, { forward: true });
 });
