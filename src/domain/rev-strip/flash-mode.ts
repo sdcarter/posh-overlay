@@ -1,8 +1,9 @@
-import type { TelemetrySnapshot } from '../telemetry/types.js';
 import type { FlashMode } from './types.js';
+import type { TelemetrySnapshot } from '../telemetry/types.js';
+import type { CarShiftProfile } from '../telemetry/types.js';
 
-export function resolveFlashMode(snapshot: TelemetrySnapshot): FlashMode {
+export function resolveFlashMode(snapshot: TelemetrySnapshot, profile: CarShiftProfile): FlashMode {
   if (snapshot.pitLimiterActive) return 'pit-limiter';
-  const ratio = snapshot.maxRpm > 0 ? snapshot.rpm / snapshot.maxRpm : 0;
-  return ratio >= 0.95 ? 'shift-point' : 'none';
+  if (profile.redlineRpm > 0 && snapshot.rpm >= profile.redlineRpm) return 'redline';
+  return 'none';
 }

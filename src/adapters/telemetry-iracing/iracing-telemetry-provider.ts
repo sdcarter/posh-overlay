@@ -78,6 +78,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         incidentLimit: null,
         brakeBiasPercent: val(t.dcBrakeBias),
         tractionControlLevel: val(t.dcTractionControl) != null ? Math.round(val(t.dcTractionControl)!) : null,
+        absLevel: val(t.dcABS) != null ? Math.round(val(t.dcABS)!) : null,
       };
     } catch {
       this.sdk = null;

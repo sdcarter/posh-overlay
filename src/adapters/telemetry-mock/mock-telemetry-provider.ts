@@ -22,6 +22,7 @@ export class MockTelemetryProvider implements TelemetryProvider {
       incidentLimit: 17,
       brakeBiasPercent: 54.2,
       tractionControlLevel: 2,
+      absLevel: 3,
     };
   }
 }

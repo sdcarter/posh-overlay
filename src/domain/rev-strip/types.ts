@@ -1,7 +1,9 @@
-export type FlashMode = 'none' | 'pit-limiter' | 'shift-point';
+export type FlashMode = 'none' | 'pit-limiter' | 'redline';
 
 export interface RevStripState {
-  activeSegments: number;
-  segmentColors: string[];
+  ledOn: boolean[];
+  ledColors: string[];
   flashMode: FlashMode;
+  redlineColor: string;
+  redlineBlinkInterval: number;
 }
