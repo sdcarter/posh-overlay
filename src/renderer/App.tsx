@@ -10,7 +10,6 @@ declare global {
       onTelemetryUpdate: (cb: (data: TelemetryFrame) => void) => void;
       onTelemetryWaiting: (cb: (msg: string) => void) => void;
       onLockChange: (cb: (locked: boolean) => void) => void;
-      setIgnoreMouse: (ignore: boolean) => void;
     };
   }
 }

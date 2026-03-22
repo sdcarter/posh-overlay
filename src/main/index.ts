@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, dialog } from 'electron';
+import { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, dialog, screen } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import { MockTelemetryProvider } from '../adapters/telemetry-mock/mock-telemetry-provider.js';
@@ -13,21 +13,25 @@ let tray: Tray | null = null;
 let telemetryProvider: TelemetryProvider;
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let locked = true;
-let overlayBounds = { x: 80, y: 40, width: 960, height: 150 };
-let isQuitting = false;
 
 const useMock = ['1', 'true', 'yes'].includes((process.env.PRECISIONDASH_USE_MOCK ?? '').toLowerCase());
 
 function createWindow() {
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { x, y, width, height } = primaryDisplay.bounds;
+
   mainWindow = new BrowserWindow({
-    ...overlayBounds,
+    x, y, width, height,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
     skipTaskbar: true,
-    resizable: !locked,
-    focusable: !locked,
+    resizable: false,
+    movable: false,
+    focusable: true,
     hasShadow: false,
+    roundedCorners: false,
+    backgroundColor: '#00000000',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -35,7 +39,8 @@ function createWindow() {
     },
   });
 
-  mainWindow.setIgnoreMouseEvents(locked, { forward: true });
+  mainWindow.setAlwaysOnTop(true, 'screen-saver', 1);
+  mainWindow.setIgnoreMouseEvents(true);
 
   const rendererPath = path.join(__dirname, '..', 'renderer', 'index.html');
   mainWindow.loadFile(rendererPath);
@@ -47,30 +52,11 @@ function createWindow() {
   mainWindow.on('closed', () => { mainWindow = null; });
 }
 
-/** Destroy and recreate the window — the only reliable way to clear Windows title bar chrome. */
-function recreateWindow() {
-  if (mainWindow) {
-    overlayBounds = mainWindow.getBounds();
-    mainWindow.destroy();
-    mainWindow = null;
-  }
-  createWindow();
-}
-
 function toggleLock() {
   locked = !locked;
-  if (locked) {
-    // Relocking: must recreate window to clear any Windows chrome artifacts
-    recreateWindow();
-  } else {
-    // Unlocking: just flip properties on the existing window
-    if (mainWindow) {
-      mainWindow.setIgnoreMouseEvents(false);
-      mainWindow.setFocusable(true);
-      mainWindow.setResizable(true);
-      mainWindow.webContents.send('overlay:lock', false);
-    }
-  }
+  // Only toggle mouse events — never touch resizable/movable/focusable
+  mainWindow?.setIgnoreMouseEvents(locked);
+  mainWindow?.webContents.send('overlay:lock', locked);
   rebuildTrayMenu();
 }
 
@@ -84,7 +70,7 @@ function rebuildTrayMenu() {
     { type: 'separator' },
     { label: 'Check for Updates', click: checkForUpdates },
     { type: 'separator' },
-    { label: 'Exit', click: () => { isQuitting = true; app.quit(); } },
+    { label: 'Exit', click: () => app.quit() },
   ]));
 }
 
@@ -144,8 +130,4 @@ app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(
 app.on('before-quit', async () => {
   if (refreshInterval) clearInterval(refreshInterval);
   await telemetryProvider?.stop();
-});
-
-ipcMain.on('set-ignore-mouse', (_event, ignore: boolean) => {
-  if (locked) mainWindow?.setIgnoreMouseEvents(ignore, { forward: true });
 });
