@@ -87,7 +87,7 @@ function rebuildTrayMenu() {
 }
 
 function createTray() {
-  tray = new Tray(nativeImage.createEmpty());
+  tray = new Tray(nativeImage.createFromPath(path.join(__dirname, '..', '..', 'assets', 'tray-icon.png')));
   tray.setToolTip('PoshDash');
   rebuildTrayMenu();
   tray.on('double-click', () => { mainWindow?.show(); });
