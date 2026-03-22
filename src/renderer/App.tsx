@@ -7,7 +7,7 @@ import type { RibbonState } from '../domain/ribbon/types';
 declare global {
   interface Window {
     electronAPI: {
-      onTelemetryUpdate: (cb: (data: TelemetryFrame) => void) => void;
+      onTelemetryUpdate: (cb: (data: unknown) => void) => void;
       onTelemetryWaiting: (cb: (msg: string) => void) => void;
       onLockChange: (cb: (locked: boolean) => void) => void;
     };
@@ -27,7 +27,7 @@ export function App() {
   const [locked, setLocked] = useState(true);
 
   useEffect(() => {
-    window.electronAPI.onTelemetryUpdate((data) => setFrame(data));
+    window.electronAPI.onTelemetryUpdate((data) => setFrame(data as TelemetryFrame));
     window.electronAPI.onTelemetryWaiting((msg) => { setFrame(null); setWaitingMsg(msg); });
     window.electronAPI.onLockChange((l) => setLocked(l));
   }, []);

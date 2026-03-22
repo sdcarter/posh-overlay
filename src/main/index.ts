@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, dialog, screen } from 'electron';
+import { app, BrowserWindow, Tray, Menu, nativeImage, dialog, screen } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import { MockTelemetryProvider } from '../adapters/telemetry-mock/mock-telemetry-provider.js';

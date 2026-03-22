@@ -1,13 +1,12 @@
 import type { TelemetryProvider } from '../../application/ports/telemetry-provider.js';
 import type { TelemetrySnapshot } from '../../domain/telemetry/types.js';
 
-/**
- * iRacing telemetry provider using node-irsdk.
- * Requires iRacing to be running on Windows.
- * Falls back gracefully when the SDK is unavailable (e.g. macOS dev).
- */
+interface IRacingSDKInstance {
+  on(event: string, callback: (evt: { data: Record<string, unknown> }) => void): void;
+}
+
 export class IRacingTelemetryProvider implements TelemetryProvider {
-  private sdk: any = null;
+  private sdk: IRacingSDKInstance | null = null;
   private latest: TelemetrySnapshot | null = null;
 
   async start() {
@@ -15,22 +14,22 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
       const irsdk = await import('node-irsdk');
       this.sdk = irsdk.default?.init?.() ?? irsdk.init?.();
       if (this.sdk) {
-        this.sdk.on('Telemetry', (evt: any) => {
+        this.sdk.on('Telemetry', (evt) => {
           const d = evt.data;
           this.latest = {
             timestampMs: Date.now(),
-            driverCarId: d.DriverCarIdx ?? 1,
-            rpm: d.RPM ?? 0,
-            maxRpm: d.PlayerCarSLShiftRPM ?? d.PlayerCarSLBlinkRPM ?? d.PlayerCarSLLastRPM ?? (d.RPM ?? 0) * 1.05,
-            pitLimiterActive: !!d.EngineWarnings && (d.EngineWarnings & 0x10) !== 0,
-            sessionLapsRemain: d.SessionLapsRemain ?? null,
-            sessionLapsTotal: d.SessionLapsTotal ?? null,
-            sessionTimeRemainSeconds: d.SessionTimeRemain ?? null,
-            sessionLastLapTimeSeconds: d.LapLastLapTime ?? null,
-            incidentCount: d.PlayerCarMyIncidentCount ?? d.PlayerCarDriverIncidentCount ?? 0,
+            driverCarId: (d.DriverCarIdx as number) ?? 1,
+            rpm: (d.RPM as number) ?? 0,
+            maxRpm: (d.PlayerCarSLShiftRPM as number) ?? (d.PlayerCarSLBlinkRPM as number) ?? (d.PlayerCarSLLastRPM as number) ?? ((d.RPM as number) ?? 0) * 1.05,
+            pitLimiterActive: !!d.EngineWarnings && ((d.EngineWarnings as number) & 0x10) !== 0,
+            sessionLapsRemain: (d.SessionLapsRemain as number) ?? null,
+            sessionLapsTotal: (d.SessionLapsTotal as number) ?? null,
+            sessionTimeRemainSeconds: (d.SessionTimeRemain as number) ?? null,
+            sessionLastLapTimeSeconds: (d.LapLastLapTime as number) ?? null,
+            incidentCount: (d.PlayerCarMyIncidentCount as number) ?? (d.PlayerCarDriverIncidentCount as number) ?? 0,
             incidentLimit: null,
-            brakeBiasPercent: d.dcBrakeBias ?? null,
-            tractionControlLevel: d.dcTractionControl != null ? Math.round(d.dcTractionControl) : null,
+            brakeBiasPercent: (d.dcBrakeBias as number) ?? null,
+            tractionControlLevel: d.dcTractionControl != null ? Math.round(d.dcTractionControl as number) : null,
           };
         });
       }
