@@ -78,6 +78,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
     flexDirection: 'column',
     gap: 4,
     overflow: 'hidden',
+    fontSize: `${size.w / 60}px`,
     fontFamily: "'Segoe UI', system-ui, sans-serif",
     color: '#eef0f4',
     userSelect: 'none',
@@ -99,12 +100,15 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
 
   const content = frame ? (
     <>
-      <RevStrip state={frame.revStrip} rpm={frame.snapshot.rpm} maxRpm={frame.snapshot.maxRpm} />
-      <Ribbon state={frame.ribbon} source={frame.useMock ? 'MOCK' : 'LIVE'} driverCarId={frame.snapshot.driverCarId} pitLimiter={frame.snapshot.pitLimiterActive} />
-      <div style={{ fontSize: 9, color: 'rgba(255,209,102,0.58)', textAlign: 'right' }}>
-        {frame.useMock ? 'Mock telemetry stream' : 'Live iRacing telemetry stream'}
-        {!locked && ' — UNLOCKED (drag to move, corner to resize)'}
+      <div style={{ flex: 1, minHeight: 0 }}>
+        <RevStrip state={frame.revStrip} />
       </div>
+      <Ribbon state={frame.ribbon} rpm={frame.snapshot.rpm} maxRpm={frame.snapshot.maxRpm} pitLimiter={frame.snapshot.pitLimiterActive} />
+      {!locked && (
+        <div style={{ fontSize: '0.65em', color: 'rgba(255,209,102,0.58)', textAlign: 'right' }}>
+          UNLOCKED — drag to move, corner to resize
+        </div>
+      )}
     </>
   ) : (
     <>

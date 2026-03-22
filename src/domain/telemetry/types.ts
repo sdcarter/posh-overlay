@@ -14,10 +14,14 @@ export interface TelemetrySnapshot {
   incidentLimit: number | null;
   brakeBiasPercent: number | null;
   tractionControlLevel: number | null;
+  absLevel: number | null;
 }
 
 export interface CarShiftProfile {
   carId: number;
-  segmentTriggers: number[];
-  segmentColors: string[];
+  ledRpms: number[];
+  ledColors: string[];
+  redlineRpm: number;
+  redlineColor: string;
+  redlineBlinkInterval: number;
 }

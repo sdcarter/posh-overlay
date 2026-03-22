@@ -3,4 +3,5 @@ export interface RibbonState {
   incidentsText: string;
   brakeBiasText: string | null;
   tractionControlText: string | null;
+  absText: string | null;
 }

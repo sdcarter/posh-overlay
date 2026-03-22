@@ -12,6 +12,10 @@ export function tractionControl(s: TelemetrySnapshot): string | null {
   return s.tractionControlLevel != null ? `TC ${s.tractionControlLevel}` : null;
 }
 
+export function absLevel(s: TelemetrySnapshot): string | null {
+  return s.absLevel != null ? `ABS ${s.absLevel}` : null;
+}
+
 export function lapProgress(s: TelemetrySnapshot): string {
   if (s.sessionLapsTotal != null && s.sessionLapsRemain != null) {
     const completed = s.sessionLapsTotal - s.sessionLapsRemain;
