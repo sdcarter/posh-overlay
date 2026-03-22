@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage } from 'electron';
+import { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import { MockTelemetryProvider } from '../adapters/telemetry-mock/mock-telemetry-provider.js';
@@ -67,7 +67,7 @@ function rebuildTrayMenu() {
       click: () => { locked = !locked; applyLockState(); },
     },
     { type: 'separator' },
-    { label: 'Check for Updates', click: () => autoUpdater.checkForUpdatesAndNotify() },
+    { label: 'Check for Updates', click: () => checkForUpdates() },
     { type: 'separator' },
     { label: 'Exit', click: () => app.quit() },
   ]);
@@ -105,8 +105,33 @@ app.whenReady().then(async () => {
   startTelemetryLoop();
 
   setTimeout(() => {
-    autoUpdater.checkForUpdatesAndNotify().catch(() => {});
+    checkForUpdates();
   }, 10_000);
+});
+
+function checkForUpdates() {
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = false;
+  autoUpdater.checkForUpdates().catch(() => {});
+}
+
+autoUpdater.on('update-available', (info) => {
+  autoUpdater.downloadUpdate().catch(() => {});
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  const response = dialog.showMessageBoxSync({
+    type: 'info',
+    title: 'PrecisionDash Update',
+    message: `Version ${info.version} is ready to install.`,
+    detail: info.releaseNotes ? String(info.releaseNotes) : undefined,
+    buttons: ['Restart Now', 'Later'],
+    defaultId: 0,
+    cancelId: 1,
+  });
+  if (response === 0) {
+    autoUpdater.quitAndInstall();
+  }
 });
 
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
