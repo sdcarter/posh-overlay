@@ -14,8 +14,21 @@ interface LovelyCarData {
 
 const bundle = carDataBundle as Record<string, LovelyCarData>;
 
+const normalizedBundle = new Map<string, LovelyCarData>();
+for (const [key, value] of Object.entries(bundle)) {
+  normalizedBundle.set(normalize(key), value);
+}
+
+function normalize(s: string): string {
+  return s.toLowerCase().replace(/[\s_-]+/g, '');
+}
+
+function lookupCar(carPath: string): LovelyCarData | null {
+  return normalizedBundle.get(normalize(carPath)) ?? null;
+}
+
 export function resolveProfile(driverCarId: number, carPath?: string | null, gear?: number | null, maxRpm?: number): CarShiftProfile | null {
-  const carData = carPath ? bundle[carPath] : null;
+  const carData = carPath ? lookupCar(carPath) : null;
   if (!carData || !maxRpm || maxRpm <= 0) return null;
 
   const ledCount = carData.ledNumber || DEFAULT_LED_COUNT;
