@@ -46,13 +46,20 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
       return;
     }
 
-    if (!this.sdk.waitForData(0)) return;
+    if (!this.sdk.waitForData(0)) {
+      if (!(await this.SDKClass!.IsSimRunning())) {
+        this.sdk = null;
+        this.carPath = null;
+        this.latest = null;
+      }
+      return;
+    }
 
     try {
       const t = this.sdk.getTelemetry();
       const session = this.sdk.getSessionData();
 
-      if (!this.carPath && session) {
+      if (session) {
         const idx = session.DriverInfo?.DriverCarIdx;
         const drivers = session.DriverInfo?.Drivers;
         if (idx != null && drivers) {
