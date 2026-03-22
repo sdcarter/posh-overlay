@@ -40,7 +40,8 @@ function createWindow() {
   });
 
   mainWindow.setAlwaysOnTop(true, 'screen-saver', 1);
-  mainWindow.setIgnoreMouseEvents(true);
+  // Always ignore mouse with forwarding — the renderer controls pointer-events per element
+  mainWindow.setIgnoreMouseEvents(true, { forward: true });
   Menu.setApplicationMenu(null);
 
   const rendererPath = path.join(__dirname, '..', 'renderer', 'index.html');
@@ -55,8 +56,8 @@ function createWindow() {
 
 function toggleLock() {
   locked = !locked;
-  // Only toggle mouse events — never touch resizable/movable/focusable
-  mainWindow?.setIgnoreMouseEvents(locked);
+  // Window always stays in pass-through mode. The renderer uses pointer-events
+  // on the panel to control whether the overlay is interactive.
   mainWindow?.webContents.send('overlay:lock', locked);
   rebuildTrayMenu();
 }
