@@ -96,6 +96,12 @@ function startTelemetryLoop() {
   }, 16);
 }
 
+function stripHtml(notes: unknown): string | undefined {
+  if (!notes) return undefined;
+  const raw = typeof notes === 'string' ? notes : Array.isArray(notes) ? notes.map((n: { note?: string | null }) => n.note ?? '').join('\n') : String(notes);
+  return raw.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/\n{3,}/g, '\n\n').trim() || undefined;
+}
+
 function checkForUpdates() {
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = false;
@@ -109,7 +115,7 @@ autoUpdater.on('update-downloaded', (info) => {
     type: 'info',
     title: 'PrecisionDash Update',
     message: `Version ${info.version} is ready to install.`,
-    detail: info.releaseNotes ? String(info.releaseNotes) : undefined,
+    detail: stripHtml(info.releaseNotes),
     buttons: ['Restart Now', 'Later'],
     defaultId: 0,
     cancelId: 1,
