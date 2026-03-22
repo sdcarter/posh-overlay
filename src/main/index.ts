@@ -18,9 +18,8 @@ const useMock = ['1', 'true', 'yes'].includes((process.env.PRECISIONDASH_USE_MOC
 
 function applyLockState() {
   if (!mainWindow) return;
-  // Never toggle resizable/movable — that triggers Windows to re-add title bar chrome.
-  // Instead, dragging is handled in the renderer via -webkit-app-region.
   mainWindow.setIgnoreMouseEvents(locked, { forward: true });
+  mainWindow.setFocusable(!locked);
   mainWindow.webContents.send('overlay:lock', locked);
   rebuildTrayMenu();
 }
@@ -36,12 +35,18 @@ function createWindow() {
     alwaysOnTop: true,
     skipTaskbar: true,
     resizable: false,
+    focusable: false,
     hasShadow: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
+  });
+
+  // Prevent focus from triggering Windows title bar chrome on transparent windows
+  mainWindow.on('focus', () => {
+    if (locked) mainWindow?.blur();
   });
 
   const rendererPath = path.join(__dirname, '..', 'renderer', 'index.html');
