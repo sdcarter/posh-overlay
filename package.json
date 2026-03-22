@@ -1,6 +1,6 @@
 {
   "name": "precision-dash",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Sim racing telemetry overlay",
   "main": "dist/main/index.js",
   "type": "commonjs",
