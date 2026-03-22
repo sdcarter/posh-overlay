@@ -1,6 +1,7 @@
-import { app, BrowserWindow, Tray, Menu, nativeImage, dialog, screen } from 'electron';
+import { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, dialog, screen } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
+import fs from 'fs';
 import { MockTelemetryProvider } from '../adapters/telemetry-mock/mock-telemetry-provider.js';
 import { IRacingTelemetryProvider } from '../adapters/telemetry-iracing/iracing-telemetry-provider.js';
 import { composeRevStrip } from '../application/use-cases/compose-rev-strip.js';
@@ -15,6 +16,16 @@ let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let locked = true;
 
 const useMock = ['1', 'true', 'yes'].includes((process.env.PRECISIONDASH_USE_MOCK ?? '').toLowerCase());
+
+function layoutPath() { return path.join(app.getPath('userData'), 'overlay-layout.json'); }
+
+function readLayout(): { x: number; y: number; w: number; h: number } | null {
+  try { return JSON.parse(fs.readFileSync(layoutPath(), 'utf-8')); } catch { return null; }
+}
+
+function saveLayout(layout: { x: number; y: number; w: number; h: number }) {
+  try { fs.writeFileSync(layoutPath(), JSON.stringify(layout)); } catch { /* ignore */ }
+}
 
 function createWindow() {
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -124,6 +135,8 @@ autoUpdater.on('update-downloaded', (info) => {
 });
 
 app.whenReady().then(async () => {
+  ipcMain.handle('layout:get', () => readLayout());
+  ipcMain.on('layout:save', (_e, layout) => saveLayout(layout));
   telemetryProvider = useMock ? new MockTelemetryProvider() : new IRacingTelemetryProvider();
   await telemetryProvider.start();
   createWindow();

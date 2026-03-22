@@ -16,6 +16,20 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
   const [size, setSize] = useState({ w: 960, h: 150 });
   const dragging = useRef<'move' | 'resize' | null>(null);
   const dragStart = useRef({ mx: 0, my: 0, x: 0, y: 0, w: 0, h: 0 });
+  const prevLocked = useRef(locked);
+
+  useEffect(() => {
+    window.electronAPI.getLayout().then((layout) => {
+      if (layout) { setPos({ x: layout.x, y: layout.y }); setSize({ w: layout.w, h: layout.h }); }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (locked && !prevLocked.current) {
+      window.electronAPI.saveLayout({ x: pos.x, y: pos.y, w: size.w, h: size.h });
+    }
+    prevLocked.current = locked;
+  }, [locked, pos, size]);
 
   const onDragStart = useCallback((e: React.MouseEvent) => {
     if (locked) return;
