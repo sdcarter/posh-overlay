@@ -12,7 +12,7 @@ The project uses native ES modules (`"type": "module"` in package.json). All mai
 TypeScript strict mode is enabled across all tsconfig files. No `any` types in production code — use explicit interfaces, `unknown` with type narrowing, or `Record<string, unknown>` for dynamic data. Prefer importing types from well-typed packages over hand-rolled type declarations.
 
 ### Transparent Overlay Integrity
-The app is a fullscreen transparent always-on-top Electron window. The overlay widget is positioned via CSS `position: absolute` within the transparent window. When locked, the window is click-through (`setIgnoreMouseEvents(true)`). When unlocked, the window accepts input (`setIgnoreMouseEvents(false)`) and the overlay is draggable/resizable via React mouse events. Never use `{ forward: true }` options on `setIgnoreMouseEvents` — use plain boolean toggling only. Never toggle `resizable`, `movable`, or `focusable` after window creation — these trigger Windows DWM chrome recomposition on transparent windows.
+The app is a fullscreen transparent always-on-top Electron window. The overlay widget is positioned via CSS `position: absolute` within the transparent window. When locked, the window is click-through (`setIgnoreMouseEvents(true)`). When unlocked, the window accepts input (`setIgnoreMouseEvents(false)`) and the overlay is draggable/resizable via React mouse events. Never use `{ forward: true }` options on `setIgnoreMouseEvents` — use plain boolean toggling only. Never toggle `resizable`, `movable`, or `focusable` after window creation — these trigger Windows DWM chrome recomposition on transparent windows. Always lock the overlay before showing modal dialogs (e.g. update prompt) to prevent input deadlock.
 
 ### Minimal Dependencies
 Keep the dependency tree small. Prefer built-in Node.js and Electron APIs over third-party packages. Every new dependency must justify its inclusion. Windows-only native addons (like `irsdk-node`) go in `optionalDependencies` so CI and development work cross-platform.
@@ -66,16 +66,19 @@ assets/
 - LED colors, count, and growth pattern are per-car (sequential, symmetrical, or any pattern the data defines)
 - Spacer LEDs (`#00000000` in Lovely data) render as transparent and are excluded from flash
 - At redline RPM (`ledRpm[gear][0]`), all non-spacer LEDs flash between the car's redline color (`ledColor[0]`) and white at the car's `redlineBlinkInterval`
+- Redline flash is suppressed in top gear (no gear to shift into) — top gear detected from Lovely data gear keys
 - Pit limiter flashes all LEDs yellow
-- LEDs render as circles, scaled proportionally to the overlay width
-- Cars without Lovely data fall back to a 10-LED green→yellow→red gradient with ratio-based thresholds
+- LEDs render as circles, sized by container height with `aspectRatio: 1`
+- Cars without Lovely data show no rev strip — only the telemetry ribbon
+- Car path lookup is normalized (strip spaces, hyphens, underscores, lowercase) to match iRacing `CarPath` against Lovely `carId`
 
 ## Ribbon Rules
 
 - RPM counter displayed left-justified
 - Incidents, brake bias, traction control, ABS displayed right-justified
 - Settings that return null from telemetry (car doesn't support them) are hidden, not shown as dashes
-- All text scales proportionally with overlay width via `em` units on a dynamic base font size
+- Ribbon has `flexShrink: 0` — it never gets compressed by the rev strip
+- All text scales proportionally with overlay height via `em` units on a dynamic base font size (`height / 6`)
 
 ## Coding Standards
 
@@ -88,6 +91,7 @@ assets/
 - Inline styles in React components (no CSS files) — the overlay is a single self-contained widget
 - Platform-specific dependencies go in `optionalDependencies` with dynamic `import()` and try/catch
 - No `postinstall` scripts — electron-builder handles native dep rebuilding during `electron-builder build`
+- Version in `package.json` must be bumped before tagging — tag and package version must always match
 
 ## Electron Window Rules
 
@@ -98,12 +102,13 @@ assets/
 - Lock/unlock toggles only `setIgnoreMouseEvents(boolean)` and sends IPC to renderer
 - System tray provides show/hide, lock/unlock, update check, and exit
 - Overlay position and size persist to `overlay-layout.json` in `app.getPath('userData')`
+- Minimum overlay size: 200×50 pixels
 
 ## Auto-Update Rules
 
 - `electron-updater` checks GitHub Releases 10 seconds after app start
 - Downloads happen silently in the background
-- When ready, a synchronous dialog prompts "Restart Now" or "Later" with HTML-stripped release notes
+- When ready, overlay is locked first, then a synchronous dialog prompts "Restart Now" or "Later" with HTML-stripped release notes
 - "Restart Now" calls `autoUpdater.quitAndInstall()`
 - Releases are triggered by pushing a `v*` tag; CI builds and publishes with `--publish always`
 
@@ -118,11 +123,17 @@ assets/
 
 - Semantic versioning: `MAJOR.MINOR.PATCH`
 - Version is maintained in `package.json` and must match the git tag
+- Always bump `package.json` version before creating the git tag
 - All releases are published via `--publish always` (required for electron-updater)
 - Release workflow runs on `windows-latest`
+
+## Git Identity
+
+- All commits authored as `sdcarter <sdcarter@users.noreply.github.com>`
+- Repo-level git config (not global) enforces this
 
 ## Governance
 
 Changes to this constitution require updating this file and committing with a clear rationale in the commit message.
 
-**Version**: 3.0 | **Ratified**: 2026-03-22 | **Last Amended**: 2026-03-22
+**Version**: 4.0 | **Ratified**: 2026-03-22 | **Last Amended**: 2026-03-22

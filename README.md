@@ -4,10 +4,12 @@ A transparent always-on-top overlay for [iRacing](https://www.iracing.com/) that
 
 ## Features
 
-- **Per-car LED rev lights** — colors, count, growth pattern, and redline behavior sourced from [Lovely Sim Racing car data](https://github.com/Lovely-Sim-Racing/lovely-car-data) for 67+ iRacing cars
+- **Per-car LED rev lights** — circular LEDs with colors, count, and growth pattern sourced from [Lovely Sim Racing car data](https://github.com/Lovely-Sim-Racing/lovely-car-data) for 67+ iRacing cars
 - **Accurate shift indicators** — LEDs follow each car's real shift light pattern (sequential, symmetrical, outside-in) with per-gear RPM thresholds
-- **Redline flash** — all LEDs rapidly blink the car's redline color when it's time to shift
-- **Live telemetry ribbon** — incidents, brake bias, TC, and ABS displayed when the car supports them
+- **Redline flash** — all LEDs rapidly blink the car's redline color when it's time to shift (suppressed in top gear)
+- **Smart visibility** — cars without LED profiles show only the telemetry ribbon, no fake generic lights
+- **Live telemetry ribbon** — RPM counter left, incidents/BB/TC/ABS right — settings hidden when the car doesn't support them
+- **Scalable UI** — text and LEDs scale proportionally when you resize the overlay
 - **Transparent overlay** — click-through when locked, draggable/resizable when unlocked
 - **Position memory** — overlay position and size persist across restarts
 - **Auto-update** — silently downloads new versions from GitHub Releases and prompts to restart
