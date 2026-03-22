@@ -40,7 +40,6 @@ function createWindow() {
   });
 
   mainWindow.setAlwaysOnTop(true, 'screen-saver', 1);
-  // Always ignore mouse with forwarding — the renderer controls pointer-events per element
   mainWindow.setIgnoreMouseEvents(true, { forward: true });
   Menu.setApplicationMenu(null);
 
@@ -56,8 +55,10 @@ function createWindow() {
 
 function toggleLock() {
   locked = !locked;
-  // Window always stays in pass-through mode. The renderer uses pointer-events
-  // on the panel to control whether the overlay is interactive.
+  // This is the only property we toggle — exactly what irdashies does.
+  // locked: ignore mouse with forwarding (click-through, hover still works)
+  // unlocked: accept mouse events (can interact with overlay)
+  mainWindow?.setIgnoreMouseEvents(locked, { forward: true });
   mainWindow?.webContents.send('overlay:lock', locked);
   rebuildTrayMenu();
 }

@@ -67,7 +67,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
     fontFamily: "'Segoe UI', system-ui, sans-serif",
     color: '#eef0f4',
     userSelect: 'none',
-    pointerEvents: locked ? 'none' : 'auto',
+    pointerEvents: 'auto',
     cursor: locked ? 'default' : 'move',
     boxSizing: 'border-box',
   };
