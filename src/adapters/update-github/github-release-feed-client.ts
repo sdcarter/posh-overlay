@@ -4,6 +4,20 @@ import https from 'https';
 
 const MSIX_SUFFIX = '-win-x64.msix';
 
+interface GitHubRelease {
+  tag_name?: string;
+  prerelease?: boolean;
+  published_at?: string;
+  html_url?: string;
+  body?: string;
+  assets?: GitHubAsset[];
+}
+
+interface GitHubAsset {
+  name: string;
+  browser_download_url: string;
+}
+
 export class GitHubReleaseFeedClient implements ReleaseFeedClient {
   constructor(private owner: string, private repo: string) {}
 
@@ -12,13 +26,13 @@ export class GitHubReleaseFeedClient implements ReleaseFeedClient {
     const json = await this.fetchJson(url);
     if (!json) return null;
 
-    const tagName: string = json.tag_name ?? '';
+    const tagName = json.tag_name ?? '';
     const version = tagName.replace(/^v/, '');
-    const isPrerelease: boolean = json.prerelease ?? false;
+    const isPrerelease = json.prerelease ?? false;
     if (isPrerelease && channel === 'stable') return null;
 
-    const assets: any[] = json.assets ?? [];
-    const msixAsset = assets.find((a: any) => (a.name as string).endsWith(MSIX_SUFFIX));
+    const assets = json.assets ?? [];
+    const msixAsset = assets.find((a) => a.name.endsWith(MSIX_SUFFIX));
     if (!msixAsset) return null;
 
     return {
@@ -33,7 +47,7 @@ export class GitHubReleaseFeedClient implements ReleaseFeedClient {
     };
   }
 
-  private fetchJson(url: string): Promise<any> {
+  private fetchJson(url: string): Promise<GitHubRelease | null> {
     return new Promise((resolve, reject) => {
       const req = https.get(url, { headers: { 'User-Agent': 'PrecisionDash/1.0', Accept: 'application/vnd.github+json' } }, (res) => {
         if (res.statusCode === 404) { resolve(null); return; }
