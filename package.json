@@ -1,6 +1,6 @@
 {
-  "name": "precision-dash",
-  "version": "0.4.1",
+  "name": "posh-dash",
+  "version": "0.4.2",
   "description": "Sim racing telemetry overlay",
   "main": "dist/main/index.js",
   "type": "commonjs",
@@ -16,8 +16,8 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {
-    "appId": "com.precisiondash.overlay",
-    "productName": "PrecisionDash",
+    "appId": "com.poshdash.overlay",
+    "productName": "PoshDash",
     "directories": {
       "output": "release"
     },

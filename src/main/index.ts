@@ -15,7 +15,7 @@ let telemetryProvider: TelemetryProvider;
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let locked = true;
 
-const useMock = ['1', 'true', 'yes'].includes((process.env.PRECISIONDASH_USE_MOCK ?? '').toLowerCase());
+const useMock = ['1', 'true', 'yes'].includes((process.env.POSHDASH_USE_MOCK ?? '').toLowerCase());
 
 function layoutPath() { return path.join(app.getPath('userData'), 'overlay-layout.json'); }
 
@@ -88,7 +88,7 @@ function rebuildTrayMenu() {
 
 function createTray() {
   tray = new Tray(nativeImage.createEmpty());
-  tray.setToolTip('PrecisionDash');
+  tray.setToolTip('PoshDash');
   rebuildTrayMenu();
   tray.on('double-click', () => { mainWindow?.show(); });
 }
@@ -124,7 +124,7 @@ autoUpdater.on('update-available', () => { autoUpdater.downloadUpdate().catch(()
 autoUpdater.on('update-downloaded', (info) => {
   const response = dialog.showMessageBoxSync({
     type: 'info',
-    title: 'PrecisionDash Update',
+    title: 'PoshDash Update',
     message: `Version ${info.version} is ready to install.`,
     detail: stripHtml(info.releaseNotes),
     buttons: ['Restart Now', 'Later'],

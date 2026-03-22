@@ -1,4 +1,4 @@
-# PrecisionDash Constitution
+# PoshDash Constitution
 
 ## Core Principles
 

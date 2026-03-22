@@ -49,7 +49,7 @@ export class GitHubReleaseFeedClient implements ReleaseFeedClient {
 
   private fetchJson(url: string): Promise<GitHubRelease | null> {
     return new Promise((resolve, reject) => {
-      const req = https.get(url, { headers: { 'User-Agent': 'PrecisionDash/1.0', Accept: 'application/vnd.github+json' } }, (res) => {
+      const req = https.get(url, { headers: { 'User-Agent': 'PoshDash/1.0', Accept: 'application/vnd.github+json' } }, (res) => {
         if (res.statusCode === 404) { resolve(null); return; }
         let data = '';
         res.on('data', (chunk) => (data += chunk));

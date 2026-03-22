@@ -109,7 +109,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
   ) : (
     <>
       <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>
-        PrecisionDash Overlay Running &nbsp;|&nbsp; {waitingMessage}
+        PoshDash Overlay Running &nbsp;|&nbsp; {waitingMessage}
       </span>
       {!locked && (
         <div style={{ fontSize: 11, color: 'rgba(255,209,102,0.85)', marginTop: 4 }}>
