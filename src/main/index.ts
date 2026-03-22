@@ -28,7 +28,7 @@ function createWindow() {
     skipTaskbar: true,
     resizable: false,
     movable: false,
-    focusable: true,
+    focusable: false,
     hasShadow: false,
     roundedCorners: false,
     backgroundColor: '#00000000',
@@ -55,11 +55,14 @@ function createWindow() {
 
 function toggleLock() {
   locked = !locked;
-  // This is the only property we toggle — exactly what irdashies does.
-  // locked: ignore mouse with forwarding (click-through, hover still works)
-  // unlocked: accept mouse events (can interact with overlay)
-  mainWindow?.setIgnoreMouseEvents(locked, { forward: true });
+  // NEVER call setIgnoreMouseEvents(false) — that triggers Windows title bar chrome.
+  // Always stay in pass-through mode. The renderer uses mouseenter/mouseleave on the
+  // panel to temporarily flip ignore on/off only while hovering the overlay.
   mainWindow?.webContents.send('overlay:lock', locked);
+  if (locked) {
+    // Ensure we're back to full pass-through when locking
+    mainWindow?.setIgnoreMouseEvents(true, { forward: true });
+  }
   rebuildTrayMenu();
 }
 
@@ -81,7 +84,7 @@ function createTray() {
   tray = new Tray(nativeImage.createEmpty());
   tray.setToolTip('PrecisionDash');
   rebuildTrayMenu();
-  tray.on('double-click', () => { mainWindow?.show(); mainWindow?.focus(); });
+  tray.on('double-click', () => { mainWindow?.show(); });
 }
 
 function startTelemetryLoop() {
@@ -133,4 +136,15 @@ app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(
 app.on('before-quit', async () => {
   if (refreshInterval) clearInterval(refreshInterval);
   await telemetryProvider?.stop();
+});
+
+// Renderer tells us when mouse enters/leaves the overlay panel while unlocked.
+// This lets us accept clicks on the panel without ever calling setIgnoreMouseEvents(false)
+// on the whole window permanently (which triggers the Windows title bar bug).
+ipcMain.on('overlay:mouse-enter', () => {
+  if (!locked) mainWindow?.setIgnoreMouseEvents(false);
+});
+
+ipcMain.on('overlay:mouse-leave', () => {
+  mainWindow?.setIgnoreMouseEvents(true, { forward: true });
 });

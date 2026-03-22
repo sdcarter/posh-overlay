@@ -105,8 +105,11 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
     </>
   );
 
+  const onEnter = () => { if (!locked) window.electronAPI.overlayMouseEnter(); };
+  const onLeave = () => { window.electronAPI.overlayMouseLeave(); };
+
   return (
-    <div style={panelStyle} onMouseDown={onDragStart}>
+    <div style={panelStyle} onMouseDown={onDragStart} onMouseEnter={onEnter} onMouseLeave={onLeave}>
       {content}
       {!locked && <div style={resizeHandle} onMouseDown={onResizeStart} />}
     </div>
