@@ -11,9 +11,9 @@ interface SDK {
   getSessionData(): { DriverInfo?: { DriverCarIdx?: number; Drivers?: Array<{ CarIdx: number; CarPath: string }> } } | null;
 }
 
-interface SDKConstructor {
+interface SDKStatic {
   new (config: { autoEnableTelemetry: boolean }): SDK;
-  IsSimRunning(): boolean;
+  IsSimRunning(): Promise<boolean>;
 }
 
 export class IRacingTelemetryProvider implements TelemetryProvider {
@@ -21,25 +21,24 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
   private latest: TelemetrySnapshot | null = null;
   private polling: ReturnType<typeof setInterval> | null = null;
   private carPath: string | null = null;
-  private SDKClass: SDKConstructor | null = null;
+  private SDKClass: SDKStatic | null = null;
 
   async start() {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const mod = require('irsdk-node');
-      this.SDKClass = mod.IRacingSDK;
+      const mod = await import('irsdk-node');
+      this.SDKClass = mod.IRacingSDK as unknown as SDKStatic;
       this.polling = setInterval(() => this.poll(), 16);
     } catch {
       console.log('irsdk-node not available — iRacing telemetry disabled.');
     }
   }
 
-  private poll() {
+  private async poll() {
     if (!this.SDKClass) return;
 
     if (!this.sdk) {
       try {
-        if (this.SDKClass.IsSimRunning()) {
+        if (await this.SDKClass.IsSimRunning()) {
           this.sdk = new this.SDKClass({ autoEnableTelemetry: true });
           this.sdk.startSDK();
         }

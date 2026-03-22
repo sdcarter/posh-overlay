@@ -1,9 +1,9 @@
 {
   "name": "posh-dash",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Sim racing telemetry overlay",
   "main": "dist/main/index.js",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev:main\" \"npm run dev:renderer\"",
     "dev:main": "tsc -p tsconfig.main.json --watch",
@@ -59,8 +59,10 @@
   },
   "dependencies": {
     "electron-updater": "^6.8.3",
-    "irsdk-node": "^4.4.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
+  },
+  "optionalDependencies": {
+    "irsdk-node": "^4.4.0"
   }
 }

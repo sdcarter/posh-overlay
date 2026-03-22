@@ -1,5 +1,5 @@
 import type { CarShiftProfile } from './types.js';
-import carDataBundle from './lovely-car-data.json';
+import carDataBundle from './lovely-car-data.json' with { type: 'json' };
 
 const DEFAULT_TRIGGERS = [0.55, 0.62, 0.69, 0.76, 0.82, 0.87, 0.91, 0.945, 0.97, 0.985];
 const DEFAULT_COLORS = ['#22C55E', '#22C55E', '#84CC16', '#84CC16', '#EAB308', '#EAB308', '#F97316', '#F97316', '#EF4444', '#EF4444'];
