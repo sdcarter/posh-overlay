@@ -55,7 +55,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
       if (dragging.current === 'move') {
         setPos({ x: dragStart.current.x + dx, y: dragStart.current.y + dy });
       } else {
-        setSize({ w: Math.max(400, dragStart.current.w + dx), h: Math.max(100, dragStart.current.h + dy) });
+        setSize({ w: Math.max(200, dragStart.current.w + dx), h: Math.max(50, dragStart.current.h + dy) });
       }
     };
     const onUp = () => { dragging.current = null; };
