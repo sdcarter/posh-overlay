@@ -30,10 +30,13 @@ export function resolveProfile(driverCarId: number, carPath?: string | null, gea
   const rpmArray = (gearKey && rpmEntry[gearKey]) || findBestGearRpm(rpmEntry);
   if (!rpmArray || rpmArray.length < 2) return null;
 
+  const maxGear = Object.keys(rpmEntry).filter((k) => /^\d+$/.test(k)).reduce((m, k) => Math.max(m, Number(k)), 0);
+  const isTopGear = gear != null && gear >= maxGear;
+
   const redlineRpm = rpmArray[0];
   const ledRpms = rpmArray.slice(1, ledCount + 1);
 
-  return { carId: driverCarId, ledRpms, ledColors: colors, redlineRpm, redlineColor, redlineBlinkInterval: blinkInterval };
+  return { carId: driverCarId, ledRpms, ledColors: colors, redlineRpm, redlineColor, redlineBlinkInterval: blinkInterval, isTopGear };
 }
 
 function parseHex(color?: string): string | null {

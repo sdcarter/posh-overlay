@@ -24,4 +24,5 @@ export interface CarShiftProfile {
   redlineRpm: number;
   redlineColor: string;
   redlineBlinkInterval: number;
+  isTopGear: boolean;
 }
