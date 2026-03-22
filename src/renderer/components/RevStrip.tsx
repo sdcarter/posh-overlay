@@ -27,7 +27,7 @@ export function RevStrip({ state }: Props) {
   }, [state.flashMode, state.redlineBlinkInterval]);
 
   return (
-    <div style={{ display: 'flex', gap: '2%', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+    <div style={{ display: 'flex', gap: '1.5%', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
       {state.ledColors.map((ledColor, i) => {
         const isSpacer = ledColor === 'transparent';
         let color: string;
@@ -46,7 +46,8 @@ export function RevStrip({ state }: Props) {
           <div
             key={i}
             style={{
-              height: '100%',
+              flex: '1 1 0',
+              maxHeight: '100%',
               aspectRatio: '1',
               borderRadius: '50%',
               background: color,

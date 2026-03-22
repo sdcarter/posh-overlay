@@ -101,7 +101,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
   const content = frame ? (
     <>
       {frame.revStrip && (
-        <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        <div style={{ flex: 1, minHeight: 0 }}>
           <RevStrip state={frame.revStrip} />
         </div>
       )}
