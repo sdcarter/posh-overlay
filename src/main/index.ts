@@ -28,7 +28,7 @@ function createWindow() {
     skipTaskbar: true,
     resizable: false,
     movable: false,
-    focusable: false,
+    focusable: true,
     hasShadow: false,
     roundedCorners: false,
     backgroundColor: '#00000000',
@@ -40,7 +40,7 @@ function createWindow() {
   });
 
   mainWindow.setAlwaysOnTop(true, 'screen-saver', 1);
-  mainWindow.setIgnoreMouseEvents(true, { forward: true });
+  mainWindow.setIgnoreMouseEvents(true);
   Menu.setApplicationMenu(null);
 
   const rendererPath = path.join(__dirname, '..', 'renderer', 'index.html');
@@ -55,14 +55,9 @@ function createWindow() {
 
 function toggleLock() {
   locked = !locked;
-  // NEVER call setIgnoreMouseEvents(false) — that triggers Windows title bar chrome.
-  // Always stay in pass-through mode. The renderer uses mouseenter/mouseleave on the
-  // panel to temporarily flip ignore on/off only while hovering the overlay.
+  mainWindow?.setIgnoreMouseEvents(locked);
   mainWindow?.webContents.send('overlay:lock', locked);
-  if (locked) {
-    // Ensure we're back to full pass-through when locking
-    mainWindow?.setIgnoreMouseEvents(true, { forward: true });
-  }
+  if (!locked) mainWindow?.focus();
   rebuildTrayMenu();
 }
 
@@ -136,15 +131,4 @@ app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(
 app.on('before-quit', async () => {
   if (refreshInterval) clearInterval(refreshInterval);
   await telemetryProvider?.stop();
-});
-
-// Renderer tells us when mouse enters/leaves the overlay panel while unlocked.
-// This lets us accept clicks on the panel without ever calling setIgnoreMouseEvents(false)
-// on the whole window permanently (which triggers the Windows title bar bug).
-ipcMain.on('overlay:mouse-enter', () => {
-  if (!locked) mainWindow?.setIgnoreMouseEvents(false);
-});
-
-ipcMain.on('overlay:mouse-leave', () => {
-  mainWindow?.setIgnoreMouseEvents(true, { forward: true });
 });
