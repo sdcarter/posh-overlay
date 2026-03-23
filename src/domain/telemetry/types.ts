@@ -1,6 +1,7 @@
 export interface TelemetrySnapshot {
   timestampMs: number;
   driverCarId: number;
+  positionOverall: number | null;
   carPath: string | null;
   gear: number | null;
   rpm: number;

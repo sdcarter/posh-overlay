@@ -3,6 +3,7 @@ import type { TelemetrySnapshot } from '../../domain/telemetry/types.js';
 
 interface TelVar { value: number[] }
 const val = (v: TelVar | undefined) => v?.value?.[0] ?? null;
+const arrVal = (v: TelVar | undefined, idx: number | null | undefined) => (idx == null ? null : v?.value?.[idx] ?? null);
 
 interface SDK {
   startSDK(): void;
@@ -59,6 +60,9 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
       const t = this.sdk.getTelemetry();
       const session = this.sdk.getSessionData();
 
+      const playerCarIdx = val(t.PlayerCarIdx);
+      const overallPosition = val(t.PlayerCarPosition) ?? arrVal(t.CarIdxPosition, playerCarIdx);
+
       if (session) {
         const idx = session.DriverInfo?.DriverCarIdx;
         const drivers = session.DriverInfo?.Drivers;
@@ -71,7 +75,8 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
       const rpm = val(t.RPM) ?? 0;
       this.latest = {
         timestampMs: Date.now(),
-        driverCarId: val(t.PlayerCarIdx) ?? 0,
+        driverCarId: playerCarIdx ?? 0,
+        positionOverall: overallPosition != null ? Math.round(overallPosition) : null,
         carPath: this.carPath,
         gear: val(t.Gear),
         rpm,

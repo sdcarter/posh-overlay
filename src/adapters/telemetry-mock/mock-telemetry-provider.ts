@@ -9,6 +9,7 @@ export class MockTelemetryProvider implements TelemetryProvider {
     return {
       timestampMs: Date.now(),
       driverCarId: 1,
+      positionOverall: 12,
       carPath: 'bmwm4gt3',
       gear: 4,
       rpm: 5500,
