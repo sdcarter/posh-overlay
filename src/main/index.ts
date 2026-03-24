@@ -21,6 +21,7 @@ let refreshInterval: ReturnType<typeof setInterval> | null = null;
 let locked = true;
 
 const useMock = ['1', 'true', 'yes'].includes((process.env.POSHDASH_USE_MOCK ?? '').toLowerCase());
+const mockScenario = (process.env.POSHDASH_MOCK_SCENARIO ?? 'default').toLowerCase();
 
 function layoutPath() { return path.join(app.getPath('userData'), 'overlay-layout.json'); }
 
@@ -144,7 +145,7 @@ autoUpdater.on('update-downloaded', (info) => {
 app.whenReady().then(async () => {
   ipcMain.handle('layout:get', () => readLayout());
   ipcMain.on('layout:save', (_e, layout) => saveLayout(layout));
-  telemetryProvider = useMock ? new MockTelemetryProvider() : new IRacingTelemetryProvider();
+  telemetryProvider = useMock ? new MockTelemetryProvider(mockScenario) : new IRacingTelemetryProvider();
   await telemetryProvider.start();
   createWindow();
   createTray();

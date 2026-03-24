@@ -1,4 +1,5 @@
 import type { TelemetrySnapshot } from '../telemetry/types.js';
+import { lapsRemainingForDriver, totalRaceLapsForDriver } from '../telemetry/lap-count.js';
 
 export function formatIncidents(s: TelemetrySnapshot): string {
   return s.incidentLimit != null ? `Inc ${s.incidentCount}/${s.incidentLimit}` : `Inc ${s.incidentCount}/-`;
@@ -17,9 +18,13 @@ export function absLevel(s: TelemetrySnapshot): string | null {
 }
 
 export function lapProgress(s: TelemetrySnapshot): string {
-  if (s.sessionLapsTotal != null && s.sessionLapsRemain != null) {
-    const completed = s.sessionLapsTotal - s.sessionLapsRemain;
-    return `Laps ${completed.toFixed(1)}/${s.sessionLapsTotal.toFixed(1)}`;
+  const adjustedTotal = totalRaceLapsForDriver(s);
+  if (adjustedTotal != null) {
+    const currentLap = s.currentLap ?? 0;
+    const lapDistPct = Math.min(1, Math.max(0, s.lapDistPct ?? 0));
+    const completed = currentLap > 0 ? Math.max(0, (currentLap - 1) + lapDistPct) : 0;
+    const remaining = lapsRemainingForDriver(s);
+    return `Laps ${completed.toFixed(1)}/${adjustedTotal.toFixed(1)}${remaining != null ? ` (${remaining} left)` : ''}`;
   }
   if (s.sessionTimeRemainSeconds != null && s.sessionLastLapTimeSeconds != null && s.sessionLastLapTimeSeconds > 0) {
     const est = s.sessionTimeRemainSeconds / s.sessionLastLapTimeSeconds;

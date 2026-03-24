@@ -2,6 +2,10 @@
 
 A transparent always-on-top overlay for [iRacing](https://www.iracing.com/) that displays real-time telemetry — RPM rev lights, incident count, brake bias, traction control, and ABS — directly on your screen while you race.
 
+## Personal Project
+
+This is a tool I created for my own use. I'm not building it as a product or planning large-scale development — just something I wanted to address for myself. Specifically, I built this because when your FOV is set correctly in many cars, you often can't see the dashboard, and I felt that rev lights were something I was missing. If you enjoy it, you're welcome to use it, but you should expect this to remain a relatively simple, focused project.
+
 ## Features
 
 - **Per-car LED rev lights** — circular LEDs with colors, count, and growth pattern sourced from [Lovely Sim Racing car data](https://github.com/Lovely-Sim-Racing/lovely-car-data) for 67+ iRacing cars
@@ -35,8 +39,14 @@ The overlay is invisible to screen capture tools and stays on top of fullscreen 
 # Install dependencies
 npm install
 
-# Run in dev mode (mock telemetry, no iRacing needed)
-POSHDASH_USE_MOCK=true npm start
+# Run default mock scenario
+npm run mock
+
+# Run specific mock scenarios
+npm run mock:mazda
+npm run mock:bmw
+npm run mock:sfl
+npm run mock:finish
 
 # Lint
 npm run lint
@@ -50,11 +60,13 @@ npm run pack
 
 Requires Node.js 22+ and npm. The iRacing telemetry adapter (`irsdk-node`) only compiles on Windows — on macOS/Linux, the app runs with mock telemetry.
 
+Mock scenarios are launched through npm targets. Under the hood they set `POSHDASH_USE_MOCK=true` and `POSHDASH_MOCK_SCENARIO=<name>` before starting the Electron app.
+
 ## Architecture
 
 PoshDash uses a hexagonal (ports-and-adapters) architecture:
 
-```
+```text
 domain/        Pure TypeScript — telemetry types, rev-strip evaluation, ribbon formatting
 application/   Use cases and port interfaces
 adapters/      iRacing SDK, mock telemetry, GitHub release feed

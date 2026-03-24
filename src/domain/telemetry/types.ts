@@ -3,6 +3,10 @@ export interface TelemetrySnapshot {
   driverCarId: number;
   positionOverall: number | null;
   carPath: string | null;
+  currentLap: number | null;
+  lapDistPct: number | null;
+  leaderLap: number | null;
+  leaderLapDistPct: number | null;
   gear: number | null;
   rpm: number;
   maxRpm: number;

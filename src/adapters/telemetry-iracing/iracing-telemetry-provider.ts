@@ -5,6 +5,14 @@ interface TelVar { value: number[] }
 const val = (v: TelVar | undefined) => v?.value?.[0] ?? null;
 const arrVal = (v: TelVar | undefined, idx: number | null | undefined) => (idx == null ? null : v?.value?.[idx] ?? null);
 
+function findLeaderCarIdx(carIdxPosition: TelVar | undefined): number | null {
+  const positions = carIdxPosition?.value;
+  if (!positions) return null;
+
+  const leaderIndex = positions.findIndex((position) => position === 1);
+  return leaderIndex >= 0 ? leaderIndex : null;
+}
+
 interface SDK {
   startSDK(): void;
   waitForData(timeout: number): boolean;
@@ -61,6 +69,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
       const session = this.sdk.getSessionData();
 
       const playerCarIdx = val(t.PlayerCarIdx);
+      const leaderCarIdx = findLeaderCarIdx(t.CarIdxPosition);
       const overallPosition = val(t.PlayerCarPosition) ?? arrVal(t.CarIdxPosition, playerCarIdx);
 
       if (session) {
@@ -78,6 +87,10 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         driverCarId: playerCarIdx ?? 0,
         positionOverall: overallPosition != null ? Math.round(overallPosition) : null,
         carPath: this.carPath,
+        currentLap: val(t.Lap) ?? arrVal(t.CarIdxLap, playerCarIdx),
+        lapDistPct: val(t.LapDistPct) ?? arrVal(t.CarIdxLapDistPct, playerCarIdx),
+        leaderLap: arrVal(t.CarIdxLap, leaderCarIdx),
+        leaderLapDistPct: arrVal(t.CarIdxLapDistPct, leaderCarIdx),
         gear: val(t.Gear),
         rpm,
         maxRpm: val(t.PlayerCarSLShiftRPM) ?? val(t.PlayerCarSLBlinkRPM) ?? val(t.PlayerCarSLLastRPM) ?? rpm * 1.05,

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { TelemetrySnapshot } from '../../domain/telemetry/types';
+import { isDriverFinished, lapsRemainingForDriver } from '../../domain/telemetry/lap-count';
 import type { RevStripState } from '../../domain/rev-strip/types';
 import type { RibbonState } from '../../domain/ribbon/types';
 
@@ -23,6 +24,55 @@ function formatGear(gear: number | null): string {
 function formatPillNumber(value: number | null): string {
   if (value == null || Number.isNaN(value)) return '--';
   return String(Math.max(0, Math.round(value)));
+}
+
+function CheckeredFlagIcon({ size }: { size: number }) {
+  const flagWidth = size;
+  const flagHeight = size * 0.8;
+  const cellWidth = flagWidth / 4;
+  const cellHeight = flagHeight / 4;
+
+  return (
+    <svg
+      width={size * 1.16}
+      height={size}
+      viewBox="0 0 58 48"
+      role="img"
+      aria-label="Finished"
+      style={{
+        overflow: 'visible',
+        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.35))',
+      }}
+    >
+      <defs>
+        <clipPath id="finish-flag-shape">
+          <path d="M14 6 C20 4, 28 4, 34 6 S46 9, 52 7 L52 31 C46 33, 40 31, 34 29 S22 27, 14 29 Z" />
+        </clipPath>
+      </defs>
+
+      <rect x="7" y="4" width="4" height="38" rx="2" fill="rgba(213,221,231,0.9)" />
+      <rect x="6" y="41" width="8" height="3" rx="1.5" fill="rgba(154,166,179,0.9)" />
+
+      <g clipPath="url(#finish-flag-shape)">
+        {Array.from({ length: 4 }, (_, row) =>
+          Array.from({ length: 4 }, (_, col) => {
+            const dark = (row + col) % 2 === 0;
+            return (
+              <rect
+                key={`${row}-${col}`}
+                x={14 + col * (cellWidth * (38 / flagWidth))}
+                y={6 + row * (cellHeight * (25 / flagHeight))}
+                width={cellWidth * (38 / flagWidth) + 0.4}
+                height={cellHeight * (25 / flagHeight) + 0.4}
+                fill={dark ? '#11161d' : '#f7fafc'}
+              />
+            );
+          })
+        )}
+        <path d="M14 6 C20 4, 28 4, 34 6 S46 9, 52 7 L52 31 C46 33, 40 31, 34 29 S22 27, 14 29 Z" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.1" />
+      </g>
+    </svg>
+  );
 }
 
 function RevDots({ state, height }: { state: RevStripState; height: number }) {
@@ -265,8 +315,9 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
     frame.snapshot.pitLimiterActive ? 'PIT' : null,
   ].filter(Boolean) : [];
 
+  const finished = frame ? isDriverFinished(frame.snapshot) : false;
   const positionText = frame?.snapshot.positionOverall != null ? `P${formatPillNumber(frame.snapshot.positionOverall)}` : '--';
-  const lapsText = frame ? formatPillNumber(frame.snapshot.sessionLapsRemain) : '--';
+  const lapsText = frame ? formatPillNumber(lapsRemainingForDriver(frame.snapshot)) : '--';
   const gearText = frame ? formatGear(frame.snapshot.gear) : '--';
   const rpmText = frame ? Math.max(0, Math.round(frame.snapshot.rpm)).toString() : '--';
 
@@ -293,8 +344,12 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
         </div>
 
         <div style={rightPillStyle}>
-          <div style={{ fontSize: `${0.16 * pillSize}px`, letterSpacing: '0.1em', fontWeight: 700, opacity: 0.82 }}>LAPS</div>
-          <div style={{ fontSize: `${0.28 * pillSize}px`, lineHeight: 1, fontWeight: 800 }}>{lapsText}</div>
+          <div style={{ fontSize: `${0.16 * pillSize}px`, letterSpacing: '0.1em', fontWeight: 700, opacity: 0.82 }}>{finished ? 'DONE' : 'LAPS'}</div>
+          {finished ? (
+            <CheckeredFlagIcon size={Math.max(20, pillSize * 0.32)} />
+          ) : (
+            <div style={{ fontSize: `${0.28 * pillSize}px`, lineHeight: 1, fontWeight: 800 }}>{lapsText}</div>
+          )}
         </div>
       </div>
 
