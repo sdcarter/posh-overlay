@@ -1,24 +1,60 @@
-# PoshDash Constitution
+<!--
+Sync Impact Report
+- Version change: 4.0 → 5.0.0
+- List of modified principles:
+  - Hexagonal Architecture → (Moved to Technical Architecture)
+  - ESM-First → (Moved to Technical Architecture)
+  - Type Safety → (Moved to Technical Architecture)
+  - Transparent Overlay Integrity → (Moved to Technical Architecture)
+  - Minimal Dependencies → (Moved to Technical Architecture)
+  - Clean Separation of Concerns → (Moved to Technical Architecture)
+- Added sections:
+  - Core Principles (New set of 5 focus principles)
+- Removed sections:
+  - None (reorganized)
+- Templates requiring updates:
+  - ✅ Updated/Validated: .specify/templates/plan-template.md, .specify/templates/spec-template.md, .specify/templates/tasks-template.md
+- Follow-up TODOs: None
+-->
+
+# posh-overlay Constitution
 
 ## Core Principles
+
+### I. Personal Utility First
+The primary goal is an overlay that works perfectly for my iRacing setup. If a community request complicates my personal use, it’s out of scope. The project exists to solve a specific personal need; community sharing is a secondary benefit.
+
+### II. Performance is the Product
+Since this is a racing overlay, frame-time and system resource usage are the most critical 'features.' Every planned change must evaluate the impact on game FPS. The overlay must never cause stutter or input lag in the simulation.
+
+### III. Pragmatic Testing
+No high-overhead automated UI testing suites. Focus on 'Data Integrity'—ensure the telemetry coming from the iRacing SDK is mapped correctly. If the telemetry data is solid, the UI 'looks' are secondary. Verification should prioritize raw data accuracy over visual regression testing.
+
+### IV. Windows-Native Simplicity
+Ensure the installation and startup are low-friction. I want to spend my time racing, not troubleshooting my overlay. Keep the stack as thin as possible and avoid unnecessary abstraction layers that complicate the Windows deployment.
+
+### V. Security via Transparency
+Since this interacts with game telemetry, keep the code simple and readable so users can see exactly how their data is handled. No 'black box' logic or complex obfuscation. Security is maintained through simple, auditable code.
+
+## Technical Architecture & Standards
 
 ### Hexagonal Architecture
 All code follows a ports-and-adapters (hexagonal) architecture. Domain logic lives in `src/domain/` with zero framework dependencies. Application use cases live in `src/application/` and depend only on domain types and port interfaces. Adapters in `src/adapters/` implement ports for external systems (iRacing SDK, GitHub API). The Electron main process (`src/main/`) and React renderer (`src/renderer/`) are infrastructure concerns that wire adapters to use cases.
 
 ### ESM-First
-The project uses native ES modules (`"type": "module"` in package.json). All main-process and domain code compiles to ESM via `NodeNext` module resolution. Use `import`/`export` exclusively — never `require()`. The sole exception is the Electron preload script (`src/main/preload.cts`) which must be CommonJS due to Electron's sandbox requirement. Use `import.meta.url` and `fileURLToPath` instead of `__dirname`/`__filename`. CJS-only dependencies (e.g. `electron-updater`) must use default import with destructuring: `import mod from 'pkg'; const { named } = mod;`.
+The project uses native ES modules (`"type": "module"` in package.json). All main-process and domain code compiles to ESM via `NodeNext` module resolution. Use `import`/`export` exclusively — never `require()`. The sole exception is the Electron preload script (`src/main/preload.cts`) which must be CommonJS due to Electron's sandbox requirement.
 
 ### Type Safety
-TypeScript strict mode is enabled across all tsconfig files. No `any` types in production code — use explicit interfaces, `unknown` with type narrowing, or `Record<string, unknown>` for dynamic data. Prefer importing types from well-typed packages over hand-rolled type declarations.
+TypeScript strict mode is enabled across all tsconfig files. No `any` types in production code — use explicit interfaces, `unknown` with type narrowing, or `Record<string, unknown>` for dynamic data.
 
 ### Transparent Overlay Integrity
-The app is a fullscreen transparent always-on-top Electron window. The overlay widget is positioned via CSS `position: absolute` within the transparent window. When locked, the window is click-through (`setIgnoreMouseEvents(true)`). When unlocked, the window accepts input (`setIgnoreMouseEvents(false)`) and the overlay is draggable/resizable via React mouse events. Never use `{ forward: true }` options on `setIgnoreMouseEvents` — use plain boolean toggling only. Never toggle `resizable`, `movable`, or `focusable` after window creation — these trigger Windows DWM chrome recomposition on transparent windows. Always lock the overlay before showing modal dialogs (e.g. update prompt) to prevent input deadlock.
+The app is a fullscreen transparent always-on-top Electron window. When locked, the window is click-through (`setIgnoreMouseEvents(true)`). When unlocked, the window accepts input and the overlay is draggable/resizable. Never toggle `resizable`, `movable`, or `focusable` after window creation to avoid Windows DWM chrome recomposition issues.
 
 ### Minimal Dependencies
-Keep the dependency tree small. Prefer built-in Node.js and Electron APIs over third-party packages. Every new dependency must justify its inclusion. Windows-only native addons (like `irsdk-node`) go in `optionalDependencies` so CI and development work cross-platform.
+Keep the dependency tree small. Prefer built-in Node.js and Electron APIs over third-party packages. Every new dependency must justify its inclusion based on Principle IV (Simplicity).
 
 ### Clean Separation of Concerns
-React components in `src/renderer/` are purely presentational — they receive data via IPC and render it. All telemetry processing, rev-strip computation, and ribbon formatting happen in domain/application layers in the main process. The preload script (`src/main/preload.cts`) exposes a minimal `electronAPI` surface via `contextBridge`.
+React components in `src/renderer/` are purely presentational. All telemetry processing, rev-strip computation, and ribbon formatting happen in domain/application layers in the main process.
 
 ## Technology Stack
 
@@ -31,8 +67,8 @@ React components in `src/renderer/` are purely presentational — they receive d
 - Car data: [Lovely Sim Racing car data](https://github.com/Lovely-Sim-Racing/lovely-car-data), fetched at build time
 - Packaging: electron-builder 26.x, NSIS installer for Windows
 - Auto-update: electron-updater via GitHub Releases (`--publish always`)
-- Linting: ESLint 9.x flat config (`eslint.config.mjs`) with typescript-eslint and react-hooks plugin
-- CI/CD: GitHub Actions (actions/checkout@v6, actions/setup-node@v5) — lint + build on push, build + publish on `v*` tags
+- Linting: ESLint 9.x flat config (`eslint.config.mjs`)
+- CI/CD: GitHub Actions (lint + build on push, build + publish on `v*` tags)
 
 ## Project Structure
 
@@ -55,9 +91,9 @@ src/
 scripts/
   fetch-car-data.mjs   Fetches Lovely Sim Racing car data at build time
 assets/
-  icon.png             Source icon (1333x1333)
+  icon.png             Source icon
   icon-256.png         App icon for electron-builder
-  tray-icon.png        System tray icon (32x32)
+  tray-icon.png        System tray icon
 ```
 
 ## Rev Strip (LED) Rules
@@ -65,75 +101,63 @@ assets/
 - Each LED has an absolute RPM threshold from Lovely car data — LED lights when `rpm >= threshold`
 - LED colors, count, and growth pattern are per-car (sequential, symmetrical, or any pattern the data defines)
 - Spacer LEDs (`#00000000` in Lovely data) render as transparent and are excluded from flash
-- At redline RPM (`ledRpm[gear][0]`), all non-spacer LEDs flash between the car's redline color (`ledColor[0]`) and white at the car's `redlineBlinkInterval`
-- Redline flash is suppressed in top gear (no gear to shift into) — top gear detected from Lovely data gear keys
+- At redline RPM, all non-spacer LEDs flash between the car's redline color and white
+- Redline flash is suppressed in top gear
 - Pit limiter flashes all LEDs yellow
-- LEDs render as circles, sized by container height with `aspectRatio: 1`
-- Cars without Lovely data show no rev strip — only the telemetry ribbon
-- Car path lookup is normalized (strip spaces, hyphens, underscores, lowercase) to match iRacing `CarPath` against Lovely `carId`
+- Car path lookup is normalized to match iRacing `CarPath` against Lovely `carId`
 
 ## Ribbon Rules
 
 - RPM counter displayed left-justified
 - Incidents, brake bias, traction control, ABS displayed right-justified
-- Settings that return null from telemetry (car doesn't support them) are hidden, not shown as dashes
+- Settings that return null from telemetry (car doesn't support them) are hidden
 - Ribbon has `flexShrink: 0` — it never gets compressed by the rev strip
-- All text scales proportionally with overlay height via `em` units on a dynamic base font size (`height / 6`)
+- All text scales proportionally with overlay height via `em` units
 
 ## Coding Standards
 
 - All source files use named exports (no default exports)
-- Import paths in main-process code use `.js` extensions (`NodeNext` resolution requires explicit extensions)
-- JSON imports use `with { type: 'json' }` import attributes (ESM requirement)
-- Renderer imports use bare specifiers (Vite resolves them)
-- ESLint must pass with zero warnings (`--max-warnings 0`) before any commit
-- TypeScript must compile cleanly with no errors on both `tsconfig.main.json` and `tsconfig.json`
-- Inline styles in React components (no CSS files) — the overlay is a single self-contained widget
-- Platform-specific dependencies go in `optionalDependencies` with dynamic `import()` and try/catch
-- No `postinstall` scripts — electron-builder handles native dep rebuilding during `electron-builder build`
-- Version in `package.json` must be bumped before tagging — tag and package version must always match
+- Import paths in main-process code use `.js` extensions
+- JSON imports use `with { type: 'json' }` import attributes
+- ESLint must pass with zero warnings before any commit
+- TypeScript must compile cleanly with no errors
+- Inline styles in React components for self-contained widgets
+- Platform-specific dependencies go in `optionalDependencies`
 
 ## Electron Window Rules
 
 - BrowserWindow is created once at startup spanning the primary display
-- Properties set at creation and never mutated: `frame: false`, `transparent: true`, `alwaysOnTop: true`, `skipTaskbar: true`, `resizable: false`, `movable: false`, `focusable: true`, `hasShadow: false`, `roundedCorners: false`
+- Properties: `frame: false`, `transparent: true`, `alwaysOnTop: true`, `skipTaskbar: true`, `resizable: false`, `movable: false`, `focusable: true`
 - `setAlwaysOnTop(true, 'screen-saver', 1)` for maximum z-order
-- `Menu.setApplicationMenu(null)` to remove menu bar
-- Lock/unlock toggles only `setIgnoreMouseEvents(boolean)` and sends IPC to renderer
-- System tray provides show/hide, lock/unlock, update check, and exit
-- Overlay position and size persist to `overlay-layout.json` in `app.getPath('userData')`
-- Minimum overlay size: 200×50 pixels
+- Lock/unlock toggles only `setIgnoreMouseEvents(boolean)`
+- Overlay position and size persist to `overlay-layout.json`
 
 ## Auto-Update Rules
 
 - `electron-updater` checks GitHub Releases 10 seconds after app start
 - Downloads happen silently in the background
-- When ready, overlay is locked first, then a synchronous dialog prompts "Restart Now" or "Later" with HTML-stripped release notes
-- "Restart Now" calls `autoUpdater.quitAndInstall()`
-- Releases are triggered by pushing a `v*` tag; CI builds and publishes with `--publish always`
+- Synchronous dialog prompts "Restart Now" or "Later" when ready
+- Releases are triggered by pushing a `v*` tag
 
 ## Build Pipeline
 
-- `npm run build` executes: fetch car data → compile TypeScript → bundle renderer with Vite
-- Car data (`lovely-car-data.json`) is a build artifact fetched from GitHub, not committed to git
-- CI runs lint then build on every push (ubuntu-latest)
-- Release builds run on windows-latest (required for native addon compilation and NSIS packaging)
+- `npm run build` executes: fetch car data → compile TypeScript → bundle renderer
+- Release builds run on `windows-latest`
+- CI runs lint then build on every push
 
 ## Versioning and Release
 
 - Semantic versioning: `MAJOR.MINOR.PATCH`
-- Version is maintained in `package.json` and must match the git tag
+- Version in `package.json` must match the git tag
 - Always bump `package.json` version before creating the git tag
-- All releases are published via `--publish always` (required for electron-updater)
-- Release workflow runs on `windows-latest`
 
 ## Git Identity
 
 - All commits authored as `sdcarter <sdcarter@users.noreply.github.com>`
-- Repo-level git config (not global) enforces this
+- Repo-level git config enforces this
 
 ## Governance
 
-Changes to this constitution require updating this file and committing with a clear rationale in the commit message.
+Changes to this constitution require updating this file and committing with a clear rationale in the commit message. Amendments must be evaluated against the five Core Principles.
 
-**Version**: 4.0 | **Ratified**: 2026-03-22 | **Last Amended**: 2026-03-22
+**Version**: 5.0.0 | **Ratified**: 2026-03-25 | **Last Amended**: 2026-03-25
