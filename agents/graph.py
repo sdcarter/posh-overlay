@@ -9,6 +9,7 @@ from agents.nodes import (
     memorialize,
     pm_onboard,
     pm_plan,
+    pm_refine,
     qa_orient,
     review,
     revise,
@@ -43,6 +44,7 @@ def build_graph():
     g.add_node("sdk_orient", sdk_orient)
     g.add_node("frontend_orient", frontend_orient)
     g.add_node("qa_orient", qa_orient)
+    g.add_node("pm_refine", pm_refine)
     g.add_node("implement", implement)
     g.add_node("validate", validate)
     g.add_node("fix", fix)
@@ -59,13 +61,14 @@ def build_graph():
     g.add_edge("pm_plan", "frontend_orient")
     g.add_edge("pm_plan", "qa_orient")
 
-    # Fan-in → implement → validate
-    g.add_edge("sdk_orient", "implement")
-    g.add_edge("frontend_orient", "implement")
-    g.add_edge("qa_orient", "implement")
-    g.add_edge("implement", "validate")
+    # Fan-in → PM refines → implement
+    g.add_edge("sdk_orient", "pm_refine")
+    g.add_edge("frontend_orient", "pm_refine")
+    g.add_edge("qa_orient", "pm_refine")
+    g.add_edge("pm_refine", "implement")
 
     # Validate loop
+    g.add_edge("implement", "validate")
     g.add_conditional_edges("validate", _after_validate, {"fix": "fix", "review": "review", "done": END})
     g.add_edge("fix", "validate")
 

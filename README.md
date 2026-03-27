@@ -95,6 +95,7 @@ graph TD;
 	sdk_orient(sdk_orient)
 	frontend_orient(frontend_orient)
 	qa_orient(qa_orient)
+	pm_refine(pm_refine)
 	implement(implement)
 	validate(validate)
 	fix(fix)
@@ -104,17 +105,18 @@ graph TD;
 	__end__([<p>__end__</p>]):::last
 	__start__ --> pm_onboard;
 	fix --> validate;
-	frontend_orient --> implement;
+	frontend_orient --> pm_refine;
 	implement --> validate;
 	pm_onboard --> pm_plan;
 	pm_plan --> frontend_orient;
 	pm_plan --> qa_orient;
 	pm_plan --> sdk_orient;
-	qa_orient --> implement;
+	pm_refine --> implement;
+	qa_orient --> pm_refine;
 	review -.-> memorialize;
 	review -.-> revise;
 	revise --> validate;
-	sdk_orient --> implement;
+	sdk_orient --> pm_refine;
 	validate -. &nbsp;done&nbsp; .-> __end__;
 	validate -.-> fix;
 	validate -.-> review;
@@ -131,6 +133,7 @@ graph TD;
 | sdk_orient | SDK Architect | Reads domain/application code, recommends types and files |
 | frontend_orient | Frontend Architect | Reads renderer code, identifies exact lines to change |
 | qa_orient | QA Agent | Checks build config, flags risks |
+| pm_refine | Product Manager | Synthesizes orient reports into a single implementation brief |
 | implement | Developer | Reads files, makes surgical edits via patch_file |
 | validate | Build check | Runs tsc + eslint locally (no LLM) |
 | fix | Developer | Reads errors, patches files to fix build |

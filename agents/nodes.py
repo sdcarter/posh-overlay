@@ -212,16 +212,40 @@ def qa_orient(state: AgentState) -> dict:
     return {"orient_reports": [f"## QA Agent\n{result}"]}
 
 
+def pm_refine(state: AgentState) -> dict:
+    """PM synthesizes orient reports into a single implementation brief."""
+    print("▶ pm_refine")
+    orient_context = "\n\n".join(state.orient_reports)
+    resp = get_llm().invoke([
+        SystemMessage(content=_PM_SYSTEM),
+        HumanMessage(content=(
+            "The architects and QA have reviewed the codebase. Synthesize their "
+            "recommendations into a single implementation brief for the developer.\n\n"
+            "The brief must include:\n"
+            "- Exactly which files to read and modify\n"
+            "- The exact changes to make (quote specific lines where possible)\n"
+            "- Any conflicts between architect recommendations and your resolution\n"
+            "- What NOT to change\n\n"
+            "Keep it concise and actionable — this is the developer's only input.\n\n"
+            f"## Original request\n{state.user_request}\n\n"
+            f"## Session plan\n{state.session_plan}\n\n"
+            f"## Architect & QA reports\n{orient_context}"
+        )),
+    ])
+    print(f"\n{'─' * 60}\n📝 IMPLEMENTATION BRIEF:\n{'─' * 60}")
+    print(resp.content)
+    print(f"{'─' * 60}\n")
+    return {"implementation_brief": resp.content}
+
+
 def implement(state: AgentState) -> dict:
     print("▶ implement")
-    orient_context = "\n\n".join(state.orient_reports)
     llm = get_llm(max_tokens=4096).bind_tools(_TOOLS_ALL)
     result = _run_with_tools(llm, [
         SystemMessage(content=_DEV_SYSTEM),
         HumanMessage(content=(
-            f"## Plan\n{state.session_plan}\n\n"
-            f"## Recommendations\n{orient_context}\n\n"
-            "Now implement the plan. Read the files, make the changes with patch_file, "
+            f"## Implementation brief\n{state.implementation_brief}\n\n"
+            "Read the files mentioned, make the changes with patch_file, "
             "and summarize what you did."
         )),
     ], max_rounds=20, verbose=True)
