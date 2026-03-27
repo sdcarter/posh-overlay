@@ -104,6 +104,10 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         brakeBiasPercent: val(t.dcBrakeBias),
         tractionControlLevel: val(t.dcTractionControl) != null ? Math.round(val(t.dcTractionControl)!) : null,
         absLevel: val(t.dcABS) != null ? Math.round(val(t.dcABS)!) : null,
+        fuelLevel: val(t.FuelLevel),
+        fuelPerLap: val(t.FuelUsePerHour) != null && val(t.LapLastLapTime) != null && val(t.LapLastLapTime)! > 0
+          ? (val(t.FuelUsePerHour)! / 3600) * val(t.LapLastLapTime)!
+          : null,
       };
     } catch {
       this.sdk = null;

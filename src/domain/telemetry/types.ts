@@ -20,6 +20,8 @@ export interface TelemetrySnapshot {
   brakeBiasPercent: number | null;
   tractionControlLevel: number | null;
   absLevel: number | null;
+  fuelLevel: number | null;
+  fuelPerLap: number | null;
 }
 
 export interface CarShiftProfile {

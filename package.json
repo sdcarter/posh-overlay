@@ -17,6 +17,7 @@
     "mock:bmw": "node scripts/run-mock-scenario.mjs bmw-sweep",
     "mock:sfl": "node scripts/run-mock-scenario.mjs sfl-sweep",
     "mock:finish": "node scripts/run-mock-scenario.mjs finish-countdown",
+    "mock:fuel": "node scripts/run-mock-scenario.mjs fuel",
     "start": "npm run build && electron dist/main/index.js",
     "pack": "npm run build && electron-builder --dir",
     "dist": "npm run build && electron-builder"

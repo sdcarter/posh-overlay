@@ -361,7 +361,21 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
               {item as string}
             </span>
           </React.Fragment>
-        )) : <span style={{ fontSize: `${Math.max(10, 12 * scale)}px`, fontWeight: 700, color: 'rgba(237,243,255,0.72)' }}>Telemetry ready</span>}
+        )) : (!frame?.ribbon.fuelLapsText && <span style={{ fontSize: `${Math.max(10, 12 * scale)}px`, fontWeight: 700, color: 'rgba(237,243,255,0.72)' }}>Telemetry ready</span>)}
+        {frame?.ribbon.fuelLapsText != null && frame.ribbon.fuelStatus != null && (() => {
+          const dotColor = frame.ribbon.fuelStatus === 'green' ? '#00FF00' : frame.ribbon.fuelStatus === 'yellow' ? '#FFD400' : '#FF3B30';
+          return (
+            <React.Fragment key="fuel">
+              {lowerItems.length > 0 && <span style={{ color: 'rgba(173,185,199,0.58)' }}>|</span>}
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: dotColor, display: 'inline-block', flexShrink: 0 }} />
+                <span style={{ fontSize: `${Math.max(10, 12 * scale)}px`, fontWeight: 700, letterSpacing: '0.03em', color: '#edf3ff' }}>
+                  {frame.ribbon.fuelLapsText}
+                </span>
+              </span>
+            </React.Fragment>
+          );
+        })()}
       </div>
 
       {!locked && (
