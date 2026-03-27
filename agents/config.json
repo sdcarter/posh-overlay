@@ -1,0 +1,19 @@
+{
+  "llm": {
+    "provider": "azure_openai",
+    "model": "gpt-5-chat",
+    "azure_endpoint": "https://gpt4-munich.openai.azure.com/",
+    "api_version": "2025-03-01-preview",
+    "api_key_env": "AZURE_OPENAI_API_KEY"
+  },
+  "codex": {
+    "model": "gpt-5.3-codex",
+    "azure_endpoint": "https://gpt4-munich.openai.azure.com/",
+    "api_version": "2025-03-01-preview",
+    "api_key_env": "AZURE_OPENAI_API_KEY"
+  },
+  "repository": {
+    "path": ".",
+    "default_branch": "main"
+  }
+}
