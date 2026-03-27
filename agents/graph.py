@@ -33,6 +33,8 @@ def _after_validate(state: AgentState) -> str:
 def _after_review(state: AgentState) -> str:
     if state.review_feedback and state.review_attempts < MAX_REVIEW_ATTEMPTS:
         return "revise"
+    if state.review_feedback:
+        return "done"
     return "memorialize"
 
 
@@ -73,7 +75,7 @@ def build_graph():
     g.add_edge("fix", "validate")
 
     # Review loop
-    g.add_conditional_edges("review", _after_review, {"revise": "revise", "memorialize": "memorialize"})
+    g.add_conditional_edges("review", _after_review, {"revise": "revise", "memorialize": "memorialize", "done": END})
     g.add_edge("revise", "validate")
 
     # Done

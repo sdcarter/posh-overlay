@@ -44,8 +44,11 @@ def main():
     print("SESSION COMPLETE")
     print("=" * 60)
     if result["validation_errors"]:
-        print(f"\n⚠️  Unresolved errors after {result['validation_attempts']} attempts:")
+        print(f"\n❌ FAILED — build errors after {result['validation_attempts']} fix attempts:")
         print(result["validation_errors"])
+    elif result["review_feedback"]:
+        print(f"\n❌ FAILED — unmet requirements after {result['review_attempts']} review attempts:")
+        print(result["review_feedback"])
     else:
         print(f"\n✅ Clean build after {result['validation_attempts']} validation pass(es)")
 
