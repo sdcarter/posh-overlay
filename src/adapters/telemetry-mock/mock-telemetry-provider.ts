@@ -34,6 +34,8 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
     brakeBiasPercent: 54.2,
     tractionControlLevel: 2,
     absLevel: 3,
+    fuelLevel: 28.3,
+    fuelPerLap: 2.8,
     ...overrides,
   };
 }
@@ -137,6 +139,30 @@ function createFinishCountdownSnapshot(nowMs: number): TelemetrySnapshot {
   });
 }
 
+function createFuelScenarioSnapshot(nowMs: number): TelemetrySnapshot {
+  // Cycle through green → yellow → red every 9 seconds (3s each)
+  const cycleMs = 9000;
+  const phase = Math.floor((nowMs % cycleMs) / 3000);
+  const lapsRemain = 10;
+  const fuelPerLap = 3.0;
+  // green: 10.5 laps of fuel, yellow: 9.4 laps, red: 8.2 laps
+  const fuelLevel = [31.5, 28.2, 24.6][phase] ?? 31.5;
+
+  return baseSnapshot({
+    carPath: 'bmwm4gt3',
+    gear: 4,
+    rpm: 6800,
+    maxRpm: 9000,
+    sessionLapsRemain: lapsRemain,
+    sessionLapsTotal: 20,
+    fuelLevel,
+    fuelPerLap,
+    brakeBiasPercent: 53.8,
+    tractionControlLevel: 2,
+    absLevel: 3,
+  });
+}
+
 export class MockTelemetryProvider implements TelemetryProvider {
   constructor(private readonly scenario: string = 'default') {}
 
@@ -150,6 +176,8 @@ export class MockTelemetryProvider implements TelemetryProvider {
       case 'finish':
       case 'finish-countdown':
         return createFinishCountdownSnapshot(nowMs);
+      case 'fuel':
+        return createFuelScenarioSnapshot(nowMs);
       case 'mazda-sweep':
         return createSweepSnapshot({
           carPath: 'mx5 mx52016',
