@@ -20,6 +20,9 @@ class AgentState:
     validation_errors: str = ""
     validation_attempts: int = 0
 
+    # PM refinement
+    implementation_brief: str = ""
+
     # Review loop
     review_feedback: str = ""
     review_attempts: int = 0
