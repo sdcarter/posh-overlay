@@ -13,6 +13,7 @@ This is a tool I created for my own use. I'm not building it as a product or pla
 - **Redline flash** — all LEDs rapidly blink the car's redline color when it's time to shift (suppressed in top gear)
 - **Smart visibility** — cars without LED profiles show only the telemetry ribbon, no fake generic lights
 - **Live telemetry ribbon** — RPM counter left, incidents/BB/TC/ABS right — settings hidden when the car doesn't support them
+- **Fuel laps remaining** — colored dot (green/yellow/red) with laps of fuel left, based on current fuel level and consumption rate
 - **Scalable UI** — text and LEDs scale proportionally when you resize the overlay
 - **Transparent overlay** — click-through when locked, draggable/resizable when unlocked
 - **Position memory** — overlay position and size persist across restarts
@@ -48,6 +49,9 @@ npm run mock:bmw
 npm run mock:sfl
 npm run mock:finish
 
+# Run fuel indicator scenario
+npm run mock:fuel
+
 # Lint
 npm run lint
 
@@ -71,8 +75,70 @@ domain/        Pure TypeScript — telemetry types, rev-strip evaluation, ribbon
 application/   Use cases and port interfaces
 adapters/      iRacing SDK, mock telemetry, GitHub release feed
 main/          Electron main process + preload
-renderer/      React UI (Overlay, RevStrip, Ribbon)
+renderer/      React UI (Overlay, RevStrip)
 ```
+
+## Agent Workflow
+
+PoshDash includes a LangGraph-based multi-agent workflow for AI-assisted development. Write a feature request in `request.md` and run `uv run agents --file request.md`.
+
+```mermaid
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	pm_onboard(pm_onboard)
+	pm_plan(pm_plan)
+	sdk_orient(sdk_orient)
+	frontend_orient(frontend_orient)
+	qa_orient(qa_orient)
+	implement(implement)
+	validate(validate)
+	fix(fix)
+	review(review)
+	revise(revise)
+	memorialize(memorialize)
+	__end__([<p>__end__</p>]):::last
+	__start__ --> pm_onboard;
+	fix --> validate;
+	frontend_orient --> implement;
+	implement --> validate;
+	pm_onboard --> pm_plan;
+	pm_plan --> frontend_orient;
+	pm_plan --> qa_orient;
+	pm_plan --> sdk_orient;
+	qa_orient --> implement;
+	review -.-> memorialize;
+	review -.-> revise;
+	revise --> validate;
+	sdk_orient --> implement;
+	validate -. &nbsp;done&nbsp; .-> __end__;
+	validate -.-> fix;
+	validate -.-> review;
+	memorialize --> __end__;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc
+```
+
+| Node | Role | What it does |
+|------|------|-------------|
+| pm_onboard | Product Manager | Summarizes the request |
+| pm_plan | Product Manager | Creates session plan with acceptance criteria |
+| sdk_orient | SDK Architect | Reads domain/application code, recommends types and files |
+| frontend_orient | Frontend Architect | Reads renderer code, identifies exact lines to change |
+| qa_orient | QA Agent | Checks build config, flags risks |
+| implement | Developer | Reads files, makes surgical edits via patch_file |
+| validate | Build check | Runs tsc + eslint locally (no LLM) |
+| fix | Developer | Reads errors, patches files to fix build |
+| review | PO Acceptance | Reads changed files, verifies request was fully met |
+| revise | Developer | Addresses review feedback |
+| memorialize | Product Manager | Saves or amends feature spec in memory |
+
+Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/). Azure OpenAI key in `.env` as `AZURE_OPENAI_API_KEY`.
 
 ## Acknowledgements
 
