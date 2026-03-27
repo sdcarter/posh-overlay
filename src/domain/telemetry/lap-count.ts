@@ -5,6 +5,13 @@ function clampLapPercent(value: number | null): number {
   return Math.min(1, Math.max(0, value));
 }
 
+function estimateLapsFromTime(snapshot: TelemetrySnapshot): number | null {
+  const timeRemain = snapshot.sessionTimeRemainSeconds;
+  const lapTime = snapshot.sessionLastLapTimeSeconds;
+  if (timeRemain == null || lapTime == null || lapTime <= 0) return null;
+  return Math.max(0, Math.ceil(timeRemain / lapTime));
+}
+
 export function totalRaceLapsForDriver(snapshot: TelemetrySnapshot): number | null {
   if (snapshot.sessionLapsTotal == null || Number.isNaN(snapshot.sessionLapsTotal)) {
     return null;
@@ -38,7 +45,7 @@ export function lapsRemainingForDriver(snapshot: TelemetrySnapshot): number | nu
   }
 
   if (snapshot.sessionLapsRemain == null || Number.isNaN(snapshot.sessionLapsRemain)) {
-    return null;
+    return estimateLapsFromTime(snapshot);
   }
 
   return Math.max(0, Math.ceil(snapshot.sessionLapsRemain + 1));

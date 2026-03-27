@@ -2,7 +2,9 @@ import type { TelemetryProvider } from '../../application/ports/telemetry-provid
 import type { TelemetrySnapshot } from '../../domain/telemetry/types.js';
 
 interface TelVar { value: number[] }
+const UNLIMITED = 32767;
 const val = (v: TelVar | undefined) => v?.value?.[0] ?? null;
+const lapVal = (v: TelVar | undefined) => { const n = val(v); return n != null && n >= UNLIMITED ? null : n; };
 const arrVal = (v: TelVar | undefined, idx: number | null | undefined) => (idx == null ? null : v?.value?.[idx] ?? null);
 
 function findLeaderCarIdx(carIdxPosition: TelVar | undefined): number | null {
@@ -95,8 +97,8 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         rpm,
         maxRpm: val(t.PlayerCarSLShiftRPM) ?? val(t.PlayerCarSLBlinkRPM) ?? val(t.PlayerCarSLLastRPM) ?? rpm * 1.05,
         pitLimiterActive: ((val(t.EngineWarnings) ?? 0) & 0x10) !== 0,
-        sessionLapsRemain: val(t.SessionLapsRemain),
-        sessionLapsTotal: val(t.SessionLapsTotal),
+        sessionLapsRemain: lapVal(t.SessionLapsRemainEx) ?? lapVal(t.SessionLapsRemain),
+        sessionLapsTotal: lapVal(t.SessionLapsTotal),
         sessionTimeRemainSeconds: val(t.SessionTimeRemain),
         sessionLastLapTimeSeconds: val(t.LapLastLapTime),
         incidentCount: val(t.PlayerCarMyIncidentCount) ?? val(t.PlayerCarDriverIncidentCount) ?? 0,
