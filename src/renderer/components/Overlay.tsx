@@ -320,6 +320,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
   const lapsText = frame ? formatPillNumber(lapsRemainingForDriver(frame.snapshot)) : '--';
   const gearText = frame ? formatGear(frame.snapshot.gear) : '--';
   const rpmText = frame ? Math.max(0, Math.round(frame.snapshot.rpm)).toString() : '--';
+  const speedText = frame ? Math.max(0, Math.round(frame.snapshot.speedKmH)).toString() : '--';
 
   const content = frame ? (
     <div style={capsuleStyle}>
@@ -332,8 +333,18 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
           {frame.revStrip ? <RevDots state={frame.revStrip} height={size.h} /> : <div style={{ height: Math.max(6, size.h * 0.08) }} />}
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: centerStackGap, minWidth: 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ fontSize: `${Math.max(10, 10 * scale)}px`, letterSpacing: '0.14em', opacity: 0.82 }}>SPEED</div>
+              <div style={{ fontSize: `${Math.max(24, 34 * scale)}px`, lineHeight: 0.95, fontWeight: 800 }}>{speedText}</div>
+            </div>
+            <div style={{ width: 1, height: Math.max(22, 28 * scale), background: 'rgba(183,197,214,0.36)' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div style={{ fontSize: `${Math.max(10, 10 * scale)}px`, letterSpacing: '0.14em', opacity: 0.82 }}>RPM</div>
-              <div style={{ fontSize: `${Math.max(24, 34 * scale)}px`, lineHeight: 0.95, fontWeight: 800 }}>{rpmText}</div>
+              <div style={{ 
+                fontSize: `${Math.max(34, 48 * scale)}px`, 
+                lineHeight: 0.95, 
+                fontWeight: 900,
+                fontFamily: "Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
+              }}>{rpmText}</div>
             </div>
             <div style={{ width: 1, height: Math.max(22, 28 * scale), background: 'rgba(183,197,214,0.36)' }} />
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
