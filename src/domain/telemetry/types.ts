@@ -25,6 +25,7 @@ export interface TelemetrySnapshot {
   throttle: number;
   brake: number;
   absActive: boolean;
+  speedKmH: number;
 }
 
 export interface CarShiftProfile {

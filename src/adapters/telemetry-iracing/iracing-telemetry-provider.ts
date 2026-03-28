@@ -113,6 +113,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         throttle: val(t.Throttle) ?? 0,
         brake: val(t.Brake) ?? 0,
         absActive: false,
+        speedKmH: (val(t.Speed) ?? 0) * 3.6,
       };
     } catch {
       this.sdk = null;

@@ -45,6 +45,7 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
     throttle,
     brake,
     absActive,
+    speedKmH: 120,
     ...overrides,
   };
 }

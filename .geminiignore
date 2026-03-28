@@ -1,0 +1,12 @@
+node_modules/
+dist/
+release/
+.DS_Store
+*.log
+.env
+.env.*
+src/domain/telemetry/lovely-car-data.json
+.git/
+.gemini/
+.agent/
+.specify/
