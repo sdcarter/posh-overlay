@@ -10,6 +10,7 @@
 ### Session 2026-03-28
 - Q: How should ABS activation be visualized in relation to the brake trace? → A: When the ABS is active, it simply recolors the brake trace line to yellow, rather than rendering as a new line. It reverts to red when ABS turns off.
 - Q: What should the relative size of the graph extension completely be? → A: It should be shorter than the main capsule height and modestly wide so it doesn't visually dwarf the main central elements.
+- Q: How should the graph connect to the main capsule and manage vertical space? → A: The graph should act like a Venn diagram, tucked partially under the main capsule's position pill with fully rounded edges, and extending further to the left. It must include internal top/bottom padding to clearly define the 0% and 100% bounds without hitting the very edge.
 
 
 ## User Scenarios & Testing *(mandatory)*
@@ -42,7 +43,7 @@ As a driver, I want to see a real-time visual graph of my throttle, brake, and A
 
 ### Functional Requirements
 
-- **FR-001**: System MUST display a continuous telemetry graph as a visual extension attached to the left side of the main central capsule. Its height and width MUST be proportionally smaller than the main capsule to avoid dwarfing the primary data.
+- **FR-001**: System MUST display a continuous telemetry graph extending from the left side. It MUST tuck under the primary position pill (Venn diagram style) to create a seamless connection with rounded edges on all sides, be wider for better visibility, and include internal padding to define 0-100% vertical bounds.
 - **FR-002**: System MUST render throttle input pressure as a distinct green visual trace.
 - **FR-003**: System MUST render brake input pressure as a distinct red visual trace.
 - **FR-004**: System MUST render ABS activation state by recoloring the active brake pressure trace to yellow while active, rather than drawing a separate line.

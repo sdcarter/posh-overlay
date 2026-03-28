@@ -18,7 +18,7 @@ export function TelemetryGraph({ snapshot, height, scale }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const historyRef = useRef<DataPoint[]>([]);
   
-  const width = Math.max(60, 90 * scale);
+  const width = Math.max(100, 160 * scale);
   const durationMs = 3000;
 
   useEffect(() => {
@@ -54,6 +54,19 @@ export function TelemetryGraph({ snapshot, height, scale }: Props) {
       return;
     }
 
+    const padY = height * 0.15;
+    const drawHeight = height - padY * 2;
+
+    // Draw reference lines
+    ctx.lineWidth = 1 * scale;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+    ctx.beginPath();
+    ctx.moveTo(0, padY);
+    ctx.lineTo(width, padY);
+    ctx.moveTo(0, height - padY);
+    ctx.lineTo(width, height - padY);
+    ctx.stroke();
+
     const drawLine = (
       getValue: (pt: DataPoint) => number,
       getColor: (pt: DataPoint) => string
@@ -61,7 +74,7 @@ export function TelemetryGraph({ snapshot, height, scale }: Props) {
       const points = historyRef.current.map(pt => {
         const x = width - ((now - pt.timeMs) / durationMs) * width;
         const val = getValue(pt);
-        const y = height - (val * height * 0.95) - (height * 0.025);
+        const y = height - padY - (val * drawHeight);
         return { x, y, pt };
       });
 
@@ -106,10 +119,11 @@ export function TelemetryGraph({ snapshot, height, scale }: Props) {
       boxShadow: '0 10px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.07)',
       backdropFilter: 'blur(5px)',
       overflow: 'hidden',
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      paddingRight: Math.max(16, 24 * scale) // more padding so lines plunge under the pill before stopping
     }}>
       <canvas 
-        ref={canvasRef} 
+        ref={canvasRef}  
         style={{ width: '100%', height: '100%', display: 'block' }}
       />
     </div>

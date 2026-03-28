@@ -331,8 +331,9 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
 
         <div style={{
           position: 'absolute',
-          left: -(badgeInset + Math.max(60, 90 * scale) + Math.max(6, 10 * scale)),
-          top: (mainHeight - (mainHeight * 0.75)) / 2
+          left: -Math.max(100, 160 * scale),
+          top: (mainHeight - (mainHeight * 0.75)) / 2,
+          zIndex: -1
         }}>
           <TelemetryGraph snapshot={frame.snapshot} height={mainHeight * 0.75} scale={scale} />
         </div>
