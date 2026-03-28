@@ -36,6 +36,7 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
     absLevel: 3,
     fuelLevel: 28.3,
     fuelPerLap: 2.8,
+    speedKmH: 120,
     ...overrides,
   };
 }
