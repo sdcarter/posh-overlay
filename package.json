@@ -45,8 +45,7 @@
       "provider": "github",
       "owner": "sdcarter",
       "repo": "posh-overlay",
-      "releaseType": "release",
-      "draft": false
+      "releaseType": "release"
     }
   },
   "devDependencies": {
