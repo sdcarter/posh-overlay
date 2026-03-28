@@ -110,6 +110,9 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         fuelPerLap: val(t.FuelUsePerHour) != null && val(t.LapLastLapTime) != null && val(t.LapLastLapTime)! > 0
           ? (val(t.FuelUsePerHour)! / 3600) * val(t.LapLastLapTime)!
           : null,
+        throttle: val(t.Throttle) ?? 0,
+        brake: val(t.Brake) ?? 0,
+        absActive: false,
         speedKmH: (val(t.Speed) ?? 0) * 3.6,
       };
     } catch {

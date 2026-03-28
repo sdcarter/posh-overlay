@@ -12,8 +12,14 @@ interface SweepConfig {
 }
 
 function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot {
+  const nowMs = Date.now();
+  const cycle = nowMs % 5000;
+  const throttle = cycle < 2000 ? Math.min(1, cycle / 300) : 0;
+  const brake = cycle > 2500 && cycle < 4000 ? Math.min(1, (cycle - 2500) / 200) : 0;
+  const absActive = brake > 0.8 && (nowMs % 120 < 60);
+
   return {
-    timestampMs: Date.now(),
+    timestampMs: nowMs,
     driverCarId: 1,
     positionOverall: 12,
     carPath: 'bmwm4gt3',
@@ -36,6 +42,9 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
     absLevel: 3,
     fuelLevel: 28.3,
     fuelPerLap: 2.8,
+    throttle,
+    brake,
+    absActive,
     speedKmH: 120,
     ...overrides,
   };

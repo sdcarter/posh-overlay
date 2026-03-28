@@ -3,6 +3,7 @@ import type { TelemetrySnapshot } from '../../domain/telemetry/types';
 import { isDriverFinished, lapsRemainingForDriver } from '../../domain/telemetry/lap-count';
 import type { RevStripState } from '../../domain/rev-strip/types';
 import type { RibbonState } from '../../domain/ribbon/types';
+import { TelemetryGraph } from './TelemetryGraph';
 
 interface Props {
   frame: { snapshot: TelemetrySnapshot; revStrip: RevStripState | null; ribbon: RibbonState; useMock: boolean } | null;
@@ -327,6 +328,15 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
       <div style={coreStyle}>
         <div style={leftPillStyle}>
           <div style={{ fontSize: `${0.42 * pillSize}px`, lineHeight: 1, fontWeight: 800 }}>{positionText}</div>
+        </div>
+
+        <div style={{
+          position: 'absolute',
+          left: -Math.max(100, 160 * scale),
+          top: (mainHeight - (mainHeight * 0.75)) / 2,
+          zIndex: -1
+        }}>
+          <TelemetryGraph snapshot={frame.snapshot} height={mainHeight * 0.75} scale={scale} />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: Math.max(7, 8 * scale), minWidth: 0 }}>
