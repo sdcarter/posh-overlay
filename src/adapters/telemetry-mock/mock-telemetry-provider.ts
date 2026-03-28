@@ -46,6 +46,8 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
     brake,
     absActive,
     speedKmH: 120,
+    sessionState: 4,
+    playerFinished: false,
     ...overrides,
   };
 }

@@ -34,6 +34,11 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
   private carPath: string | null = null;
   private SDKClass: SDKStatic | null = null;
 
+  private fuelUsedHistory: number[] = [];
+  private lastLapFuelLevel: number | null = null;
+  private computedFuelPerLap: number | null = null;
+  private playerCheckeredLap: number | null = null;
+
   async start() {
     try {
       const mod = await import('irsdk-node');
@@ -84,12 +89,43 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
       }
 
       const rpm = val(t.RPM) ?? 0;
+      const currentLap = val(t.Lap) ?? arrVal(t.CarIdxLap, playerCarIdx);
+      const fuelLevel = val(t.FuelLevel);
+      const sessionState = val(t.SessionState) ?? 0;
+
+      if (sessionState === 5 && this.playerCheckeredLap == null && currentLap != null) {
+        this.playerCheckeredLap = currentLap;
+      } else if (sessionState < 5) {
+        this.playerCheckeredLap = null;
+      }
+
+      let playerFinished = false;
+      if (sessionState >= 6) {
+        playerFinished = true;
+      } else if (sessionState === 5 && this.playerCheckeredLap != null && currentLap != null && currentLap > this.playerCheckeredLap) {
+        playerFinished = true;
+      }
+
+      if (currentLap != null && fuelLevel != null) {
+        if (this.lastLapFuelLevel == null) {
+          this.lastLapFuelLevel = fuelLevel;
+        } else if (this.latest != null && this.latest.currentLap != null && currentLap > this.latest.currentLap) {
+          const consumed = this.lastLapFuelLevel - fuelLevel;
+          if (consumed > 0.1 && consumed < 150) {
+            this.fuelUsedHistory.push(consumed);
+            if (this.fuelUsedHistory.length > 4) this.fuelUsedHistory.shift();
+            this.computedFuelPerLap = this.fuelUsedHistory.reduce((a, b) => a + b, 0) / this.fuelUsedHistory.length;
+          }
+          this.lastLapFuelLevel = fuelLevel;
+        }
+      }
+
       this.latest = {
         timestampMs: Date.now(),
         driverCarId: playerCarIdx ?? 0,
         positionOverall: overallPosition != null ? Math.round(overallPosition) : null,
         carPath: this.carPath,
-        currentLap: val(t.Lap) ?? arrVal(t.CarIdxLap, playerCarIdx),
+        currentLap,
         lapDistPct: val(t.LapDistPct) ?? arrVal(t.CarIdxLapDistPct, playerCarIdx),
         leaderLap: arrVal(t.CarIdxLap, leaderCarIdx),
         leaderLapDistPct: arrVal(t.CarIdxLapDistPct, leaderCarIdx),
@@ -106,14 +142,14 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         brakeBiasPercent: val(t.dcBrakeBias),
         tractionControlLevel: val(t.dcTractionControl) != null ? Math.round(val(t.dcTractionControl)!) : null,
         absLevel: val(t.dcABS) != null ? Math.round(val(t.dcABS)!) : null,
-        fuelLevel: val(t.FuelLevel),
-        fuelPerLap: val(t.FuelUsePerHour) != null && val(t.LapLastLapTime) != null && val(t.LapLastLapTime)! > 0
-          ? (val(t.FuelUsePerHour)! / 3600) * val(t.LapLastLapTime)!
-          : null,
+        fuelLevel,
+        fuelPerLap: this.computedFuelPerLap,
         throttle: val(t.Throttle) ?? 0,
         brake: val(t.Brake) ?? 0,
         absActive: false,
         speedKmH: (val(t.Speed) ?? 0) * 3.6,
+        sessionState,
+        playerFinished,
       };
     } catch {
       this.sdk = null;

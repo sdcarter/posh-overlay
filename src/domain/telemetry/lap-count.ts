@@ -35,6 +35,8 @@ export function totalRaceLapsForDriver(snapshot: TelemetrySnapshot): number | nu
 }
 
 export function lapsRemainingForDriver(snapshot: TelemetrySnapshot): number | null {
+  if (snapshot.playerFinished) return 0;
+
   const adjustedTotal = totalRaceLapsForDriver(snapshot);
   if (adjustedTotal != null) {
     if (snapshot.currentLap == null || Number.isNaN(snapshot.currentLap) || snapshot.currentLap <= 0) {
@@ -45,6 +47,7 @@ export function lapsRemainingForDriver(snapshot: TelemetrySnapshot): number | nu
   }
 
   if (snapshot.sessionLapsRemain == null || Number.isNaN(snapshot.sessionLapsRemain)) {
+    if (snapshot.sessionState === 5) return 1;
     return estimateLapsFromTime(snapshot);
   }
 
@@ -52,6 +55,7 @@ export function lapsRemainingForDriver(snapshot: TelemetrySnapshot): number | nu
 }
 
 export function isDriverFinished(snapshot: TelemetrySnapshot): boolean {
+  if (snapshot.playerFinished) return true;
   const lapsRemaining = lapsRemainingForDriver(snapshot);
   return lapsRemaining != null && lapsRemaining <= 0;
 }

@@ -26,6 +26,8 @@ export interface TelemetrySnapshot {
   brake: number;
   absActive: boolean;
   speedKmH: number;
+  sessionState: number;
+  playerFinished: boolean;
 }
 
 export interface CarShiftProfile {
