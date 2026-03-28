@@ -110,7 +110,7 @@ function startTelemetryLoop() {
     const revStrip = composeRevStrip(snapshot, profile);
     const ribbon = composeRibbon(snapshot);
     mainWindow?.webContents.send('telemetry:update', { snapshot, revStrip, ribbon, useMock });
-  }, 16);
+  }, 8);
 }
 
 function stripHtml(notes: unknown): string | undefined {

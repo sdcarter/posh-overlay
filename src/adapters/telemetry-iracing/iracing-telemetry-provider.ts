@@ -38,7 +38,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
     try {
       const mod = await import('irsdk-node');
       this.SDKClass = mod.IRacingSDK as unknown as SDKStatic;
-      this.polling = setInterval(() => this.poll(), 16);
+      this.polling = setInterval(() => this.poll(), 8);
     } catch {
       console.log('irsdk-node not available — iRacing telemetry disabled.');
     }
