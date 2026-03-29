@@ -6,4 +6,6 @@ export interface RibbonState {
   absText: string | null;
   fuelLapsText: string | null;
   fuelStatus: 'green' | 'yellow' | 'red' | null;
+  lapsRemaining: number | null;
+  finished: boolean;
 }

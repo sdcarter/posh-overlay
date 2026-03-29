@@ -48,6 +48,7 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
     speedKmH: 120,
     sessionState: 4,
     playerFinished: false,
+    leaderFinished: false,
     ...overrides,
   };
 }
@@ -148,6 +149,7 @@ function createFinishCountdownSnapshot(nowMs: number): TelemetrySnapshot {
     brakeBiasPercent: 53.8,
     tractionControlLevel: 2,
     absLevel: 3,
+    leaderFinished: true,
   });
 }
 

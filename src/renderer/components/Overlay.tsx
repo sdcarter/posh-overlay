@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { TelemetrySnapshot } from '../../domain/telemetry/types';
-import { isDriverFinished, lapsRemainingForDriver } from '../../domain/telemetry/lap-count';
 import type { RevStripState } from '../../domain/rev-strip/types';
 import type { RibbonState } from '../../domain/ribbon/types';
 import { TelemetryGraph } from './TelemetryGraph';
@@ -316,9 +315,9 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
     frame.snapshot.pitLimiterActive ? 'PIT' : null,
   ].filter(Boolean) : [];
 
-  const finished = frame ? isDriverFinished(frame.snapshot) : false;
+  const finished = frame?.ribbon.finished ?? false;
   const positionText = frame?.snapshot.positionOverall != null ? `P${formatPillNumber(frame.snapshot.positionOverall)}` : '--';
-  const lapsText = frame ? formatPillNumber(lapsRemainingForDriver(frame.snapshot)) : '--';
+  const lapsText = frame ? formatPillNumber(frame.ribbon.lapsRemaining) : '--';
   const gearText = frame ? formatGear(frame.snapshot.gear) : '--';
   const rpmText = frame ? Math.max(0, Math.round(frame.snapshot.rpm)).toString() : '--';
   const speedText = frame ? Math.max(0, Math.round(frame.snapshot.speedKmH)).toString() : '--';

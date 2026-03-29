@@ -28,6 +28,7 @@ export interface TelemetrySnapshot {
   speedKmH: number;
   sessionState: number;
   playerFinished: boolean;
+  leaderFinished: boolean;
 }
 
 export interface CarShiftProfile {

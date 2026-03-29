@@ -50,6 +50,12 @@ export function totalRaceLapsForDriver(snapshot: TelemetrySnapshot): number | nu
 export function lapsRemainingForDriver(snapshot: TelemetrySnapshot): number | null {
   if (snapshot.playerFinished) return 0;
 
+  // Edge case fix: When the overall leader crosses the finish line, the Checkered 
+  // Flag drops (sessionState = 5). Regardless of the math, the race effectively ends 
+  // for you the next time you cross the S/F line. We lock laps remaining to 1 here 
+  // to avoid erratic values caused by post-race timer resets.
+  if (snapshot.sessionState >= 5 || snapshot.leaderFinished) return 1;
+
   const adjustedTotal = totalRaceLapsForDriver(snapshot);
   if (adjustedTotal != null) {
     if (snapshot.currentLap == null || Number.isNaN(snapshot.currentLap) || snapshot.currentLap <= 0) {
@@ -60,7 +66,6 @@ export function lapsRemainingForDriver(snapshot: TelemetrySnapshot): number | nu
 
   // 3. Fallback when neither Lap Total nor Timed logic could compute a total
   if (snapshot.sessionLapsRemain == null || Number.isNaN(snapshot.sessionLapsRemain)) {
-    if (snapshot.sessionState === 5) return 1;
     return null;
   }
 

@@ -14,6 +14,7 @@ This is a tool I created for my own use. I'm not building it as a product or pla
 - **Smart visibility** — cars without LED profiles show only the telemetry ribbon, no fake generic lights
 - **Live telemetry ribbon** — RPM counter left, incidents/BB/TC/ABS right — settings hidden when the car doesn't support them
 - **Fuel laps remaining** — colored dot (green/yellow/red) with laps of fuel left, based on current fuel level and consumption rate
+- **Session synchronization** — handles end-of-race edge cases by locking lap counts when the leader finishes to prevent post-race display glitches
 - **Scalable UI** — text and LEDs scale proportionally when you resize the overlay
 - **Transparent overlay** — click-through when locked, draggable/resizable when unlocked
 - **Position memory** — overlay position and size persist across restarts

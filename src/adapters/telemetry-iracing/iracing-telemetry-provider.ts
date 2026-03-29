@@ -79,6 +79,9 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
       const leaderCarIdx = findLeaderCarIdx(t.CarIdxPosition);
       const overallPosition = val(t.PlayerCarPosition) ?? arrVal(t.CarIdxPosition, playerCarIdx);
 
+      const leaderFlags = arrVal(t.CarIdxSessionFlags, leaderCarIdx) ?? 0;
+      const leaderFinished = (leaderFlags & 0x10) !== 0;
+
       if (session) {
         const idx = session.DriverInfo?.DriverCarIdx;
         const drivers = session.DriverInfo?.Drivers;
@@ -152,6 +155,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         speedKmH: (val(t.Speed) ?? 0) * 3.6,
         sessionState,
         playerFinished,
+        leaderFinished,
       };
     } catch {
       this.sdk = null;

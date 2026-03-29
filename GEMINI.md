@@ -13,9 +13,11 @@ Strict adherence to the hexagonal architecture is required.
 - **`src/application/`**: Use cases and port (interface) definitions.
 - **`src/adapters/`**: Implementations of ports (iRacing SDK, Mock, GitHub Release).
 - **`src/main/`**: Electron main process and preload.
-- **`src/renderer/`**: React UI components (Overlay, RevStrip, etc.).
+- **`src/renderer/`**: React UI components (Overlay, TelemetryGraph, etc.).
 
 ### Engineering Standards
+- **Performance:** Maintain low overhead. Telemetry polling and IPC updates are tuned to ~60Hz (16ms) to match iRacing telemetry frequency and reduce CPU load.
+- **Separation of Concerns:** All telemetry processing and state computation (RevStripState, RibbonState) must happen in the main process/use-cases. Renderer should be purely presentational.
 - **TypeScript:** Use strict typing. Avoid `any` where possible.
 - **React:** Use functional components and hooks.
 - **Naming:** Follow existing camelCase for variables/functions and PascalCase for components/types.
@@ -38,4 +40,6 @@ Strict adherence to the hexagonal architecture is required.
 - **Style:** Maintain the clean, "minimalist" aesthetic of the overlay.
 
 ## Recent Changes
-- 003-add-speed-display: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
+- 003-add-speed-display: Added real-time speed display to the center stack.
+- 004-session-sync-fix: Added `leaderFinished` detection to fix lap count glitches at the end of races.
+- 005-code-polish: Removed redundant `RevStrip.tsx`, moved lap calculations to the main process, and tuned update interval to 16ms.
