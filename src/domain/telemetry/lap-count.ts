@@ -5,18 +5,31 @@ function clampLapPercent(value: number | null): number {
   return Math.min(1, Math.max(0, value));
 }
 
-function estimateLapsFromTime(snapshot: TelemetrySnapshot): number | null {
+function calculateEstimatedSessionTotal(snapshot: TelemetrySnapshot): number | null {
   const timeRemain = snapshot.sessionTimeRemainSeconds;
   const lapTime = snapshot.sessionLastLapTimeSeconds;
-  if (timeRemain == null || lapTime == null || lapTime <= 0) return null;
-  return Math.max(0, Math.ceil(timeRemain / lapTime));
-}
+  const currentLap = snapshot.currentLap;
 
-export function totalRaceLapsForDriver(snapshot: TelemetrySnapshot): number | null {
-  if (snapshot.sessionLapsTotal == null || Number.isNaN(snapshot.sessionLapsTotal)) {
+  if (timeRemain == null || lapTime == null || lapTime <= 0 || currentLap == null || currentLap <= 0) {
     return null;
   }
 
+  const elapsedLaps = (currentLap - 1) + clampLapPercent(snapshot.lapDistPct);
+  const remainingLaps = timeRemain / lapTime;
+  
+  // By rounding the sum of continuous elapsed laps and remaining laps, we 
+  // lock in an "Estimated Session Laps Total" that only changes if the pace 
+  // drastically alters, avoiding S/F line crossing cancellation.
+  return Math.max(0, Math.round(elapsedLaps + remainingLaps));
+}
+
+export function totalRaceLapsForDriver(snapshot: TelemetrySnapshot): number | null {
+  // 1. Timed Race (Unlimited Laps)
+  if (snapshot.sessionLapsTotal == null || Number.isNaN(snapshot.sessionLapsTotal)) {
+    return calculateEstimatedSessionTotal(snapshot);
+  }
+
+  // 2. Fixed Lap Race
   const sessionTotal = Math.max(0, snapshot.sessionLapsTotal);
   if (
     snapshot.currentLap == null ||
@@ -42,13 +55,13 @@ export function lapsRemainingForDriver(snapshot: TelemetrySnapshot): number | nu
     if (snapshot.currentLap == null || Number.isNaN(snapshot.currentLap) || snapshot.currentLap <= 0) {
       return Math.ceil(adjustedTotal);
     }
-
     return Math.max(0, Math.ceil(adjustedTotal) - snapshot.currentLap + 1);
   }
 
+  // 3. Fallback when neither Lap Total nor Timed logic could compute a total
   if (snapshot.sessionLapsRemain == null || Number.isNaN(snapshot.sessionLapsRemain)) {
     if (snapshot.sessionState === 5) return 1;
-    return estimateLapsFromTime(snapshot);
+    return null;
   }
 
   return Math.max(0, Math.ceil(snapshot.sessionLapsRemain + 1));

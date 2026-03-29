@@ -120,6 +120,8 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         }
       }
 
+      const leaderCompleted = arrVal(t.CarIdxLap, leaderCarIdx);
+
       this.latest = {
         timestampMs: Date.now(),
         driverCarId: playerCarIdx ?? 0,
@@ -127,7 +129,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         carPath: this.carPath,
         currentLap,
         lapDistPct: val(t.LapDistPct) ?? arrVal(t.CarIdxLapDistPct, playerCarIdx),
-        leaderLap: arrVal(t.CarIdxLap, leaderCarIdx),
+        leaderLap: leaderCompleted != null ? leaderCompleted + 1 : null,
         leaderLapDistPct: arrVal(t.CarIdxLapDistPct, leaderCarIdx),
         gear: val(t.Gear),
         rpm,

@@ -23,10 +23,14 @@ export function evaluateFuelStatus(
     return 'red';
   }
 
-  if (fuelLapsRemaining >= raceLapsRemaining) {
+  // Add a 0.2 lap safety buffer so Green means you're comfortably safe
+  if (fuelLapsRemaining >= raceLapsRemaining + 0.2) {
     return 'green';
   }
 
+  // Yellow if you have less than the safety buffer but at least enough to finish
+  // Wait, actually, if deficit <= 1 it's yellow. Let's make it so if you're within 1 lap deficit
+  // (meaning you're negative by up to 1 lap, OR positive but under the safety margin) it's yellow.
   const deficit = raceLapsRemaining - fuelLapsRemaining;
-  return deficit <= 1 ? 'yellow' : 'red';
+  return deficit <= 1.0 ? 'yellow' : 'red';
 }
