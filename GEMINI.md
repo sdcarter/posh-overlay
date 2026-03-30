@@ -42,4 +42,3 @@ Strict adherence to the hexagonal architecture is required.
 ## Recent Changes
 - 003-add-speed-display: Added real-time speed display to the center stack.
 - 004-session-sync-fix: Added `leaderFinished` detection to fix lap count glitches at the end of races.
-- 005-code-polish: Removed redundant `RevStrip.tsx`, moved lap calculations to the main process, and tuned update interval to 16ms.

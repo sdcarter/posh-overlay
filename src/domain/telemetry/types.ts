@@ -22,6 +22,7 @@ export interface TelemetrySnapshot {
   absLevel: number | null;
   fuelLevel: number | null;
   fuelPerLap: number | null;
+  fuelLapCount: number | null;
   throttle: number;
   brake: number;
   absActive: boolean;

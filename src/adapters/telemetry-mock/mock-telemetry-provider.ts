@@ -42,6 +42,7 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
     absLevel: 3,
     fuelLevel: 28.3,
     fuelPerLap: 2.8,
+    fuelLapCount: 4,
     throttle,
     brake,
     absActive,
@@ -152,7 +153,6 @@ function createFinishCountdownSnapshot(nowMs: number): TelemetrySnapshot {
     leaderFinished: true,
   });
 }
-
 function createFuelScenarioSnapshot(nowMs: number): TelemetrySnapshot {
   // Cycle through green → yellow → red every 9 seconds (3s each)
   const cycleMs = 9000;
@@ -171,6 +171,30 @@ function createFuelScenarioSnapshot(nowMs: number): TelemetrySnapshot {
     sessionLapsTotal: 20,
     fuelLevel,
     fuelPerLap,
+    fuelLapCount: 4,
+    brakeBiasPercent: 53.8,
+    tractionControlLevel: 2,
+    absLevel: 3,
+  });
+}
+
+function createStabilizingFuelScenarioSnapshot(nowMs: number): TelemetrySnapshot {
+  const cycleMs = 25000; // 5 seconds per phase (1-5 laps)
+  const phase = Math.min(4, Math.floor((nowMs % cycleMs) / 5000));
+  const lapsInHistory = phase; // 0, 1, 2, 3, 4
+  const fuelLevel = 50 - (phase * 3);
+  const fuelPerLap = 3.0;
+
+  return baseSnapshot({
+    carPath: 'bmwm4gt3',
+    gear: 4,
+    rpm: 6800,
+    maxRpm: 9000,
+    sessionLapsRemain: 15 - phase,
+    sessionLapsTotal: 20,
+    fuelLevel,
+    fuelPerLap: lapsInHistory > 0 ? fuelPerLap : null,
+    fuelLapCount: lapsInHistory,
     brakeBiasPercent: 53.8,
     tractionControlLevel: 2,
     absLevel: 3,
@@ -192,6 +216,8 @@ export class MockTelemetryProvider implements TelemetryProvider {
         return createFinishCountdownSnapshot(nowMs);
       case 'fuel':
         return createFuelScenarioSnapshot(nowMs);
+      case 'stabilizing-fuel':
+        return createStabilizingFuelScenarioSnapshot(nowMs);
       case 'mazda-sweep':
         return createSweepSnapshot({
           carPath: 'mx5 mx52016',

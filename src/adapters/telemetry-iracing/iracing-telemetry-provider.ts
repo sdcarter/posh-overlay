@@ -1,5 +1,6 @@
 import type { TelemetryProvider } from '../../application/ports/telemetry-provider.js';
 import type { TelemetrySnapshot } from '../../domain/telemetry/types.js';
+import { isLapConsumptionOutlier } from '../../domain/fuel/fuel-laps.js';
 
 interface TelVar { value: number[] }
 const UNLIMITED = 32767;
@@ -114,10 +115,15 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
           this.lastLapFuelLevel = fuelLevel;
         } else if (this.latest != null && this.latest.currentLap != null && currentLap > this.latest.currentLap) {
           const consumed = this.lastLapFuelLevel - fuelLevel;
-          if (consumed > 0.1 && consumed < 150) {
-            this.fuelUsedHistory.push(consumed);
-            if (this.fuelUsedHistory.length > 4) this.fuelUsedHistory.shift();
-            this.computedFuelPerLap = this.fuelUsedHistory.reduce((a, b) => a + b, 0) / this.fuelUsedHistory.length;
+          if (consumed > 0.01 && consumed < 150) {
+            const currentAvg = this.computedFuelPerLap ?? 0;
+            const isOutlier = this.fuelUsedHistory.length > 0 && isLapConsumptionOutlier(consumed, currentAvg);
+
+            if (!isOutlier) {
+              this.fuelUsedHistory.push(consumed);
+              if (this.fuelUsedHistory.length > 4) this.fuelUsedHistory.shift();
+              this.computedFuelPerLap = this.fuelUsedHistory.reduce((a, b) => a + b, 0) / this.fuelUsedHistory.length;
+            }
           }
           this.lastLapFuelLevel = fuelLevel;
         }
@@ -149,6 +155,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         absLevel: val(t.dcABS) != null ? Math.round(val(t.dcABS)!) : null,
         fuelLevel,
         fuelPerLap: this.computedFuelPerLap,
+        fuelLapCount: this.fuelUsedHistory.length,
         throttle: val(t.Throttle) ?? 0,
         brake: val(t.Brake) ?? 0,
         absActive: false,

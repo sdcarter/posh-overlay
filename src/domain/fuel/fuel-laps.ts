@@ -1,6 +1,12 @@
-export type FuelStatus = 'green' | 'yellow' | 'red';
+export type FuelStatus = 'green' | 'yellow' | 'red' | 'stabilizing';
 
 const roundToSingleDecimal = (value: number): number => Math.round(value * 10) / 10;
+
+export function isLapConsumptionOutlier(consumed: number, average: number): boolean {
+  if (average <= 0) return false;
+  const deviation = Math.abs(consumed - average) / average;
+  return deviation > 0.2;
+}
 
 export function calculateFuelLapsRemaining(fuelLevel: number, fuelPerLap: number): number {
   if (!Number.isFinite(fuelLevel) || !Number.isFinite(fuelPerLap) || fuelPerLap <= 0) {
@@ -17,10 +23,15 @@ export function calculateFuelLapsRemaining(fuelLevel: number, fuelPerLap: number
 
 export function evaluateFuelStatus(
   fuelLapsRemaining: number,
-  raceLapsRemaining: number
+  raceLapsRemaining: number,
+  lapCount: number | null = 4
 ): FuelStatus {
   if (!Number.isFinite(fuelLapsRemaining) || !Number.isFinite(raceLapsRemaining)) {
     return 'red';
+  }
+
+  if (lapCount !== null && lapCount > 0 && lapCount < 4) {
+    return 'stabilizing';
   }
 
   // Add a 0.2 lap safety buffer so Green means you're comfortably safe
@@ -28,9 +39,6 @@ export function evaluateFuelStatus(
     return 'green';
   }
 
-  // Yellow if you have less than the safety buffer but at least enough to finish
-  // Wait, actually, if deficit <= 1 it's yellow. Let's make it so if you're within 1 lap deficit
-  // (meaning you're negative by up to 1 lap, OR positive but under the safety margin) it's yellow.
   const deficit = raceLapsRemaining - fuelLapsRemaining;
   return deficit <= 1.0 ? 'yellow' : 'red';
 }
