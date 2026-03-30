@@ -142,16 +142,30 @@ autoUpdater.on('update-downloaded', (info) => {
   if (response === 0) autoUpdater.quitAndInstall();
 });
 
-app.whenReady().then(async () => {
-  ipcMain.handle('layout:get', () => readLayout());
-  ipcMain.on('layout:save', (_e, layout) => saveLayout(layout));
-  telemetryProvider = useMock ? new MockTelemetryProvider(mockScenario) : new IRacingTelemetryProvider();
-  await telemetryProvider.start();
-  createWindow();
-  createTray();
-  startTelemetryLoop();
-  setTimeout(checkForUpdates, 10_000);
-});
+const gotLock = app.requestSingleInstanceLock();
+
+if (!gotLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
+    }
+  });
+
+  app.whenReady().then(async () => {
+    ipcMain.handle('layout:get', () => readLayout());
+    ipcMain.on('layout:save', (_e, layout) => saveLayout(layout));
+    telemetryProvider = useMock ? new MockTelemetryProvider(mockScenario) : new IRacingTelemetryProvider();
+    await telemetryProvider.start();
+    createWindow();
+    createTray();
+    startTelemetryLoop();
+    setTimeout(checkForUpdates, 10_000);
+  });
+}
 
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 
