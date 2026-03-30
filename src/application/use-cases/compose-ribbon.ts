@@ -11,7 +11,7 @@ export function composeRibbon(snapshot: TelemetrySnapshot): RibbonState {
   const lapsRemain = lapsRemainingForDriver(snapshot);
   const finished = isDriverFinished(snapshot);
   const fuelStatus = (fuelLaps != null && lapsRemain != null)
-    ? evaluateFuelStatus(fuelLaps, lapsRemain)
+    ? evaluateFuelStatus(fuelLaps, lapsRemain, snapshot.fuelLapCount)
     : null;
 
   return {

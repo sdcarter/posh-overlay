@@ -385,7 +385,14 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
           </React.Fragment>
         )) : (!frame?.ribbon.fuelLapsText && <span style={{ fontSize: `${Math.max(10, 12 * scale)}px`, fontWeight: 700, color: 'rgba(237,243,255,0.72)' }}>Telemetry ready</span>)}
         {frame?.ribbon.fuelLapsText != null && frame.ribbon.fuelStatus != null && (() => {
-          const dotColor = frame.ribbon.fuelStatus === 'green' ? '#00FF00' : frame.ribbon.fuelStatus === 'yellow' ? '#FFD400' : '#FF3B30';
+          let dotColor: string;
+          switch (frame.ribbon.fuelStatus) {
+            case 'green': dotColor = '#00FF00'; break;
+            case 'yellow': dotColor = '#FFD400'; break;
+            case 'red': dotColor = '#FF3B30'; break;
+            case 'stabilizing': dotColor = '#3b82f6'; break;
+            default: dotColor = 'rgba(173,185,199,0.72)';
+          }
           return (
             <React.Fragment key="fuel">
               {lowerItems.length > 0 && <span style={{ color: 'rgba(173,185,199,0.58)' }}>|</span>}

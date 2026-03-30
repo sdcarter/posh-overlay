@@ -5,7 +5,7 @@ export interface RibbonState {
   tractionControlText: string | null;
   absText: string | null;
   fuelLapsText: string | null;
-  fuelStatus: 'green' | 'yellow' | 'red' | null;
+  fuelStatus: 'green' | 'yellow' | 'red' | 'stabilizing' | null;
   lapsRemaining: number | null;
   finished: boolean;
 }
