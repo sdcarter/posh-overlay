@@ -81,7 +81,7 @@ renderer/      React UI (Overlay, RevStrip)
 
 ## Acknowledgements
 
-- [Lovely Sim Racing](https://github.com/Lovely-Sim-Racing/lovely-car-data) — open car data project providing LED profiles, colors, and per-gear RPM thresholds for 67+ cars. A collaboration between Lovely Sim Racing, [ATSR](https://atsr.net/), and [Gomez Sim Industries](https://www.gomezsimind.com/).
+- [Lovely Sim Racing](https://github.com/Lovely-Sim-Racing/lovely-car-data) — open car data project providing LED profiles, colors, and per-gear RPM thresholds for 75+ cars. A collaboration between Lovely Sim Racing, [ATSR](https://atsr.net/), and [Gomez Sim Industries](https://www.gomezsimind.com/).
 - [irsdk-node](https://github.com/nicordev/irsdk-node) — Node.js bindings for the iRacing SDK
 - [iRacing](https://www.iracing.com/) — the sim racing platform
 
