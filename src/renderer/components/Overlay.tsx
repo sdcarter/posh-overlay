@@ -80,15 +80,9 @@ function RevDots({ state, height }: { state: RevStripState; height: number }) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    if (state.flashMode === 'none') {
-      setFlashOn(true);
-      intervalRef.current = null;
-    } else {
-      const ms = state.flashMode === 'redline' ? Math.max(state.redlineBlinkInterval / 2, 40) : 160;
-      setFlashOn(true);
-      intervalRef.current = setInterval(() => setFlashOn((v) => !v), ms);
-    }
+    if (state.flashMode === 'none') return;
+    const ms = state.flashMode === 'redline' ? Math.max(state.redlineBlinkInterval / 2, 40) : 160;
+    intervalRef.current = setInterval(() => setFlashOn((v) => !v), ms);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
@@ -339,7 +333,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: Math.max(7, 8 * scale), minWidth: 0 }}>
-          {frame.revStrip ? <RevDots state={frame.revStrip} height={size.h} /> : <div style={{ height: Math.max(6, size.h * 0.08) }} />}
+          {frame.revStrip ? <RevDots key={`${frame.revStrip.flashMode}-${frame.revStrip.redlineBlinkInterval}`} state={frame.revStrip} height={size.h} /> : <div style={{ height: Math.max(6, size.h * 0.08) }} />}
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: centerStackGap, minWidth: 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div style={{ fontSize: `${Math.max(10, 10 * scale)}px`, letterSpacing: '0.14em', opacity: 0.82 }}>SPEED</div>

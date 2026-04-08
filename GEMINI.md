@@ -40,5 +40,9 @@ Strict adherence to the hexagonal architecture is required.
 - **Style:** Maintain the clean, "minimalist" aesthetic of the overlay.
 
 ## Recent Changes
+- 012-add-storybook: Added TypeScript 5.9+ + Vite 8.x, React 19.x, `storybook` (v8), `@storybook/react-vite`, `@storybook/react`
 - 003-add-speed-display: Added real-time speed display to the center stack.
 - 004-session-sync-fix: Added `leaderFinished` detection to fix lap count glitches at the end of races.
+
+## Active Technologies
+- TypeScript 5.9+ + Vite 8.x, React 19.x, `storybook` (v8), `@storybook/react-vite`, `@storybook/react` (012-add-storybook)

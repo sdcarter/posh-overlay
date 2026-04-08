@@ -6,3 +6,4 @@ release/
 .env
 .env.*
 src/domain/telemetry/lovely-car-data.json
+storybook-static/
