@@ -1,6 +1,6 @@
 # Feature Specification: Visual Telemetry Graph
 
-**Feature Branch**: `004-telemetry-graph`  
+**Feature Branch**: `006-telemetry-graph`  
 **Created**: 2026-03-28  
 **Status**: Draft  
 **Input**: User description: "Time for a new feature! This new feature is going to be one of the last features that we need to get to near term feature complete. So here we go ... I want to implement a visual telemtry graph similar to what I have pasted in. The red is the brake pressure, the green is the throttle. The yellow is where the ABS kicks in so you can see if you are overworking the tires. I want this kind of telemetry graph available in the overlay but I think the positioning is somewhat up for grabs. I'll start with what I think I want: Right now we have a capsule ... on the left is the current position, middle is key RPM/speed/gear data and right is the number of laps remaining. Below that is a data ribbon with some detail like incidents, BB, TC, etc. That is centered under the capsule. I want to keep that centering but I'd like the telemetry graph be kind of like a capsule extension out of one of the ends of the main capsule .. I think on the left hand side for now. The graph timeline will go from right to left like we read so that seems to make the most sense to see it as a glance. Think you can give this a go?"

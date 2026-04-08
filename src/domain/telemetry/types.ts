@@ -15,6 +15,7 @@ export interface TelemetrySnapshot {
   sessionLapsTotal: number | null;
   sessionTimeRemainSeconds: number | null;
   sessionLastLapTimeSeconds: number | null;
+  sessionAvgLapTimeSeconds: number | null;
   incidentCount: number;
   incidentLimit: number | null;
   brakeBiasPercent: number | null;

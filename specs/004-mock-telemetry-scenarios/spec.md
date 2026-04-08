@@ -14,14 +14,16 @@ Mock telemetry provider for development on macOS/Linux where iRacing SDK isn't a
 
 ## Scenarios
 
-| npm target | Scenario name | What it tests |
-|---|---|---|
-| `npm run mock` | `default` | Static baseline snapshot |
-| `npm run mock:mazda` | `mazda-sweep` | Mazda MX-5 RPM sweep through all gears |
-| `npm run mock:bmw` | `bmw-sweep` | BMW M4 GT3 RPM sweep with TC/ABS |
-| `npm run mock:sfl` | `sfl-sweep` | Super Formula Lights sweep (no TC/ABS) |
-| `npm run mock:finish` | `finish-countdown` | Finish line crossing + checkered flag |
-| `npm run mock:fuel` | `fuel` | Fuel indicator cycling green → yellow → red every 3s |
+| npm target | Scenario name | What it tests | Added in |
+|---|---|---|---|
+| `npm run mock` | `default` | Static baseline snapshot | 004 |
+| `npm run mock:mazda` | `mazda-sweep` | Mazda MX-5 RPM sweep through all gears | 004 |
+| `npm run mock:bmw` | `bmw-sweep` | BMW M4 GT3 RPM sweep with TC/ABS | 004 |
+| `npm run mock:sfl` | `sfl-sweep` | Super Formula Lights sweep (no TC/ABS) | 004 |
+| `npm run mock:finish` | `finish-countdown` | Finish line crossing + checkered flag (fixed-lap race) | 004 |
+| `npm run mock:fuel` | `fuel` | Fuel indicator cycling green → yellow → red every 3s | 004 |
+| `npm run mock:stabilizing-fuel` | `stabilizing-fuel` | Fuel estimation initialization phase (laps 0-4, blue dot → steady state) | 010 |
+| `npm run mock:timed` | `timed` | Timed road race lifecycle: countdown → timer expired → leader finishes | 011 |
 
 ## Key Files
 

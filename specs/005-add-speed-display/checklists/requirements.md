@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-03-28
-**Feature**: [specs/003-add-speed-display/spec.md](../spec.md)
+**Feature**: [specs/005-add-speed-display/spec.md](../spec.md)
 
 ## Content Quality
 

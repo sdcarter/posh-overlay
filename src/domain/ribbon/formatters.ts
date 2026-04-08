@@ -26,9 +26,12 @@ export function lapProgress(s: TelemetrySnapshot): string {
     const remaining = lapsRemainingForDriver(s);
     return `Laps ${completed.toFixed(1)}/${adjustedTotal.toFixed(1)}${remaining != null ? ` (${remaining} left)` : ''}`;
   }
-  if (s.sessionTimeRemainSeconds != null && s.sessionLastLapTimeSeconds != null && s.sessionLastLapTimeSeconds > 0) {
-    const est = s.sessionTimeRemainSeconds / s.sessionLastLapTimeSeconds;
-    return `Est laps left ${est.toFixed(1)}`;
+  if (s.sessionTimeRemainSeconds != null && s.sessionTimeRemainSeconds > 0) {
+    const lapTime = s.sessionAvgLapTimeSeconds ?? s.sessionLastLapTimeSeconds;
+    if (lapTime != null && lapTime > 0) {
+      const est = s.sessionTimeRemainSeconds / lapTime;
+      return `Est laps left ${est.toFixed(1)}`;
+    }
   }
   return 'Laps -/-';
 }

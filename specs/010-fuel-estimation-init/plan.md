@@ -1,6 +1,6 @@
 # Implementation Plan: Refine fuel estimation for initial laps
 
-**Branch**: `008-fuel-estimation-init` | **Date**: Monday, March 30, 2026 | **Spec**: [/specs/008-fuel-estimation-init/spec.md](/specs/008-fuel-estimation-init/spec.md)
+**Branch**: `010-fuel-estimation-init` | **Date**: Monday, March 30, 2026 | **Spec**: [/specs/010-fuel-estimation-init/spec.md](/specs/010-fuel-estimation-init/spec.md)
 
 ## Summary
 Refine the fuel estimation logic to handle the initialization phase (laps 1-3) gracefully. This involves using an expanding average, implementing a 20% outlier detection threshold, and introducing a new "stabilizing" status (Blue Dot) in the UI until 4 valid laps are recorded.
@@ -23,7 +23,7 @@ Refine the fuel estimation logic to handle the initialization phase (laps 1-3) g
 
 ### Documentation (this feature)
 ```text
-specs/008-fuel-estimation-init/
+specs/010-fuel-estimation-init/
 ├── plan.md              # This file
 ├── research.md          # Findings on current implementation
 ├── data-model.md        # Type updates and logic rules

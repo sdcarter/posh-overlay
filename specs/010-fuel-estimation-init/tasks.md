@@ -1,6 +1,6 @@
 # Tasks: Refine fuel estimation for initial laps
 
-**Input**: Design documents from `/specs/008-fuel-estimation-init/`
+**Input**: Design documents from `/specs/010-fuel-estimation-init/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, quickstart.md
 
 **Tests**: Verified via the mock telemetry scenario.

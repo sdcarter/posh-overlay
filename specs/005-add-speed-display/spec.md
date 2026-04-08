@@ -1,6 +1,6 @@
 # Feature Specification: Add Speed Display in km/h
 
-**Feature Branch**: `003-add-speed-display`  
+**Feature Branch**: `005-add-speed-display`  
 **Created**: 2026-03-28  
 **Status**: Draft  
 **Input**: User description: "I have a new feature I want to go into the overlay. Specifically, I would like to include the speed in km/h that the car is traveling at. I want it in the same row as the RPMs and the gear. However, I want to change the visual styling a bit. Right now the order of the RPMs and Gear is exactly that. I would like this change to be that the speed is the first value and it will be a bit smaller. RPMs will be the next and that's the big important one so it should stay the same size in a bit of an impact font and then the final will be the gear I'm in with the same font size as the speed. That should help me focus on the most important thing which is managing shifts in the RPM power range."

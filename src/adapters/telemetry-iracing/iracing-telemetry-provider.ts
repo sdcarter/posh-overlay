@@ -39,6 +39,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
   private lastLapFuelLevel: number | null = null;
   private computedFuelPerLap: number | null = null;
   private playerCheckeredLap: number | null = null;
+  private lapTimeHistory: number[] = [];
 
   async start() {
     try {
@@ -129,6 +130,19 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         }
       }
 
+      // Track lap times for rolling average (timed race estimation)
+      const lastLapTime = val(t.LapLastLapTime);
+      if (this.latest != null && this.latest.currentLap != null && currentLap != null && currentLap > this.latest.currentLap) {
+        if (lastLapTime != null && lastLapTime > 0) {
+          this.lapTimeHistory.push(lastLapTime);
+          if (this.lapTimeHistory.length > 3) this.lapTimeHistory.shift();
+        }
+      }
+
+      const sessionAvgLapTime = this.lapTimeHistory.length > 0
+        ? this.lapTimeHistory.reduce((a, b) => a + b, 0) / this.lapTimeHistory.length
+        : null;
+
       const leaderCompleted = arrVal(t.CarIdxLap, leaderCarIdx);
 
       this.latest = {
@@ -148,6 +162,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         sessionLapsTotal: lapVal(t.SessionLapsTotal),
         sessionTimeRemainSeconds: val(t.SessionTimeRemain),
         sessionLastLapTimeSeconds: val(t.LapLastLapTime),
+        sessionAvgLapTimeSeconds: sessionAvgLapTime,
         incidentCount: val(t.PlayerCarMyIncidentCount) ?? val(t.PlayerCarDriverIncidentCount) ?? 0,
         incidentLimit: null,
         brakeBiasPercent: val(t.dcBrakeBias),

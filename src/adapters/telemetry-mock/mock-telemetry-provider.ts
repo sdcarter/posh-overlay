@@ -35,6 +35,7 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
     sessionLapsTotal: 20,
     sessionTimeRemainSeconds: null,
     sessionLastLapTimeSeconds: 92.3,
+    sessionAvgLapTimeSeconds: null,
     incidentCount: 2,
     incidentLimit: 17,
     brakeBiasPercent: 54.2,
@@ -178,6 +179,87 @@ function createFuelScenarioSnapshot(nowMs: number): TelemetrySnapshot {
   });
 }
 
+function createTimedRaceSnapshot(nowMs: number): TelemetrySnapshot {
+  // 30s cycle: 0-20s mid-race with timer counting down, 20-26s timer expired (pre-checkered),
+  // 26-30s leader finished (checkered flag)
+  const cycleMs = 30_000;
+  const progress = (nowMs % cycleMs) / cycleMs;
+
+  if (progress < 0.67) {
+    // Mid-race: timer counting down from 180s to 0
+    const timeRemain = Math.max(0, 180 * (1 - progress / 0.67));
+    const lapFraction = (progress / 0.67) * 5; // ~5 laps over this phase
+    const currentLap = 8 + Math.floor(lapFraction);
+    const lapDistPct = lapFraction % 1;
+    return baseSnapshot({
+      carPath: 'bmwm4gt3',
+      currentLap,
+      lapDistPct,
+      leaderLap: currentLap,
+      leaderLapDistPct: Math.min(0.99, lapDistPct + 0.05),
+      gear: 4,
+      rpm: Math.round(5500 + 2000 * lapDistPct),
+      maxRpm: 9000,
+      sessionLapsRemain: null,
+      sessionLapsTotal: null,
+      sessionTimeRemainSeconds: timeRemain,
+      sessionLastLapTimeSeconds: 91.2,
+      sessionAvgLapTimeSeconds: 90.5,
+      positionOverall: 5,
+      brakeBiasPercent: 53.8,
+      tractionControlLevel: 2,
+      absLevel: 3,
+    });
+  }
+
+  if (progress < 0.87) {
+    // Timer expired but leader hasn't crossed the line yet
+    const lapDistPct = 0.3 + ((progress - 0.67) / 0.2) * 0.65;
+    return baseSnapshot({
+      carPath: 'bmwm4gt3',
+      currentLap: 13,
+      lapDistPct,
+      leaderLap: 13,
+      leaderLapDistPct: Math.min(0.99, lapDistPct + 0.05),
+      gear: lapDistPct > 0.7 ? 5 : 4,
+      rpm: Math.round(5500 + 2500 * lapDistPct),
+      maxRpm: 9000,
+      sessionLapsRemain: null,
+      sessionLapsTotal: null,
+      sessionTimeRemainSeconds: 0,
+      sessionLastLapTimeSeconds: 91.2,
+      sessionAvgLapTimeSeconds: 90.5,
+      positionOverall: 5,
+      brakeBiasPercent: 53.8,
+      tractionControlLevel: 2,
+      absLevel: 3,
+    });
+  }
+
+  // Leader has finished — checkered flag
+  const postProgress = (progress - 0.87) / 0.13;
+  return baseSnapshot({
+    carPath: 'bmwm4gt3',
+    currentLap: 14,
+    lapDistPct: 0.05 + postProgress * 0.4,
+    leaderLap: 14,
+    leaderLapDistPct: 0.1 + postProgress * 0.4,
+    gear: 3,
+    rpm: Math.round(3000 + 1000 * Math.sin(postProgress * Math.PI)),
+    maxRpm: 9000,
+    sessionLapsRemain: null,
+    sessionLapsTotal: null,
+    sessionTimeRemainSeconds: 0,
+    sessionLastLapTimeSeconds: 91.2,
+    sessionAvgLapTimeSeconds: 90.5,
+    positionOverall: 5,
+    brakeBiasPercent: 53.8,
+    tractionControlLevel: 2,
+    absLevel: 3,
+    leaderFinished: true,
+  });
+}
+
 function createStabilizingFuelScenarioSnapshot(nowMs: number): TelemetrySnapshot {
   const cycleMs = 25000; // 5 seconds per phase (1-5 laps)
   const phase = Math.min(4, Math.floor((nowMs % cycleMs) / 5000));
@@ -214,6 +296,8 @@ export class MockTelemetryProvider implements TelemetryProvider {
       case 'finish':
       case 'finish-countdown':
         return createFinishCountdownSnapshot(nowMs);
+      case 'timed':
+        return createTimedRaceSnapshot(nowMs);
       case 'fuel':
         return createFuelScenarioSnapshot(nowMs);
       case 'stabilizing-fuel':

@@ -1,7 +1,7 @@
 # Implementation Plan: Visual Telemetry Graph
 
-**Branch**: `004-telemetry-graph` | **Date**: 2026-03-28 | **Spec**: [spec.md](./spec.md)
-**Input**: Feature specification from `/specs/004-telemetry-graph/spec.md`
+**Branch**: `006-telemetry-graph` | **Date**: 2026-03-28 | **Spec**: [spec.md](./spec.md)
+**Input**: Feature specification from `/specs/006-telemetry-graph/spec.md`
 
 ## Summary
 
@@ -34,7 +34,7 @@ Implement a visual telemetry graph as an extension on the left side of the main 
 ### Documentation (this feature)
 
 ```text
-specs/004-telemetry-graph/
+specs/006-telemetry-graph/
 ├── plan.md              # This file
 ├── research.md          # Technical decisions
 ├── data-model.md        # Telemetry data structures

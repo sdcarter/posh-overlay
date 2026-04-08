@@ -1,6 +1,6 @@
 # Feature Specification: Refine fuel estimation for initial laps
 
-**Feature Branch**: `008-fuel-estimation-init`  
+**Feature Branch**: `010-fuel-estimation-init`  
 **Created**: Monday, March 30, 2026  
 **Status**: Draft  
 **Input**: User description: "this is an update to the 003 fuel specification. I DON'T WANT TO Create another spec if I don't have to. Shouldn't we be able to just update what we have? I'm not sure if this works, exactly! I like almost everything that it's doing but I have an issue during the initial first 3 or 4 laps. basically, because it uses the trailing 4 lap average to estimate fuel, it takes 4 laps to show real fuel data. What I'd like to do is to use handle the situation gracefully until we get to the four laps in local memory so we can do a correct estimation."

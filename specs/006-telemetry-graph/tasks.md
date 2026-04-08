@@ -1,6 +1,6 @@
 # Tasks: Visual Telemetry Graph
 
-**Input**: Design documents from `/specs/004-telemetry-graph/`
+**Input**: Design documents from `/specs/006-telemetry-graph/`
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md
 
 ## Phase 1: Setup & Foundational

@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: Monday, March 30, 2026
-**Feature**: [specs/008-fuel-estimation-init/spec.md](specs/008-fuel-estimation-init/spec.md)
+**Feature**: [specs/010-fuel-estimation-init/spec.md](specs/010-fuel-estimation-init/spec.md)
 
 ## Content Quality
 

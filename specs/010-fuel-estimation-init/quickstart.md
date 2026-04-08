@@ -1,7 +1,7 @@
 # Quickstart: Testing Fuel Estimation Refinement
 
 ## Development Setup
-1. Switch to the feature branch: `git checkout 008-fuel-estimation-init`
+1. Switch to the feature branch: `git checkout 010-fuel-estimation-init`
 2. Run `npm install` (if not already done).
 
 ## Testing the Refinement

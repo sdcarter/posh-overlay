@@ -1,7 +1,7 @@
 # Implementation Plan: Add Speed Display in km/h
 
-**Branch**: `003-add-speed-display` | **Date**: 2026-03-28 | **Spec**: [specs/003-add-speed-display/spec.md](spec.md)
-**Input**: Feature specification from `/specs/003-add-speed-display/spec.md`
+**Branch**: `005-add-speed-display` | **Date**: 2026-03-28 | **Spec**: [specs/005-add-speed-display/spec.md](spec.md)
+**Input**: Feature specification from `/specs/005-add-speed-display/spec.md`
 
 ## Summary
 Add a real-time speed display in km/h to the telemetry row of the PoshDash overlay. The display will follow a horizontal `[Speed] | [RPM] | [Gear]` layout, with RPMs receiving visual emphasis via font size and a "high-impact" style, as requested for passion project performance and personal utility.
@@ -33,7 +33,7 @@ Add a real-time speed display in km/h to the telemetry row of the PoshDash overl
 ### Documentation (this feature)
 
 ```text
-specs/003-add-speed-display/
+specs/005-add-speed-display/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output

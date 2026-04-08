@@ -7,7 +7,7 @@ function clampLapPercent(value: number | null): number {
 
 function calculateEstimatedSessionTotal(snapshot: TelemetrySnapshot): number | null {
   const timeRemain = snapshot.sessionTimeRemainSeconds;
-  const lapTime = snapshot.sessionLastLapTimeSeconds;
+  const lapTime = snapshot.sessionAvgLapTimeSeconds ?? snapshot.sessionLastLapTimeSeconds;
   const currentLap = snapshot.currentLap;
 
   if (timeRemain == null || lapTime == null || lapTime <= 0 || currentLap == null || currentLap <= 0) {
@@ -15,7 +15,7 @@ function calculateEstimatedSessionTotal(snapshot: TelemetrySnapshot): number | n
   }
 
   const elapsedLaps = (currentLap - 1) + clampLapPercent(snapshot.lapDistPct);
-  const remainingLaps = timeRemain / lapTime;
+  const remainingLaps = Math.max(0, timeRemain) / lapTime;
   
   // By rounding the sum of continuous elapsed laps and remaining laps, we 
   // lock in an "Estimated Session Laps Total" that only changes if the pace 
@@ -55,6 +55,17 @@ export function lapsRemainingForDriver(snapshot: TelemetrySnapshot): number | nu
   // for you the next time you cross the S/F line. We lock laps remaining to 1 here 
   // to avoid erratic values caused by post-race timer resets.
   if (snapshot.sessionState >= 5 || snapshot.leaderFinished) return 1;
+
+  // Timed race guard: When the session timer has expired but the leader hasn't
+  // crossed the line yet, the race is still going. Return 1 — the driver must
+  // at minimum finish their current lap.
+  if (
+    snapshot.sessionTimeRemainSeconds != null &&
+    snapshot.sessionTimeRemainSeconds <= 0 &&
+    snapshot.sessionLapsTotal == null
+  ) {
+    return 1;
+  }
 
   const adjustedTotal = totalRaceLapsForDriver(snapshot);
   if (adjustedTotal != null) {

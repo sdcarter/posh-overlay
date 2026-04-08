@@ -1,6 +1,6 @@
 # Tasks: Add Speed Display in km/h
 
-**Input**: Design documents from `specs/003-add-speed-display/`
+**Input**: Design documents from `specs/005-add-speed-display/`
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing.
@@ -16,7 +16,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Verify `003-add-speed-display` branch is active and environment is ready
+- [X] T001 Verify `005-add-speed-display` branch is active and environment is ready
 
 ---
 
