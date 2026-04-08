@@ -24,16 +24,19 @@ Sync Impact Report
 ### I. Personal Utility First
 The primary goal is an overlay that works perfectly for my iRacing setup. If a community request complicates my personal use, it’s out of scope. The project exists to solve a specific personal need; community sharing is a secondary benefit.
 
-### II. Performance is the Product
+### II. Solo Developer Workflow
+This is a one-person project. Task breakdowns should be minimal and designed for single-pass implementation. Prefer fewer, coarser tasks over granular per-file breakdowns. Avoid separate phases for setup vs implementation — collapse them so a single `/speckit.implement` run can complete the feature. No test tasks unless explicitly requested.
+
+### III. Performance is the Product
 Since this is a racing overlay, frame-time and system resource usage are the most critical 'features.' Every planned change must evaluate the impact on game FPS. The overlay must never cause stutter or input lag in the simulation.
 
-### III. Pragmatic Testing
+### IV. Pragmatic Testing
 No high-overhead automated UI testing suites. Focus on 'Data Integrity'—ensure the telemetry coming from the iRacing SDK is mapped correctly. If the telemetry data is solid, the UI 'looks' are secondary. Verification should prioritize raw data accuracy over visual regression testing.
 
-### IV. Windows-Native Simplicity
+### V. Windows-Native Simplicity
 Ensure the installation and startup are low-friction. I want to spend my time racing, not troubleshooting my overlay. Keep the stack as thin as possible and avoid unnecessary abstraction layers that complicate the Windows deployment.
 
-### V. Security via Transparency
+### VI. Security via Transparency
 Since this interacts with game telemetry, keep the code simple and readable so users can see exactly how their data is handled. No 'black box' logic or complex obfuscation. Security is maintained through simple, auditable code.
 
 ## Technical Architecture & Standards
@@ -165,6 +168,6 @@ assets/
 
 ## Governance
 
-Changes to this constitution require updating this file and committing with a clear rationale in the commit message. Amendments must be evaluated against the five Core Principles.
+Changes to this constitution require updating this file and committing with a clear rationale in the commit message. Amendments must be evaluated against the six Core Principles.
 
 **Version**: 5.0.0 | **Ratified**: 2026-03-25 | **Last Amended**: 2026-03-25
