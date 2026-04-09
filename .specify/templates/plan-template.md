@@ -33,6 +33,13 @@
 
 [Gates determined based on constitution file]
 
+## Specialist Consultation
+
+*Verify if this feature requires domain-specific expertise.*
+
+- [ ] **Telemetry Impact?**: If yes, consult **@telemetry-expert** for SDK mapping and domain logic validation.
+- [ ] **UI/UX Changes?**: If yes, consult **@ui-stylist** for premium aesthetic alignment and Storybook integration.
+
 ## Project Structure
 
 ### Documentation (this feature)

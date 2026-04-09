@@ -166,8 +166,22 @@ assets/
 - All commits authored as `sdcarter <sdcarter@users.noreply.github.com>`
 - Repo-level git config enforces this
 
+## Project Team & Specialists
+
+To maintain the highest level of domain expertise and visual quality, this project utilizes specialized AI agents for specific subsystems. Any agent performing planning or implementation MUST consult the relevant specialist for their domain.
+
+### @telemetry-expert
+- **Role**: Lead Telemetry Architect.
+- **Responsibility**: iRacing SDK mappings, domain logic in `src/domain/telemetry/`, and mock scenario generation.
+- **Source of Truth**: `node_modules/@irsdk-node/types/dist/types/telemetry.gen.d.ts` and `irsdk-node.bengsfort.dev`.
+
+### @ui-stylist
+- **Role**: Creative Director.
+- **Responsibility**: BMW M4 GT3 inspired aesthetics, React 19 component design, and M-Sport color palette application.
+- **Standards**: Sharp, blocky typography; Light Blue (#009CDE), Dark Blue (#0033A0), and Red (#FF0000) palette.
+
 ## Governance
 
 Changes to this constitution require updating this file and committing with a clear rationale in the commit message. Amendments must be evaluated against the six Core Principles.
 
-**Version**: 5.0.0 | **Ratified**: 2026-03-25 | **Last Amended**: 2026-03-25
+**Version**: 5.1.0 | **Ratified**: 2026-03-25 | **Last Amended**: 2026-04-09
