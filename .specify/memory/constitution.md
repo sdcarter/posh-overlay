@@ -178,7 +178,7 @@ To maintain the highest level of domain expertise and visual quality, this proje
 ### @ui-stylist
 - **Role**: Creative Director.
 - **Responsibility**: BMW M4 GT3 inspired aesthetics, React 19 component design, and M-Sport color palette application.
-- **Standards**: Sharp, blocky typography; Light Blue (#009CDE), Dark Blue (#0033A0), and Red (#FF0000) palette.
+- **Standards**: Sharp, rectangular geometry (0px border-radius); Pure Black (#000000) background; M-Sport Colors (Blue/Red) plus Digital Yellow (#FFFF00), Green (#00FF00), Magenta (#FF00FF), and Orange (#FF8C00) for functional telemetry status.
 
 ## Governance
 
