@@ -75,3 +75,19 @@ export const SuperFormulaLightsSweep: Story = {
 export const MustangSweep: Story = {
   args: { scenario: 'mustang-sweep' }
 };
+
+export const RoadRaceFinish: Story = {
+  args: { scenario: 'road-finish' }
+};
+
+export const TimedRace: Story = {
+  args: { scenario: 'timed' }
+};
+
+export const FuelScenario: Story = {
+  args: { scenario: 'fuel' }
+};
+
+export const StabilizingFuel: Story = {
+  args: { scenario: 'stabilizing-fuel' }
+};
