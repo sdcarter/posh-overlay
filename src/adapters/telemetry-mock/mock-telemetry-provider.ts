@@ -30,7 +30,6 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
     gear: 4,
     rpm: 5500,
     maxRpm: 9000,
-    shiftIndicatorPct: 5500 / 9000,
     pitLimiterActive: false,
     sessionLapsRemain: 11,
     sessionLapsTotal: 20,
