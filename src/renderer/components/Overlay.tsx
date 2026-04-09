@@ -88,12 +88,13 @@ function RevDots({ state, height }: { state: RevStripState; height: number }) {
     };
   }, [state.flashMode, state.redlineBlinkInterval]);
 
-  const dotSize = Math.max(6, Math.min(13, height * 0.1));
-  const borderSize = dotSize > 9 ? 1.4 : 1;
-  const gap = Math.max(4, dotSize * 0.56);
+  const blockWidth = Math.max(14, height * 0.22);
+  const blockHeight = Math.max(8, height * 0.12);
+  const borderSize = 1;
+  const gap = 3;
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap, minHeight: dotSize }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap, minHeight: blockHeight }}>
       {state.ledColors.map((ledColor, i) => {
         const isSpacer = ledColor === 'transparent';
         let color: string;
@@ -112,12 +113,12 @@ function RevDots({ state, height }: { state: RevStripState; height: number }) {
           <div
             key={i}
             style={{
-              width: dotSize,
-              height: dotSize,
-              borderRadius: '50%',
+              width: blockWidth,
+              height: blockHeight,
+              borderRadius: 0,
               background: color,
-              border: isSpacer ? 'none' : `${borderSize}px solid rgba(255,255,255,${active ? 0.86 : 0.34})`,
-              boxShadow: active ? `0 0 ${Math.max(6, dotSize * 1.6)}px rgba(255,255,255,0.2)` : 'none',
+              border: isSpacer ? 'none' : `${borderSize}px solid rgba(255,255,255,${active ? 0.86 : 0.15})`,
+              boxShadow: active ? `0 0 10px ${color}` : 'none',
             }}
           />
         );
@@ -186,7 +187,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
     width: size.w,
     height: size.h,
     padding: 0,
-    borderRadius: 24,
+    borderRadius: 0,
     background: 'transparent',
     border: 'none',
     fontFamily: "Rajdhani, Orbitron, Eurostile, sans-serif",
@@ -203,8 +204,6 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
   const capsuleGap = Math.max(4, 6 * scale);
   const mainHeight = Math.max(62, size.h - ribbonHeight - capsuleGap - 6);
   const pillSize = Math.max(48, mainHeight * 0.88);
-  const badgeInset = pillSize * 0.44;
-  const capsuleRadius = Math.max(18, mainHeight * 0.42);
   const centerStackGap = Math.max(12, 18 * scale);
 
   const capsuleStyle: React.CSSProperties = {
@@ -221,52 +220,49 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
 
   const coreStyle: React.CSSProperties = {
     height: mainHeight,
-    marginLeft: badgeInset,
-    marginRight: badgeInset,
-    borderRadius: capsuleRadius,
+    borderRadius: 0,
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: `0 ${Math.max(34, pillSize * 0.66)}px`,
-    background: 'linear-gradient(150deg, rgba(7,11,18,0.93) 0%, rgba(5,9,15,0.9) 100%)',
-    border: locked ? '1.5px solid rgba(170, 184, 201, 0.34)' : '1.6px dashed rgba(247, 210, 112, 0.88)',
+    justifyContent: 'space-between',
+    padding: `0 ${Math.max(16, pillSize * 0.3)}px`,
+    background: 'rgba(18, 18, 18, 0.85)',
+    border: locked ? '1.5px solid rgba(255, 255, 255, 0.15)' : '1.6px dashed rgba(247, 210, 112, 0.88)',
     boxShadow: '0 10px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.07)',
     backdropFilter: 'blur(5px)',
     boxSizing: 'border-box',
     overflow: 'visible',
+    gap: 16,
   };
 
   const leftPillStyle: React.CSSProperties = {
-    position: 'absolute',
-    left: -badgeInset,
-    top: (mainHeight - pillSize) / 2,
-    width: pillSize,
-    height: pillSize,
-    borderRadius: '50%',
+    position: 'relative',
+    width: pillSize * 0.78,
+    height: pillSize * 0.78,
+    borderRadius: 0,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     background: 'radial-gradient(circle at 30% 20%, rgba(44,58,78,0.96) 0%, rgba(7,11,17,0.96) 70%)',
-    border: '2px solid rgba(123, 255, 99, 0.9)',
+    border: '2px solid var(--bmw-m-light-blue, #009CDE)',
     boxShadow: '0 0 0 2px rgba(5, 7, 10, 0.86), 0 8px 20px rgba(0,0,0,0.46)',
+    flexShrink: 0,
   };
 
   const rightPillStyle: React.CSSProperties = {
-    position: 'absolute',
-    right: -badgeInset,
-    top: (mainHeight - pillSize * 0.78) / 2,
+    position: 'relative',
     width: pillSize * 0.78,
     height: pillSize * 0.78,
-    borderRadius: '50%',
+    borderRadius: 0,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     background: 'radial-gradient(circle at 30% 20%, rgba(40,50,64,0.8) 0%, rgba(11,17,27,0.9) 72%)',
-    border: '1.6px solid rgba(176, 189, 205, 0.42)',
+    border: '1.6px solid #FF00FF',
     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
+    flexShrink: 0,
   };
 
   const ribbonStyle: React.CSSProperties = {
@@ -275,7 +271,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
     minWidth: Math.max(250, size.w * 0.34),
     maxWidth: '95%',
     height: ribbonHeight,
-    borderRadius: ribbonHeight / 2,
+    borderRadius: 0,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -298,7 +294,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
     height: 22,
     cursor: 'nwse-resize',
     background: 'rgba(247, 210, 112, 0.4)',
-    borderRadius: '0 0 20px 0',
+    borderRadius: 0,
   };
 
   const lowerItems = frame ? [
@@ -319,27 +315,32 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
   const content = frame ? (
     <div style={capsuleStyle}>
       <div style={coreStyle}>
-        <div style={leftPillStyle}>
-          <div style={{ fontSize: `${0.42 * pillSize}px`, lineHeight: 1, fontWeight: 800 }}>{positionText}</div>
+        {/* Left Column (flex: 1) */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
+          <div style={{ ...leftPillStyle, position: 'relative' }}>
+            <div style={{ fontSize: `${0.32 * pillSize}px`, lineHeight: 1, fontWeight: 800 }}>{positionText}</div>
+            {/* Telemetry graph anchored to left edge of the Position pill */}
+            <div style={{
+              position: 'absolute',
+              right: '100%',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              marginRight: 4,
+              zIndex: -1,
+            }}>
+              <TelemetryGraph snapshot={frame.snapshot} height={mainHeight * 0.75} scale={scale} />
+            </div>
+          </div>
         </div>
 
-        <div style={{
-          position: 'absolute',
-          left: -Math.max(100, 160 * scale),
-          top: (mainHeight - (mainHeight * 0.75)) / 2,
-          zIndex: -1
-        }}>
-          <TelemetryGraph snapshot={frame.snapshot} height={mainHeight * 0.75} scale={scale} />
-        </div>
-
+        {/* Center Column (fixed centering) */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: Math.max(7, 8 * scale), minWidth: 0 }}>
           {frame.revStrip ? <RevDots key={`${frame.revStrip.flashMode}-${frame.revStrip.redlineBlinkInterval}`} state={frame.revStrip} height={size.h} /> : <div style={{ height: Math.max(6, size.h * 0.08) }} />}
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: centerStackGap, minWidth: 0 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: centerStackGap, minWidth: 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '1px solid white', padding: '4px 8px', borderRadius: 0 }}>
               <div style={{ fontSize: `${Math.max(10, 10 * scale)}px`, letterSpacing: '0.14em', opacity: 0.82 }}>SPEED</div>
               <div style={{ fontSize: `${Math.max(24, 34 * scale)}px`, lineHeight: 0.95, fontWeight: 800, width: '2.2em', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>{speedText}</div>
             </div>
-            <div style={{ width: 1, height: Math.max(22, 28 * scale), background: 'rgba(183,197,214,0.36)' }} />
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div style={{ fontSize: `${Math.max(10, 10 * scale)}px`, letterSpacing: '0.14em', opacity: 0.82 }}>RPM</div>
               <div style={{ 
@@ -351,21 +352,23 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
                 fontVariantNumeric: 'tabular-nums'
               }}>{rpmText}</div>
             </div>
-            <div style={{ width: 1, height: Math.max(22, 28 * scale), background: 'rgba(183,197,214,0.36)' }} />
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '1px solid white', padding: '4px 8px', borderRadius: 0 }}>
               <div style={{ fontSize: `${Math.max(10, 10 * scale)}px`, letterSpacing: '0.14em', opacity: 0.82 }}>GEAR</div>
               <div style={{ fontSize: `${Math.max(24, 34 * scale)}px`, lineHeight: 0.95, fontWeight: 800, width: '1.4em', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>{gearText}</div>
             </div>
           </div>
         </div>
 
-        <div style={rightPillStyle}>
-          <div style={{ fontSize: `${0.16 * pillSize}px`, letterSpacing: '0.1em', fontWeight: 700, opacity: 0.82 }}>{finished ? 'DONE' : 'LAPS'}</div>
-          {finished ? (
-            <CheckeredFlagIcon size={Math.max(20, pillSize * 0.32)} />
-          ) : (
-            <div style={{ fontSize: `${0.28 * pillSize}px`, lineHeight: 1, fontWeight: 800 }}>{lapsText}</div>
-          )}
+        {/* Right Column (flex: 1) */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <div style={rightPillStyle}>
+            <div style={{ fontSize: `${0.16 * pillSize}px`, letterSpacing: '0.1em', fontWeight: 700, opacity: 0.82 }}>{finished ? 'DONE' : 'LAPS'}</div>
+            {finished ? (
+              <CheckeredFlagIcon size={Math.max(20, pillSize * 0.32)} />
+            ) : (
+              <div style={{ fontSize: `${0.28 * pillSize}px`, lineHeight: 1, fontWeight: 800 }}>{lapsText}</div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -391,7 +394,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
             <React.Fragment key="fuel">
               {lowerItems.length > 0 && <span style={{ color: 'rgba(173,185,199,0.58)' }}>|</span>}
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: dotColor, display: 'inline-block', flexShrink: 0 }} />
+                <span style={{ width: 7, height: 7, borderRadius: 0, backgroundColor: dotColor, display: 'inline-block', flexShrink: 0 }} />
                 <span style={{ fontSize: `${Math.max(10, 12 * scale)}px`, fontWeight: 700, letterSpacing: '0.03em', color: '#edf3ff' }}>
                   {frame.ribbon.fuelLapsText}
                 </span>
@@ -410,15 +413,15 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
   ) : (
     <div style={{
       height: '100%',
-      borderRadius: 20,
+      borderRadius: 0,
       padding: `0 ${Math.max(12, 16 * scale)}px`,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'column',
       gap: Math.max(4, 7 * scale),
-      background: 'linear-gradient(150deg, rgba(8,12,19,0.85) 0%, rgba(7,10,16,0.78) 100%)',
-      border: locked ? '1.3px solid rgba(170,184,201,0.32)' : '1.5px dashed rgba(247,210,112,0.88)',
+      background: 'rgba(18, 18, 18, 0.85)',
+      border: locked ? '1.5px solid rgba(255, 255, 255, 0.15)' : '1.5px dashed rgba(247,210,112,0.88)',
       boxShadow: '0 12px 24px rgba(0,0,0,0.34)',
       boxSizing: 'border-box',
     }}>

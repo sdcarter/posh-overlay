@@ -52,6 +52,7 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
     playerFinished: false,
     leaderFinished: false,
     ...overrides,
+    shiftIndicatorPct: overrides.shiftIndicatorPct ?? ((overrides.rpm ?? 5500) / (overrides.maxRpm ?? 9000)),
   };
 }
 
@@ -329,6 +330,16 @@ export class MockTelemetryProvider implements TelemetryProvider {
           gearCount: 6,
           positionOverall: 2,
           brakeBiasPercent: 56.1,
+          tractionControlLevel: null,
+          absLevel: null,
+        }, nowMs);
+      case 'mustang-sweep':
+        return createSweepSnapshot({
+          carPath: 'nascar-oreilly-ford-mustang',
+          maxRpm: 8400,
+          gearCount: 4,
+          positionOverall: 1,
+          brakeBiasPercent: 50.0,
           tractionControlLevel: null,
           absLevel: null,
         }, nowMs);
