@@ -157,6 +157,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         gear: val(t.Gear),
         rpm,
         maxRpm: val(t.PlayerCarSLShiftRPM) ?? val(t.PlayerCarSLBlinkRPM) ?? val(t.PlayerCarSLLastRPM) ?? rpm * 1.05,
+        shiftIndicatorPct: val(t.ShiftIndicatorPct),
         pitLimiterActive: ((val(t.EngineWarnings) ?? 0) & 0x10) !== 0,
         sessionLapsRemain: lapVal(t.SessionLapsRemainEx) ?? lapVal(t.SessionLapsRemain),
         sessionLapsTotal: lapVal(t.SessionLapsTotal),

@@ -57,7 +57,7 @@ export function TelemetryGraph({ snapshot, height, scale }: Props) {
     const padY = height * 0.15;
     const drawHeight = height - padY * 2;
 
-    // Draw reference lines
+    // Draw reference lines (horizontal)
     ctx.lineWidth = 1 * scale;
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
     ctx.beginPath();
@@ -66,6 +66,22 @@ export function TelemetryGraph({ snapshot, height, scale }: Props) {
     ctx.moveTo(0, height - padY);
     ctx.lineTo(width, height - padY);
     ctx.stroke();
+
+    // Draw vertical time markers — boldest at 0s (right edge), fading toward history
+    const totalSeconds = durationMs / 1000;
+    for (let s = 0; s < totalSeconds; s++) {
+      const x = width - (s * 1000 / durationMs) * width;
+      const fade = 1 - (s / totalSeconds);  // 1.0 at 0s, diminishing toward the past
+      const opacity = s === 0 ? 0.4 : 0.08 + 0.07 * fade;
+      const lineW = s === 0 ? 2 * scale : 1 * scale;
+
+      ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+      ctx.lineWidth = lineW;
+      ctx.beginPath();
+      ctx.moveTo(s === 0 ? x - 1 : x, padY);
+      ctx.lineTo(s === 0 ? x - 1 : x, height - padY);
+      ctx.stroke();
+    }
 
     const drawLine = (
       getValue: (pt: DataPoint) => number,
@@ -113,14 +129,13 @@ export function TelemetryGraph({ snapshot, height, scale }: Props) {
     <div style={{
       width,
       height,
-      borderRadius: height * 0.42,
-      background: 'linear-gradient(150deg, rgba(7,11,18,0.93) 0%, rgba(5,9,15,0.9) 100%)',
+      borderRadius: 0,
+      background: 'rgba(18, 18, 18, 0.85)',
       border: '1.5px solid rgba(170, 184, 201, 0.1)',
       boxShadow: '0 10px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.07)',
       backdropFilter: 'blur(5px)',
       overflow: 'hidden',
-      boxSizing: 'border-box',
-      paddingRight: Math.max(16, 24 * scale) // more padding so lines plunge under the pill before stopping
+      boxSizing: 'border-box'
     }}>
       <canvas 
         ref={canvasRef}  

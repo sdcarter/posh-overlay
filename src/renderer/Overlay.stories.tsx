@@ -71,3 +71,7 @@ export const BmwSweep: Story = {
 export const SuperFormulaLightsSweep: Story = {
   args: { scenario: 'sfl-sweep' }
 };
+
+export const MustangSweep: Story = {
+  args: { scenario: 'mustang-sweep' }
+};

@@ -10,6 +10,7 @@ export interface TelemetrySnapshot {
   gear: number | null;
   rpm: number;
   maxRpm: number;
+  shiftIndicatorPct: number | null;
   pitLimiterActive: boolean;
   sessionLapsRemain: number | null;
   sessionLapsTotal: number | null;

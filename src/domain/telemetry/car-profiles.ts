@@ -41,13 +41,14 @@ export function resolveProfile(driverCarId: number, carPath?: string | null, gea
 
   const gearKey = gear != null && gear > 0 ? String(gear) : null;
   const rpmArray = (gearKey && rpmEntry[gearKey]) || findBestGearRpm(rpmEntry);
-  if (!rpmArray || rpmArray.length < 2) return null;
+  if (!rpmArray || rpmArray.length < 1) return null;
 
   const maxGear = Object.keys(rpmEntry).filter((k) => /^\d+$/.test(k)).reduce((m, k) => Math.max(m, Number(k)), 0);
   const isTopGear = gear != null && gear >= maxGear;
 
   const redlineRpm = rpmArray[0];
-  const ledRpms = rpmArray.slice(1, ledCount + 1);
+  // If only 1 RPM is provided, it's a single shift light. Otherwise, slice from index 1.
+  const ledRpms = rpmArray.length === 1 ? [rpmArray[0]] : rpmArray.slice(1, ledCount + 1);
 
   return { carId: driverCarId, ledRpms, ledColors: colors, redlineRpm, redlineColor, redlineBlinkInterval: blinkInterval, isTopGear };
 }
@@ -60,7 +61,8 @@ function parseHex(color?: string): string | null {
 
 function parseColors(ledColor: string[], ledCount: number): string[] {
   if (!ledColor?.length) return [];
-  const leds = ledColor.slice(1, ledCount + 1);
+  // If only 1 color is provided, use it for the one LED. Otherwise slice from index 1.
+  const leds = (ledCount === 1 && ledColor.length === 1) ? [ledColor[0]] : ledColor.slice(1, ledCount + 1);
   return leds.map((c) => {
     if (c === '#00000000') return 'transparent';
     return parseHex(c) || '#FFFFFF';

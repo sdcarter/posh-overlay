@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500;700&display=swap');
+
+:root {
+  --bmw-m-light-blue: #009CDE;
+  --bmw-m-dark-blue: #0033A0;
+  --bmw-m-red: #FF0000;
+  --bmw-carbon: #121212;
+  
+  --font-technical: 'Roboto Mono', monospace, sans-serif;
+}
+
+body {
+  font-family: var(--font-technical);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* DIN-style blocky sans-serif approximation using Roboto Mono or similar available web fonts */
