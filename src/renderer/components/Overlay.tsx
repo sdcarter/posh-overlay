@@ -204,8 +204,6 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
   const capsuleGap = Math.max(4, 6 * scale);
   const mainHeight = Math.max(62, size.h - ribbonHeight - capsuleGap - 6);
   const pillSize = Math.max(48, mainHeight * 0.88);
-  const badgeInset = pillSize * 0.44;
-  const capsuleRadius = Math.max(18, mainHeight * 0.42);
   const centerStackGap = Math.max(12, 18 * scale);
 
   const capsuleStyle: React.CSSProperties = {
