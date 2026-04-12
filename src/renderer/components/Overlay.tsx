@@ -102,7 +102,6 @@ function RevDots({ state, height, spacingScale, yOffset }: { state: RevStripStat
       border: '1.2px solid rgba(0, 156, 222, 0.45)', // BMW M Light Blue
       boxShadow: '0 6px 16px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06)',
       position: 'relative',
-      overflow: 'hidden',
     }}>
       {/* BMW M-Sport Signature Stripe */}
       <div style={{

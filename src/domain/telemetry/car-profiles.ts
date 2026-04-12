@@ -33,10 +33,6 @@ export function resolveProfile(driverCarId: number, carPath?: string | null, gea
   if (!carData || !maxRpm || maxRpm <= 0) return null;
 
   const ledCount = carData.ledNumber || DEFAULT_LED_COUNT;
-  const colors = parseColors(carData.ledColor, ledCount);
-  const redlineColor = parseHex(carData.ledColor?.[0]) || DEFAULT_REDLINE_COLOR;
-  const blinkInterval = carData.redlineBlinkInterval || DEFAULT_BLINK_INTERVAL;
-
   const rpmEntry = carData.ledRpm?.[0];
   if (!rpmEntry) return null;
 
@@ -48,8 +44,20 @@ export function resolveProfile(driverCarId: number, carPath?: string | null, gea
   const isTopGear = gear != null && gear >= maxGear;
 
   const redlineRpm = rpmArray[0];
-  // If only 1 RPM is provided, it's a single shift light. Otherwise, slice from index 1.
-  const ledRpms = rpmArray.length === 1 ? [rpmArray[0]] : rpmArray.slice(1, ledCount + 1);
+  
+  // Decide whether to slice based on lengths. 
+  // If rpmArray matches ledCount, use them all.
+  // If rpmArray is ledCount + 1, it follows the legacy LSR format where first is overall redline.
+  const useFullRpm = rpmArray.length === ledCount;
+  const ledRpms = useFullRpm ? rpmArray : (rpmArray.length === 1 ? [rpmArray[0]] : rpmArray.slice(1, ledCount + 1));
+
+  // Same logic for colors
+  const useFullColors = carData.ledColor?.length === ledCount;
+  const colorsSource = useFullColors ? carData.ledColor : carData.ledColor.slice(1, ledCount + 1);
+  const colors = parseColors(colorsSource);
+
+  const redlineColor = parseHex(carData.ledColor?.[0]) || DEFAULT_REDLINE_COLOR;
+  const blinkInterval = carData.redlineBlinkInterval || DEFAULT_BLINK_INTERVAL;
 
   return { carId: driverCarId, ledRpms, ledColors: colors, redlineRpm, redlineColor, redlineBlinkInterval: blinkInterval, isTopGear };
 }
@@ -60,11 +68,9 @@ function parseHex(color?: string): string | null {
   return color === '#00000000' ? null : color;
 }
 
-function parseColors(ledColor: string[], ledCount: number): string[] {
-  if (!ledColor?.length) return [];
-  // If only 1 color is provided, use it for the one LED. Otherwise slice from index 1.
-  const leds = (ledCount === 1 && ledColor.length === 1) ? [ledColor[0]] : ledColor.slice(1, ledCount + 1);
-  return leds.map((c) => {
+function parseColors(ledColors: string[]): string[] {
+  if (!ledColors?.length) return [];
+  return ledColors.map((c) => {
     if (c === '#00000000') return 'transparent';
     return parseHex(c) || '#FFFFFF';
   });
