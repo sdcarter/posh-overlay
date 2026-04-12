@@ -459,8 +459,9 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
       </div>
 
       {!locked && (
-        <div style={{ fontSize: `${Math.max(10, 11 * scale)}px`, color: 'rgba(247,210,112,0.72)', textAlign: 'right', paddingRight: 4 }}>
-          UNLOCKED - drag to move, corner to resize
+        <div style={{ fontSize: `${Math.max(10, 11 * scale)}px`, color: 'rgba(247,210,112,0.72)', textAlign: 'right', paddingRight: 4, display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+          {frame?.ribbon.debugCarPath && <span>[{frame.ribbon.debugCarPath}]</span>}
+          <span>UNLOCKED - drag to move, corner to resize</span>
         </div>
       )}
     </div>

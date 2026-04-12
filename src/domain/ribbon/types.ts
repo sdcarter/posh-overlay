@@ -9,4 +9,5 @@ export interface RibbonState {
   finished: boolean;
   lapInfoText: string;
   visible: boolean;
+  debugCarPath?: string | null;
 }

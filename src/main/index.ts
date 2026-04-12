@@ -107,6 +107,9 @@ function startTelemetryLoop() {
       return;
     }
     const profile = resolveProfile(snapshot.driverCarId, snapshot.carPath, snapshot.gear, snapshot.maxRpm);
+    if (!profile && snapshot.carPath) {
+      console.log(`[PoshDash] Failed to resolve profile for car path: "${snapshot.carPath}"`);
+    }
     const revStrip = composeRevStrip(snapshot, profile);
     const ribbon = composeRibbon(snapshot);
     mainWindow?.webContents.send('telemetry:update', { snapshot, revStrip, ribbon, useMock });

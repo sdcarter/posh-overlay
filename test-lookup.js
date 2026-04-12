@@ -8,11 +8,15 @@ const mockMe = (path) => {
   }
 };
 
-console.log('--- Verification: Native NASCAR Next Gen Lookups ---');
-mockMe('stockcars ford mustang nextgen 2024');
-mockMe('stockcars chevrolet camaro nextgen');
-mockMe('stockcars toyota camry nextgen 2024');
-mockMe('stockcars2 ford mustang');
-mockMe('stockcars chevy monte carlo 03');
-mockMe('bmwm4gt3');
+console.log('--- Verification: Future-proof Specificity Matching ---');
+mockMe('stockcars/ford-mustang-nextgen-2024'); // Reality
+mockMe('stockcars/ford-mustang-nextgen-2028'); // Future version - FIXED
+mockMe('ford mustang nextgen');                // Partial - Step 3 (Reverse match)
+mockMe('stockcars/chevy-monte-carlo-03');      // Gen4 reality
+mockMe('stockcars/chevrolet-camaro-nextgen');  // Next Gen reality
+mockMe('stockcars2/chevrolet-camaro');         // Xfinity/O'Reilly reality
+mockMe('stockcars2/ford-mustang');            // Xfinity/O'Reilly reality
+mockMe('stockcars2/toyota-supra');            // Xfinity/O'Reilly reality
+mockMe('stockcars/toyota-camry-nextgen-2024'); // Next Gen Reality
+mockMe('stockcars/nascar-next-gen-ford-2024'); // What if reordered? - Step 4 (fuzzy)
 

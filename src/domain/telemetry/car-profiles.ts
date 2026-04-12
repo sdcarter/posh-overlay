@@ -28,19 +28,40 @@ function lookupCar(carPath: string): LovelyCarData | null {
   const norm = normalize(carPath);
   
   // 1. Try exact normalized match
-  const exact = normalizedBundle.get(norm);
-  if (exact) return exact;
+  if (normalizedBundle.has(norm)) {
+    return normalizedBundle.get(norm)!;
+  }
 
-  // 2. Try stripping common suffixes if no match (e.g. '2024')
-  const baseNorm = norm.replace('2024', '');
-  const baseMatch = normalizedBundle.get(baseNorm);
-  if (baseMatch) return baseMatch;
+  // 2. Specificity match: Find the longest known car ID that is contained within the simulator path.
+  // This handles version suffixes like '2024', '2028', 'v2', etc., without hardcoding them.
+  const keys = Array.from(normalizedBundle.keys());
+  const containedKeys = keys
+    .filter(key => norm.includes(key))
+    .sort((a, b) => b.length - a.length);
 
-  // 3. Last ditch: try if the incoming path contains any of our known keys
-  for (const [key, value] of normalizedBundle.entries()) {
-    if (norm.includes(key) || key.includes(norm)) {
-      return value;
-    }
+  if (containedKeys.length > 0) {
+    return normalizedBundle.get(containedKeys[0])!;
+  }
+
+  // 3. Reverse match: Does the simulator path appear inside one of our known IDs?
+  // (e.g. iRacing sends 'mustang', we have 'stockcarsfordmustang')
+  const containerKeys = keys
+    .filter(key => key.includes(norm))
+    .sort((a, b) => b.length - a.length);
+
+  if (containerKeys.length > 0) {
+    return normalizedBundle.get(containerKeys[0])!;
+  }
+
+  // 4. Year-agnostic match: Strip years (20XX) and try again.
+  // This solves the '2024' vs '2028' mismatch while keeping the base car identity.
+  const stripYear = (s: string) => s.replace(/20\d{2}/g, '');
+  const normNoYear = stripYear(norm);
+  const keysNoYear = keys.map(key => ({ original: key, stripped: stripYear(key) }));
+
+  const fuzzyMatch = keysNoYear.find(k => normNoYear.includes(k.stripped) || k.stripped.includes(normNoYear));
+  if (fuzzyMatch) {
+    return normalizedBundle.get(fuzzyMatch.original)!;
   }
 
   return null;
