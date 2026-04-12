@@ -25,6 +25,5 @@ export function composeRibbon(snapshot: TelemetrySnapshot): RibbonState {
     finished,
     lapInfoText: lapInfo(snapshot),
     visible: snapshot.isOnTrack && !snapshot.isReplayPlaying,
-    debugCarPath: snapshot.carPath,
   };
 }
