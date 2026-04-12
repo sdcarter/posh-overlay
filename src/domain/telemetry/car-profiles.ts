@@ -21,11 +21,29 @@ for (const [key, value] of Object.entries(bundle)) {
 
 function normalize(s: string): string {
   return s.toLowerCase()
-    .replace(/[\s_-]+/g, '');
+    .replace(/[^a-z0-9]/g, '');
 }
 
 function lookupCar(carPath: string): LovelyCarData | null {
-  return normalizedBundle.get(normalize(carPath)) ?? null;
+  const norm = normalize(carPath);
+  
+  // 1. Try exact normalized match
+  const exact = normalizedBundle.get(norm);
+  if (exact) return exact;
+
+  // 2. Try stripping common suffixes if no match (e.g. '2024')
+  const baseNorm = norm.replace('2024', '');
+  const baseMatch = normalizedBundle.get(baseNorm);
+  if (baseMatch) return baseMatch;
+
+  // 3. Last ditch: try if the incoming path contains any of our known keys
+  for (const [key, value] of normalizedBundle.entries()) {
+    if (norm.includes(key) || key.includes(norm)) {
+      return value;
+    }
+  }
+
+  return null;
 }
 
 export function resolveProfile(driverCarId: number, carPath?: string | null, gear?: number | null, maxRpm?: number): CarShiftProfile | null {

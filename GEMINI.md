@@ -40,6 +40,7 @@ Strict adherence to the hexagonal architecture is required.
 - **Style:** Maintain the clean, "minimalist" aesthetic of the overlay.
 
 ## Recent Changes
+- 023-bulletproof-car-lookup: Implemented aggressive alphanumeric-only normalization and a fuzzy fallback mechanism for car profile lookups. This ensures Mustang/Camry/Camaro LEDs show up even if iRacing formats the car path with hidden characters or unexpected suffixes.
 - 022-nascar-led-count: Fixed a bug where the first LED threshold was being ignored due to incorrect array slicing. Verified that Next Gen cars now show all 9 LEDs correctly.
 - 021-test-session-text: Simplified the session display for local practices. Instead of showing countdowns for sessions longer than 24 hours (e.g. `>99:59:59`), the overlay now simply displays `TEST`.
 - 020-native-nascar-mapping: Transitioned to 100% native car path matching. Removed all normalization hacks as the car data fork now uses exact iRacing folder names (e.g., `stockcars ford mustang nextgen 2024`).
