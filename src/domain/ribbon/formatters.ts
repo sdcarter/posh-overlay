@@ -36,5 +36,11 @@ export function lapInfo(s: TelemetrySnapshot): string {
     const total = s.sessionLapsTotal ?? 0;
     return `${current} / ${total}`;
   }
+
+  // For sessions longer than 24 hours, it's almost certainly a local test drive.
+  if (s.sessionTimeRemainSeconds != null && s.sessionTimeRemainSeconds > 86400) {
+    return 'TEST';
+  }
+
   return s.sessionTimeRemainSeconds != null ? formatTime(s.sessionTimeRemainSeconds) : '--:--';
 }

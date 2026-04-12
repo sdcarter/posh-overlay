@@ -40,6 +40,7 @@ Strict adherence to the hexagonal architecture is required.
 - **Style:** Maintain the clean, "minimalist" aesthetic of the overlay.
 
 ## Recent Changes
+- 021-test-session-text: Simplified the session display for local practices. Instead of showing countdowns for sessions longer than 24 hours (e.g. `>99:59:59`), the overlay now simply displays `TEST`.
 - 020-native-nascar-mapping: Transitioned to 100% native car path matching. Removed all normalization hacks as the car data fork now uses exact iRacing folder names (e.g., `stockcars ford mustang nextgen 2024`).
 - 019-nascar-2024-mapping: Fixed Mustang/Camry/Camaro Next Gen lookups by handling the `2024` suffix in iRacing's folder names. (Simplified in 020).
 - 018-nascar-rpm-fallback: Fixed an issue where NASCAR cars (Next Gen/Xfinity) would show no rev lights because they return `0` for SDK shift RPM variables. Added a robust fallback to ensure a non-zero `maxRpm` is always calculated.
