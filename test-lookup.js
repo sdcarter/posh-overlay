@@ -8,7 +8,7 @@ const mockMe = (path) => {
   }
 };
 
-mockMe('nascar-ford-mustang-nextgen');
-mockMe('stockcars ford mustang nextgen');
-mockMe('ford mustang nextgen');
-mockMe('nascar ford mustang nextgen');
+mockMe('stockcars-nascarnextgenford');
+mockMe('stockcars2-oreillyford');
+mockMe('stockcars-chevymontecarlo03');
+mockMe('bmwm4gt3');

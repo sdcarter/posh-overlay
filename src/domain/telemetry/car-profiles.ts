@@ -21,7 +21,6 @@ for (const [key, value] of Object.entries(bundle)) {
 
 function normalize(s: string): string {
   return s.toLowerCase()
-    .replace('stockcars', 'nascar')
     .replace(/[\s_-]+/g, '');
 }
 

@@ -40,7 +40,8 @@ Strict adherence to the hexagonal architecture is required.
 - **Style:** Maintain the clean, "minimalist" aesthetic of the overlay.
 
 ## Recent Changes
-- 015-adaptive-ui-led-collision: Transitioned to rectangular info boxes, implemented dynamic LED scaling/offset for collision avoidance, added a background container for the LED array, and added "On-Track Only" visibility logic using raw SDK variables. Fixed NASCAR/Stockcars car path lookup mismatch.
+- 016-move-to-user-fork: Reverted the 'nascar' path normalization fix as the source of truth was updated in the user's fork (`sdcarter/lovely-car-data`). Updated mock telemetry provider and test script with new car IDs (e.g., `stockcars-nascarnextgen...`).
+- 015-adaptive-ui-led-collision: Transitioned to rectangular info boxes, implemented dynamic LED scaling/offset for collision avoidance, added a background container for the LED array, and added "On-Track Only" visibility logic using raw SDK variables. Fixed NASCAR/Stockcars car path lookup mismatch (reverted in 016).
 - 012-add-storybook: Added TypeScript 5.9+ + Vite 8.x, React 19.x, `storybook` (v8), `@storybook/react-vite`, `@storybook/react`
 - 003-add-speed-display: Added real-time speed display to the center stack.
 - 004-session-sync-fix: Added `leaderFinished` detection to fix lap count glitches at the end of races.

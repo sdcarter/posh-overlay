@@ -6,8 +6,8 @@ import https from 'https';
 import fs from 'fs';
 import path from 'path';
 
-const MANIFEST_URL = 'https://raw.githubusercontent.com/Lovely-Sim-Racing/lovely-car-data/main/data/manifest.json';
-const BASE = 'https://raw.githubusercontent.com/Lovely-Sim-Racing/lovely-car-data/main/data';
+const MANIFEST_URL = 'https://raw.githubusercontent.com/sdcarter/lovely-car-data/main/data/manifest.json';
+const BASE = 'https://raw.githubusercontent.com/sdcarter/lovely-car-data/main/data';
 const OUT = path.resolve('src/domain/telemetry/lovely-car-data.json');
 
 function fetchJson(url) {
