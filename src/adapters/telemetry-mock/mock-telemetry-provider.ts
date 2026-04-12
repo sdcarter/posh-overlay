@@ -355,6 +355,16 @@ export class MockTelemetryProvider implements TelemetryProvider {
           tractionControlLevel: null,
           absLevel: null,
         }, nowMs);
+      case 'mustang-nextgen':
+        return createSweepSnapshot({
+          carPath: 'stockcars ford mustang nextgen',
+          maxRpm: 9200,
+          gearCount: 5,
+          positionOverall: 4,
+          brakeBiasPercent: 50.0,
+          tractionControlLevel: null,
+          absLevel: null,
+        }, nowMs);
       case 'wide-led-collision':
         return createSweepSnapshot({
           carPath: 'porsche991rsr',

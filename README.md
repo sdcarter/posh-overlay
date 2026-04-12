@@ -48,6 +48,7 @@ npm run mock
 npm run mock:mazda
 npm run mock:bmw
 npm run mock:oval
+npm run mock:mustang
 npm run mock:wide
 npm run mock:finish
 
