@@ -13,8 +13,6 @@ export interface TelemetrySnapshot {
   shiftIndicatorPct: number | null;
   pitLimiterActive: boolean;
   sessionLapsRemain: number | null;
-  sessionLapsTotal: number | null;
-  sessionTimeRemainSeconds: number | null;
   sessionLastLapTimeSeconds: number | null;
   sessionAvgLapTimeSeconds: number | null;
   incidentCount: number;

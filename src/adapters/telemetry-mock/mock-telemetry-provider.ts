@@ -18,7 +18,7 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
   const brake = cycle > 2500 && cycle < 4000 ? Math.min(1, (cycle - 2500) / 200) : 0;
   const absActive = brake > 0.8 && (nowMs % 120 < 60);
 
-  return {
+  const snapshot: TelemetrySnapshot = {
     timestampMs: nowMs,
     driverCarId: 1,
     positionOverall: 12,
@@ -53,9 +53,15 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
     leaderFinished: false,
     isOnTrack: true,
     isReplayPlaying: false,
+    sessionType: 'lap-based',
     ...overrides,
     shiftIndicatorPct: overrides.shiftIndicatorPct ?? ((overrides.rpm ?? 5500) / (overrides.maxRpm ?? 9000)),
   };
+
+  // Enforce sessionType based on total laps
+  snapshot.sessionType = snapshot.sessionLapsTotal != null ? 'lap-based' : 'time-based';
+
+  return snapshot;
 }
 
 function createSweepSnapshot(config: SweepConfig, nowMs: number): TelemetrySnapshot {
