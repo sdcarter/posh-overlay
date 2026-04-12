@@ -97,6 +97,8 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
       const currentLap = val(t.Lap) ?? arrVal(t.CarIdxLap, playerCarIdx);
       const fuelLevel = val(t.FuelLevel);
       const sessionState = val(t.SessionState) ?? 0;
+      const isOnTrack = Boolean(t.IsOnTrack?.value?.[0] ?? false);
+      const isReplayPlaying = Boolean(t.IsReplayPlaying?.value?.[0] ?? false);
 
       if (sessionState === 5 && this.playerCheckeredLap == null && currentLap != null) {
         this.playerCheckeredLap = currentLap;
@@ -179,6 +181,8 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         sessionState,
         playerFinished,
         leaderFinished,
+        isOnTrack,
+        isReplayPlaying,
       };
     } catch {
       this.sdk = null;
