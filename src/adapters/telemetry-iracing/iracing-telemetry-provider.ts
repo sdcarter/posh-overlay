@@ -150,6 +150,13 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
       const sessionLapsTotal = lapVal(t.SessionLapsTotal);
       const sessionType: 'lap-based' | 'time-based' = sessionLapsTotal != null ? 'lap-based' : 'time-based';
 
+      // NASCAR cars often return 0 for these variables. We need a non-zero maxRpm.
+      const slShift = val(t.PlayerCarSLShiftRPM);
+      const slBlink = val(t.PlayerCarSLBlinkRPM);
+      const slLast = val(t.PlayerCarSLLastRPM);
+      const sdkMaxRpm = (slShift && slShift > 0) ? slShift : (slBlink && slBlink > 0) ? slBlink : (slLast && slLast > 0) ? slLast : null;
+      const maxRpm = sdkMaxRpm ?? (rpm > 0 ? rpm * 1.05 : 1);
+
       this.latest = {
         timestampMs: Date.now(),
         driverCarId: playerCarIdx ?? 0,
@@ -161,7 +168,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         leaderLapDistPct: arrVal(t.CarIdxLapDistPct, leaderCarIdx),
         gear: val(t.Gear),
         rpm,
-        maxRpm: val(t.PlayerCarSLShiftRPM) ?? val(t.PlayerCarSLBlinkRPM) ?? val(t.PlayerCarSLLastRPM) ?? rpm * 1.05,
+        maxRpm,
         shiftIndicatorPct: val(t.ShiftIndicatorPct),
         pitLimiterActive: ((val(t.EngineWarnings) ?? 0) & 0x10) !== 0,
         sessionLapsRemain: lapVal(t.SessionLapsRemainEx) ?? lapVal(t.SessionLapsRemain),

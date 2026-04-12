@@ -40,6 +40,7 @@ Strict adherence to the hexagonal architecture is required.
 - **Style:** Maintain the clean, "minimalist" aesthetic of the overlay.
 
 ## Recent Changes
+- 018-nascar-rpm-fallback: Fixed an issue where NASCAR cars (Next Gen/Xfinity) would show no rev lights because they return `0` for SDK shift RPM variables. Added a robust fallback to ensure a non-zero `maxRpm` is always calculated.
 - 017-session-time-overflow: Capped session time display at `>99:59:59` and added CSS overflow protection to the session pill. Simplified lap counter (removed 'LAP' prefix, e.g., `20 / 20`). Fixed NASCAR Next Gen/Xfinity car profile lookups by adding a mapping for iRacing's folder paths to the new fork IDs.
 - 016-move-to-user-fork: Reverted the 'nascar' path normalization fix as the source of truth was updated in the user's fork (`sdcarter/lovely-car-data`). Updated mock telemetry provider and test script with new car IDs (e.g., `stockcars-nascarnextgen...`).
 - 015-adaptive-ui-led-collision: Transitioned to rectangular info boxes, implemented dynamic LED scaling/offset for collision avoidance, added a background container for the LED array, and added "On-Track Only" visibility logic using raw SDK variables. Fixed NASCAR/Stockcars car path lookup mismatch (reverted in 016).
