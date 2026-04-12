@@ -21,7 +21,6 @@ for (const [key, value] of Object.entries(bundle)) {
 
 function normalize(s: string): string {
   return s.toLowerCase()
-    .replace('2024', '') // Strip the 2024 suffix for updated NASCAR cars
     .replace(/[\s_-]+/g, '');
 }
 

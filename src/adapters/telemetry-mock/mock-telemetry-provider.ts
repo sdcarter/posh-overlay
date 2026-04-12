@@ -357,7 +357,7 @@ export class MockTelemetryProvider implements TelemetryProvider {
         }, nowMs);
       case 'mustang-nextgen':
         return createSweepSnapshot({
-          carPath: 'stockcars ford mustang nextgen',
+          carPath: 'stockcars ford mustang nextgen 2024',
           maxRpm: 9200,
           gearCount: 5,
           positionOverall: 4,

@@ -8,8 +8,11 @@ const mockMe = (path) => {
   }
 };
 
-console.log('--- Verification: iRacing 2024 versions ---');
+console.log('--- Verification: Native NASCAR Next Gen Lookups ---');
 mockMe('stockcars ford mustang nextgen 2024');
-mockMe('stockcars chevrolet camaro nextgen 2024');
+mockMe('stockcars chevrolet camaro nextgen');
 mockMe('stockcars toyota camry nextgen 2024');
+mockMe('stockcars2 ford mustang');
+mockMe('stockcars chevy monte carlo 03');
+mockMe('bmwm4gt3');
 
