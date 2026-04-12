@@ -84,10 +84,22 @@ export const TimedRace: Story = {
   args: { scenario: 'timed' }
 };
 
+export const WideLedCollision: Story = {
+  args: { scenario: 'wide-led-collision' }
+};
+
 export const FuelScenario: Story = {
   args: { scenario: 'fuel' }
 };
 
 export const StabilizingFuel: Story = {
   args: { scenario: 'stabilizing-fuel' }
+};
+
+export const GarageHidden: Story = {
+  args: { scenario: 'garage' }
+};
+
+export const ReplayHidden: Story = {
+  args: { scenario: 'replay' }
 };

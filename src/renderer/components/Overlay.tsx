@@ -21,11 +21,6 @@ function formatGear(gear: number | null): string {
   return String(gear);
 }
 
-function formatPillNumber(value: number | null): string {
-  if (value == null || Number.isNaN(value)) return '--';
-  return String(Math.max(0, Math.round(value)));
-}
-
 function CheckeredFlagIcon({ size }: { size: number }) {
   const flagWidth = size;
   const flagHeight = size * 0.8;
@@ -75,7 +70,7 @@ function CheckeredFlagIcon({ size }: { size: number }) {
   );
 }
 
-function RevDots({ state, height }: { state: RevStripState; height: number }) {
+function RevDots({ state, height, spacingScale, yOffset }: { state: RevStripState; height: number; spacingScale: number; yOffset: number }) {
   const [flashOn, setFlashOn] = useState(true);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -88,13 +83,20 @@ function RevDots({ state, height }: { state: RevStripState; height: number }) {
     };
   }, [state.flashMode, state.redlineBlinkInterval]);
 
-  const blockWidth = Math.max(14, height * 0.22);
+  const blockWidth = Math.max(14, height * 0.22) * spacingScale;
   const blockHeight = Math.max(8, height * 0.12);
   const borderSize = 1;
-  const gap = 3;
+  const gap = 3 * spacingScale;
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap, minHeight: blockHeight }}>
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      gap, 
+      minHeight: blockHeight,
+      transform: `translateY(${yOffset}px)`,
+    }}>
       {state.ledColors.map((ledColor, i) => {
         const isSpacer = ledColor === 'transparent';
         let color: string;
@@ -203,7 +205,8 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
   const ribbonHeight = Math.max(20, 25 * scale);
   const capsuleGap = Math.max(4, 6 * scale);
   const mainHeight = Math.max(62, size.h - ribbonHeight - capsuleGap - 6);
-  const pillSize = Math.max(48, mainHeight * 0.88);
+  const pillWidth = 120 * scale;
+  const pillHeight = 60 * scale;
   const centerStackGap = Math.max(12, 18 * scale);
 
   const capsuleStyle: React.CSSProperties = {
@@ -216,6 +219,9 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
     justifyContent: 'flex-start',
     paddingTop: 3,
     boxSizing: 'border-box',
+    opacity: frame?.ribbon.visible ? 1 : 0,
+    pointerEvents: frame?.ribbon.visible ? 'auto' : 'none',
+    transition: 'opacity 0.15s ease-out',
   };
 
   const coreStyle: React.CSSProperties = {
@@ -225,7 +231,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: `0 ${Math.max(16, pillSize * 0.3)}px`,
+    padding: `0 ${Math.max(12, 16 * scale)}px`,
     background: 'rgba(18, 18, 18, 0.85)',
     border: locked ? '1.5px solid rgba(255, 255, 255, 0.15)' : '1.6px dashed rgba(247, 210, 112, 0.88)',
     boxShadow: '0 10px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.07)',
@@ -237,8 +243,8 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
 
   const leftPillStyle: React.CSSProperties = {
     position: 'relative',
-    width: pillSize * 0.78,
-    height: pillSize * 0.78,
+    width: pillWidth,
+    height: pillHeight,
     borderRadius: 0,
     display: 'flex',
     flexDirection: 'column',
@@ -252,8 +258,8 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
 
   const rightPillStyle: React.CSSProperties = {
     position: 'relative',
-    width: pillSize * 0.78,
-    height: pillSize * 0.78,
+    width: pillWidth,
+    height: pillHeight,
     borderRadius: 0,
     display: 'flex',
     flexDirection: 'column',
@@ -306,19 +312,37 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
   ].filter(Boolean) : [];
 
   const finished = frame?.ribbon.finished ?? false;
-  const positionText = frame?.snapshot.positionOverall != null ? `P${formatPillNumber(frame.snapshot.positionOverall)}` : '--';
-  const lapsText = frame ? formatPillNumber(frame.ribbon.lapsRemaining) : '--';
+  const positionText = frame?.snapshot.positionOverall != null ? `P${frame.snapshot.positionOverall}` : '--';
+  const sessionText = frame?.ribbon.lapInfoText ?? '--';
   const gearText = frame ? formatGear(frame.snapshot.gear) : '--';
   const rpmText = frame ? Math.max(0, Math.round(frame.snapshot.rpm)).toString() : '--';
   const speedText = frame ? Math.max(0, Math.round(frame.snapshot.speedKmH)).toString() : '--';
 
+  // Dynamic LED scaling and offset
+  const ledCount = frame?.revStrip?.ledCount ?? 0;
+  const corePadding = Math.max(12, 16 * scale);
+  const safeZoneWidth = size.w - (2 * pillWidth) - (2 * corePadding) - 40; // 40px safe margin
+  const baseLedWidth = Math.max(14, size.h * 0.22);
+  const baseGap = 3;
+  const totalLedWidth = ledCount * (baseLedWidth + baseGap);
+  
+  const spacingScale = (totalLedWidth > safeZoneWidth && ledCount > 0) 
+    ? safeZoneWidth / totalLedWidth 
+    : 1.0;
+  
+  // yOffset to ensure 10px buffer from top of pills. 
+  // Pills are centered in mainHeight. 
+  // Center Column is also centered.
+  const yOffset = - (pillHeight * 0.22); // Shift up by ~22% of pill height for solid clearance
+
   const content = frame ? (
     <div style={capsuleStyle}>
       <div style={coreStyle}>
-        {/* Left Column (flex: 1) */}
+        {/* Left Column (Position) */}
         <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
           <div style={{ ...leftPillStyle, position: 'relative' }}>
-            <div style={{ fontSize: `${0.32 * pillSize}px`, lineHeight: 1, fontWeight: 800 }}>{positionText}</div>
+            <div style={{ fontSize: `${0.16 * pillHeight}px`, letterSpacing: '0.1em', fontWeight: 700, opacity: 0.82 }}>POS</div>
+            <div style={{ fontSize: `${0.45 * pillHeight}px`, lineHeight: 1, fontWeight: 800 }}>{positionText}</div>
             {/* Telemetry graph anchored to left edge of the Position pill */}
             <div style={{
               position: 'absolute',
@@ -335,7 +359,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
 
         {/* Center Column (fixed centering) */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: Math.max(7, 8 * scale), minWidth: 0 }}>
-          {frame.revStrip ? <RevDots key={`${frame.revStrip.flashMode}-${frame.revStrip.redlineBlinkInterval}`} state={frame.revStrip} height={size.h} /> : <div style={{ height: Math.max(6, size.h * 0.08) }} />}
+          {frame.revStrip ? <RevDots key={`${frame.revStrip.flashMode}-${frame.revStrip.redlineBlinkInterval}`} state={frame.revStrip} height={size.h} spacingScale={spacingScale} yOffset={yOffset} /> : <div style={{ height: Math.max(6, size.h * 0.08) }} />}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: centerStackGap, minWidth: 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '1px solid white', padding: '4px 8px', borderRadius: 0 }}>
               <div style={{ fontSize: `${Math.max(10, 10 * scale)}px`, letterSpacing: '0.14em', opacity: 0.82 }}>SPEED</div>
@@ -359,14 +383,14 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
           </div>
         </div>
 
-        {/* Right Column (flex: 1) */}
+        {/* Right Column (Session info) */}
         <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
           <div style={rightPillStyle}>
-            <div style={{ fontSize: `${0.16 * pillSize}px`, letterSpacing: '0.1em', fontWeight: 700, opacity: 0.82 }}>{finished ? 'DONE' : 'LAPS'}</div>
+            <div style={{ fontSize: `${0.16 * pillHeight}px`, letterSpacing: '0.1em', fontWeight: 700, opacity: 0.82 }}>{finished ? 'DONE' : 'SESSION'}</div>
             {finished ? (
-              <CheckeredFlagIcon size={Math.max(20, pillSize * 0.32)} />
+              <CheckeredFlagIcon size={Math.max(20, pillHeight * 0.42)} />
             ) : (
-              <div style={{ fontSize: `${0.28 * pillSize}px`, lineHeight: 1, fontWeight: 800 }}>{lapsText}</div>
+              <div style={{ fontSize: `${0.32 * pillHeight}px`, lineHeight: 1, fontWeight: 800 }}>{sessionText}</div>
             )}
           </div>
         </div>

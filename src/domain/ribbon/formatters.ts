@@ -1,5 +1,4 @@
 import type { TelemetrySnapshot } from '../telemetry/types.js';
-import { lapsRemainingForDriver, totalRaceLapsForDriver } from '../telemetry/lap-count.js';
 
 export function formatIncidents(s: TelemetrySnapshot): string {
   return s.incidentLimit != null ? `Inc ${s.incidentCount}/${s.incidentLimit}` : `Inc ${s.incidentCount}/-`;
@@ -17,21 +16,23 @@ export function absLevel(s: TelemetrySnapshot): string | null {
   return s.absLevel != null ? `ABS ${s.absLevel}` : null;
 }
 
-export function lapProgress(s: TelemetrySnapshot): string {
-  const adjustedTotal = totalRaceLapsForDriver(s);
-  if (adjustedTotal != null) {
-    const currentLap = s.currentLap ?? 0;
-    const lapDistPct = Math.min(1, Math.max(0, s.lapDistPct ?? 0));
-    const completed = currentLap > 0 ? Math.max(0, (currentLap - 1) + lapDistPct) : 0;
-    const remaining = lapsRemainingForDriver(s);
-    return `Laps ${completed.toFixed(1)}/${adjustedTotal.toFixed(1)}${remaining != null ? ` (${remaining} left)` : ''}`;
+export function formatTime(seconds: number): string {
+  if (seconds < 0) return '00:00';
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+
+  if (h > 0) {
+    return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
-  if (s.sessionTimeRemainSeconds != null && s.sessionTimeRemainSeconds > 0) {
-    const lapTime = s.sessionAvgLapTimeSeconds ?? s.sessionLastLapTimeSeconds;
-    if (lapTime != null && lapTime > 0) {
-      const est = s.sessionTimeRemainSeconds / lapTime;
-      return `Est laps left ${est.toFixed(1)}`;
-    }
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+export function lapInfo(s: TelemetrySnapshot): string {
+  if (s.sessionType === 'lap-based') {
+    const current = s.currentLap ?? 0;
+    const total = s.sessionLapsTotal ?? 0;
+    return `LAP ${current}/${total}`;
   }
-  return 'Laps -/-';
+  return s.sessionTimeRemainSeconds != null ? formatTime(s.sessionTimeRemainSeconds) : '--:--';
 }

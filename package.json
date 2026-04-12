@@ -18,6 +18,8 @@
     "mock:finish": "node scripts/run-mock-scenario.mjs finish-countdown",
     "mock:fuel": "node scripts/run-mock-scenario.mjs fuel",
     "mock:timed": "node scripts/run-mock-scenario.mjs timed",
+    "mock:wide": "node scripts/run-mock-scenario.mjs wide-led-collision",
+    "mock:oval": "node scripts/run-mock-scenario.mjs mustang-sweep",
     "mock:stabilizing-fuel": "node scripts/run-mock-scenario.mjs stabilizing-fuel",
     "start": "npm run build && electron dist/main/index.js",
     "pack": "npm run build && electron-builder --dir",

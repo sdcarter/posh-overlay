@@ -349,7 +349,18 @@ export class MockTelemetryProvider implements TelemetryProvider {
           tractionControlLevel: null,
           absLevel: null,
         }, nowMs);
-    case 'road-finish':
+      case 'wide-led-collision':
+        return createSweepSnapshot({
+          carPath: 'porsche991rsr',
+          maxRpm: 9400,
+          gearCount: 6,
+          positionOverall: 2,
+          brakeBiasPercent: 54.5,
+          tractionControlLevel: 1,
+          absLevel: 2,
+        }, nowMs);
+      case 'road-finish':
+
         return createRoadFinishScenarioSnapshot(nowMs);
       case 'garage':
         return baseSnapshot({ isOnTrack: false, isReplayPlaying: false, rpm: 0, gear: 0, speedKmH: 0 });

@@ -47,7 +47,8 @@ npm run mock
 # Run specific mock scenarios
 npm run mock:mazda
 npm run mock:bmw
-npm run mock:sfl
+npm run mock:oval
+npm run mock:wide
 npm run mock:finish
 
 # Run fuel indicator scenario

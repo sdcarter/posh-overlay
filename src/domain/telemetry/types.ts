@@ -34,6 +34,9 @@ export interface TelemetrySnapshot {
   leaderFinished: boolean;
   isOnTrack: boolean;
   isReplayPlaying: boolean;
+  sessionLapsTotal: number | null;
+  sessionTimeRemainSeconds: number | null;
+  sessionType: 'lap-based' | 'time-based';
 }
 
 export interface CarShiftProfile {

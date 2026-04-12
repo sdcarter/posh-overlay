@@ -1,5 +1,4 @@
 export interface RibbonState {
-  lapProgressText: string;
   incidentsText: string;
   brakeBiasText: string | null;
   tractionControlText: string | null;
@@ -8,4 +7,6 @@ export interface RibbonState {
   fuelStatus: 'green' | 'yellow' | 'red' | 'stabilizing' | null;
   lapsRemaining: number | null;
   finished: boolean;
+  lapInfoText: string;
+  visible: boolean;
 }

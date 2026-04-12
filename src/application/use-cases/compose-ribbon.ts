@@ -1,6 +1,6 @@
 import type { TelemetrySnapshot } from '../../domain/telemetry/types.js';
 import type { RibbonState } from '../../domain/ribbon/types.js';
-import { lapProgress, formatIncidents, brakeBias, tractionControl, absLevel } from '../../domain/ribbon/formatters.js';
+import { lapInfo, formatIncidents, brakeBias, tractionControl, absLevel } from '../../domain/ribbon/formatters.js';
 import { calculateFuelLapsRemaining, evaluateFuelStatus } from '../../domain/fuel/fuel-laps.js';
 import { lapsRemainingForDriver, isDriverFinished } from '../../domain/telemetry/lap-count.js';
 
@@ -15,7 +15,6 @@ export function composeRibbon(snapshot: TelemetrySnapshot): RibbonState {
     : null;
 
   return {
-    lapProgressText: lapProgress(snapshot),
     incidentsText: formatIncidents(snapshot),
     brakeBiasText: brakeBias(snapshot),
     tractionControlText: tractionControl(snapshot),
@@ -24,5 +23,7 @@ export function composeRibbon(snapshot: TelemetrySnapshot): RibbonState {
     fuelStatus,
     lapsRemaining: lapsRemain,
     finished,
+    lapInfoText: lapInfo(snapshot),
+    visible: snapshot.isOnTrack && !snapshot.isReplayPlaying,
   };
 }

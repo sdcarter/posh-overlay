@@ -147,6 +147,9 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
 
       const leaderCompleted = arrVal(t.CarIdxLap, leaderCarIdx);
 
+      const sessionLapsTotal = lapVal(t.SessionLapsTotal);
+      const sessionType: 'lap-based' | 'time-based' = sessionLapsTotal != null ? 'lap-based' : 'time-based';
+
       this.latest = {
         timestampMs: Date.now(),
         driverCarId: playerCarIdx ?? 0,
@@ -162,7 +165,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         shiftIndicatorPct: val(t.ShiftIndicatorPct),
         pitLimiterActive: ((val(t.EngineWarnings) ?? 0) & 0x10) !== 0,
         sessionLapsRemain: lapVal(t.SessionLapsRemainEx) ?? lapVal(t.SessionLapsRemain),
-        sessionLapsTotal: lapVal(t.SessionLapsTotal),
+        sessionLapsTotal,
         sessionTimeRemainSeconds: val(t.SessionTimeRemain),
         sessionLastLapTimeSeconds: val(t.LapLastLapTime),
         sessionAvgLapTimeSeconds: sessionAvgLapTime,
@@ -183,6 +186,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         leaderFinished,
         isOnTrack,
         isReplayPlaying,
+        sessionType,
       };
     } catch {
       this.sdk = null;
