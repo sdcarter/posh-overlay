@@ -96,12 +96,24 @@ function RevDots({ state, height, spacingScale, yOffset }: { state: RevStripStat
       gap, 
       minHeight: blockHeight,
       transform: `translateY(${yOffset}px)`,
-      background: 'rgba(0, 0, 0, 0.3)',
-      padding: '4px 8px',
-      borderRadius: 4,
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      boxShadow: 'inset 0 0 10px rgba(0, 0, 0, 0.5)',
+      background: 'linear-gradient(180deg, rgba(15, 22, 33, 0.9) 0%, rgba(7, 11, 17, 0.95) 100%)',
+      padding: '6px 10px 4px 10px', // Extra top padding for the stripe
+      borderRadius: 2,
+      border: '1.2px solid rgba(0, 156, 222, 0.45)', // BMW M Light Blue
+      boxShadow: '0 6px 16px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06)',
+      position: 'relative',
+      overflow: 'hidden',
     }}>
+      {/* BMW M-Sport Signature Stripe */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 2,
+        background: 'linear-gradient(to right, #009CDE 33%, #0033A0 33% 66%, #FF0000 66%)',
+        opacity: 0.8,
+      }} />
       {state.ledColors.map((ledColor, i) => {
         const isSpacer = ledColor === 'transparent';
         let color: string;
