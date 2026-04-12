@@ -32,6 +32,8 @@ export interface TelemetrySnapshot {
   sessionState: number;
   playerFinished: boolean;
   leaderFinished: boolean;
+  isOnTrack: boolean;
+  isReplayPlaying: boolean;
 }
 
 export interface CarShiftProfile {

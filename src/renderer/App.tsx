@@ -34,5 +34,11 @@ export function App() {
     window.electronAPI.onLockChange((l) => setLocked(l));
   }, []);
 
-  return <Overlay frame={frame} waitingMessage={waitingMsg} locked={locked} />;
+  const isVisible = frame !== null && frame.snapshot.isOnTrack && !frame.snapshot.isReplayPlaying;
+
+  return (
+    <div style={{ visibility: isVisible ? 'visible' : 'hidden' }}>
+      <Overlay frame={frame} waitingMessage={waitingMsg} locked={locked} />
+    </div>
+  );
 }

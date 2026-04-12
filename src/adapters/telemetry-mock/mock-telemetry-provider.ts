@@ -51,6 +51,8 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
     sessionState: 4,
     playerFinished: false,
     leaderFinished: false,
+    isOnTrack: true,
+    isReplayPlaying: false,
     ...overrides,
     shiftIndicatorPct: overrides.shiftIndicatorPct ?? ((overrides.rpm ?? 5500) / (overrides.maxRpm ?? 9000)),
   };
@@ -349,6 +351,10 @@ export class MockTelemetryProvider implements TelemetryProvider {
         }, nowMs);
     case 'road-finish':
         return createRoadFinishScenarioSnapshot(nowMs);
+      case 'garage':
+        return baseSnapshot({ isOnTrack: false, isReplayPlaying: false, rpm: 0, gear: 0, speedKmH: 0 });
+      case 'replay':
+        return baseSnapshot({ isOnTrack: true, isReplayPlaying: true });
       case 'default':
       default:
         return baseSnapshot({});
