@@ -347,7 +347,7 @@ export class MockTelemetryProvider implements TelemetryProvider {
         }, nowMs);
       case 'mustang-sweep':
         return createSweepSnapshot({
-          carPath: 'stockcars2-oreillyford',
+          carPath: 'stockcars2 ford mustang',
           maxRpm: 8400,
           gearCount: 4,
           positionOverall: 1,
@@ -357,7 +357,7 @@ export class MockTelemetryProvider implements TelemetryProvider {
         }, nowMs);
       case 'mustang-nextgen':
         return createSweepSnapshot({
-          carPath: 'stockcars-nascarnextgenford',
+          carPath: 'stockcars ford mustang nextgen',
           maxRpm: 9200,
           gearCount: 5,
           positionOverall: 4,
@@ -375,6 +375,11 @@ export class MockTelemetryProvider implements TelemetryProvider {
           tractionControlLevel: 1,
           absLevel: 2,
         }, nowMs);
+      case 'practice-long':
+        return baseSnapshot({
+          sessionTimeRemainSeconds: 168 * 3600, // 168 hours
+          sessionType: 'time-based',
+        });
       case 'road-finish':
 
         return createRoadFinishScenarioSnapshot(nowMs);

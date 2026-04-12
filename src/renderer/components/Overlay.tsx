@@ -260,7 +260,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
 
   const leftPillStyle: React.CSSProperties = {
     position: 'relative',
-    width: pillWidth,
+    width: pillHeight, // Square for Position
     height: pillHeight,
     borderRadius: 0,
     display: 'flex',
@@ -275,7 +275,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
 
   const rightPillStyle: React.CSSProperties = {
     position: 'relative',
-    width: pillWidth,
+    width: pillWidth, // Wider for Session time
     height: pillHeight,
     borderRadius: 0,
     display: 'flex',
@@ -338,7 +338,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
   // Dynamic LED scaling and offset
   const ledCount = frame?.revStrip?.ledCount ?? 0;
   const corePadding = Math.max(12, 16 * scale);
-  const safeZoneWidth = size.w - (2 * pillWidth) - (2 * corePadding) - 40; // 40px safe margin
+  const safeZoneWidth = size.w - pillWidth - pillHeight - (2 * corePadding) - 40; // 40px safe margin
   const baseLedWidth = Math.max(14, size.h * 0.22);
   const baseGap = 3;
   const totalLedWidth = ledCount * (baseLedWidth + baseGap);
@@ -407,7 +407,21 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
             {finished ? (
               <CheckeredFlagIcon size={Math.max(20, pillHeight * 0.42)} />
             ) : (
-              <div style={{ fontSize: `${0.32 * pillHeight}px`, lineHeight: 1, fontWeight: 800 }}>{sessionText}</div>
+              <div 
+                style={{ 
+                  fontSize: `${0.32 * pillHeight}px`, 
+                  lineHeight: 1, 
+                  fontWeight: 800,
+                  maxWidth: '92%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  textAlign: 'center'
+                }}
+                title={sessionText}
+              >
+                {sessionText}
+              </div>
             )}
           </div>
         </div>
