@@ -96,6 +96,11 @@ function RevDots({ state, height, spacingScale, yOffset }: { state: RevStripStat
       gap, 
       minHeight: blockHeight,
       transform: `translateY(${yOffset}px)`,
+      background: 'rgba(0, 0, 0, 0.3)',
+      padding: '4px 8px',
+      borderRadius: 4,
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      boxShadow: 'inset 0 0 10px rgba(0, 0, 0, 0.5)',
     }}>
       {state.ledColors.map((ledColor, i) => {
         const isSpacer = ledColor === 'transparent';

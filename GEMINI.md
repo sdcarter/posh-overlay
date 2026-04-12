@@ -40,7 +40,7 @@ Strict adherence to the hexagonal architecture is required.
 - **Style:** Maintain the clean, "minimalist" aesthetic of the overlay.
 
 ## Recent Changes
-- 015-adaptive-ui-led-collision: Transitioned to rectangular info boxes, implemented dynamic LED scaling/offset for collision avoidance, and added "On-Track Only" visibility logic using raw SDK variables.
+- 015-adaptive-ui-led-collision: Transitioned to rectangular info boxes, implemented dynamic LED scaling/offset for collision avoidance, added a background container for the LED array, and added "On-Track Only" visibility logic using raw SDK variables.
 - 012-add-storybook: Added TypeScript 5.9+ + Vite 8.x, React 19.x, `storybook` (v8), `@storybook/react-vite`, `@storybook/react`
 - 003-add-speed-display: Added real-time speed display to the center stack.
 - 004-session-sync-fix: Added `leaderFinished` detection to fix lap count glitches at the end of races.
