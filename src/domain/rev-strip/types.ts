@@ -7,6 +7,4 @@ export interface RevStripState {
   redlineColor: string;
   redlineBlinkInterval: number;
   ledCount: number;
-  yOffset: number;
-  ledSpacingScale: number;
 }

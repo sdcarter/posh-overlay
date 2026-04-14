@@ -12,7 +12,5 @@ export function composeRevStrip(snapshot: TelemetrySnapshot, profile: CarShiftPr
     redlineColor: profile.redlineColor,
     redlineBlinkInterval: profile.redlineBlinkInterval,
     ledCount: profile.ledColors.length,
-    yOffset: 0, // Will be refined in the renderer or later
-    ledSpacingScale: 1.0,
   };
 }

@@ -41,19 +41,11 @@ The overlay is invisible to screen capture tools and stays on top of fullscreen 
 # Install dependencies
 npm install
 
-# Run default mock scenario
+# Run with mock telemetry (launches Electron with fake data)
 npm run mock
 
-# Run specific mock scenarios
-npm run mock:mazda
-npm run mock:bmw
-npm run mock:oval
-npm run mock:mustang
-npm run mock:wide
-npm run mock:finish
-
-# Run fuel indicator scenario
-npm run mock:fuel
+# Browse visual scenarios in Storybook
+npm run storybook
 
 # Lint
 npm run lint
@@ -67,7 +59,7 @@ npm run pack
 
 Requires Node.js 22+ and npm. The iRacing telemetry adapter (`irsdk-node`) only compiles on Windows — on macOS/Linux, the app runs with mock telemetry.
 
-Mock scenarios are launched through npm targets. Under the hood they set `POSHDASH_USE_MOCK=true` and `POSHDASH_MOCK_SCENARIO=<name>` before starting the Electron app.
+`npm run mock` launches the full Electron overlay with simulated telemetry. Car-specific scenarios (wide LED arrays, fuel estimation, race finishes, etc.) are available as Storybook stories via `npm run storybook`.
 
 ## Architecture
 

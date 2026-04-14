@@ -29,5 +29,5 @@ New geometry metadata to support dynamic scaling.
 | Field | Type | Description |
 |-------|------|-------------|
 | `ledCount` | `number` | Total number of LEDs in the car's array. |
-| `yOffset` | `number` | Calculated vertical shift to ensure 10px clearance. |
-| `ledSpacingScale` | `number` | Scale factor (0.0 to 1.0) for LED width to prevent overlap. |
+
+> **Note**: `yOffset` and `ledSpacingScale` are computed at render time in `Overlay.tsx` based on the current viewport dimensions, pill sizes, and LED count. They are not part of the domain model.

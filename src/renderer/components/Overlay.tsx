@@ -346,9 +346,8 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
     ? safeZoneWidth / totalLedWidth 
     : 1.0;
   
-  // yOffset to ensure 10px buffer from top of pills. 
-  // Pills are centered in mainHeight. 
-  // Center Column is also centered.
+  // yOffset to ensure 10px buffer from top of pills.
+  // Pills are centered in mainHeight; center column is bottom-anchored.
   const yOffset = - (pillHeight * 0.22); // Shift up by ~22% of pill height for solid clearance
 
   const content = frame ? (
@@ -356,7 +355,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
       <div style={coreStyle}>
         {/* Left Column (Position) */}
         <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
-          <div style={{ ...leftPillStyle, position: 'relative' }}>
+          <div style={leftPillStyle}>
             <div style={{ fontSize: `${0.16 * pillHeight}px`, letterSpacing: '0.1em', fontWeight: 700, opacity: 0.82 }}>POS</div>
             <div style={{ fontSize: `${0.45 * pillHeight}px`, lineHeight: 1, fontWeight: 800 }}>{positionText}</div>
             {/* Telemetry graph anchored to left edge of the Position pill */}
@@ -374,7 +373,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
         </div>
 
         {/* Center Column (fixed centering) */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: Math.max(7, 8 * scale), minWidth: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', gap: Math.max(7, 8 * scale), minWidth: 0, height: '100%', overflow: 'visible', paddingBottom: 4 }}>
           {frame.revStrip ? <RevDots key={`${frame.revStrip.flashMode}-${frame.revStrip.redlineBlinkInterval}`} state={frame.revStrip} height={size.h} spacingScale={spacingScale} yOffset={yOffset} /> : <div style={{ height: Math.max(6, size.h * 0.08) }} />}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: centerStackGap, minWidth: 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '1px solid white', padding: '4px 8px', borderRadius: 0 }}>

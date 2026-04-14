@@ -1,6 +1,6 @@
 {
   "name": "posh-dash",
-  "version": "0.9.19",
+  "version": "1.0.0",
   "description": "Sim racing telemetry overlay",
   "author": "sdcarter",
   "main": "dist/main/index.js",
@@ -15,13 +15,6 @@
     "fetch-car-data": "node scripts/fetch-car-data.mjs",
     "lint": "eslint src/ --max-warnings 0",
     "mock": "node scripts/run-mock-scenario.mjs default",
-    "mock:finish": "node scripts/run-mock-scenario.mjs finish-countdown",
-    "mock:fuel": "node scripts/run-mock-scenario.mjs fuel",
-    "mock:timed": "node scripts/run-mock-scenario.mjs timed",
-    "mock:wide": "node scripts/run-mock-scenario.mjs wide-led-collision",
-    "mock:mustang": "node scripts/run-mock-scenario.mjs mustang-nextgen",
-    "mock:oval": "node scripts/run-mock-scenario.mjs mustang-sweep",
-    "mock:stabilizing-fuel": "node scripts/run-mock-scenario.mjs stabilizing-fuel",
     "start": "npm run build && electron dist/main/index.js",
     "pack": "npm run build && electron-builder --dir",
     "dist": "npm run build && electron-builder"
