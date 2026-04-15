@@ -182,6 +182,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         tractionControlLevel: val(t.dcTractionControl) != null ? Math.round(val(t.dcTractionControl)!) : null,
         absLevel: val(t.dcABS) != null ? Math.round(val(t.dcABS)!) : null,
         fuelLevel,
+        fuelLevelPct: val(t.FuelLevelPct),
         fuelPerLap: this.computedFuelPerLap,
         fuelLapCount: this.fuelUsedHistory.length,
         throttle: val(t.Throttle) ?? 0,

@@ -13,6 +13,12 @@ interface Props {
 const OFF_DOT = 'rgb(54, 62, 74)';
 const PIT_DOT = '#f4de57';
 const FLASH_WHITE = '#ffffff';
+const PIT_WINDOW_GLOW = `
+@keyframes pit-window-ring {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(2.2); opacity: 0; }
+}
+`;
 
 function formatGear(gear: number | null): string {
   if (gear == null) return '--';
@@ -452,7 +458,19 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
             <React.Fragment key="fuel">
               {lowerItems.length > 0 && <span style={{ color: 'rgba(173,185,199,0.58)' }}>|</span>}
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ width: 7, height: 7, borderRadius: 0, backgroundColor: dotColor, display: 'inline-block', flexShrink: 0 }} />
+                <span style={{ position: 'relative', width: 7, height: 7, display: 'inline-block', flexShrink: 0 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: 0, backgroundColor: dotColor, display: 'block' }} />
+                  {frame.ribbon.pitWindowOpen && (
+                    <span style={{
+                      position: 'absolute',
+                      inset: -2,
+                      border: `1.5px solid ${dotColor}`,
+                      borderRadius: 0,
+                      animation: 'pit-window-ring 1.8s ease-out infinite',
+                      pointerEvents: 'none',
+                    }} />
+                  )}
+                </span>
                 <span style={{ fontSize: `${Math.max(10, 12 * scale)}px`, fontWeight: 700, letterSpacing: '0.03em', color: '#edf3ff' }}>
                   {frame.ribbon.fuelLapsText}
                 </span>
@@ -496,6 +514,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
 
   return (
     <div style={panelStyle} onMouseDown={onDragStart}>
+      <style>{PIT_WINDOW_GLOW}</style>
       {content}
       {!locked && <div style={resizeHandle} onMouseDown={onResizeStart} />}
     </div>

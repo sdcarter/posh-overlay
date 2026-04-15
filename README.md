@@ -57,7 +57,7 @@ npm run build
 npm run pack
 ```
 
-Requires Node.js 22+ and npm. The iRacing telemetry adapter (`irsdk-node`) only compiles on Windows — on macOS/Linux, the app runs with mock telemetry.
+Requires Node.js 24+ and npm. The iRacing telemetry adapter (`irsdk-node`) only compiles on Windows — on macOS/Linux, the app runs with mock telemetry.
 
 `npm run mock` launches the full Electron overlay with simulated telemetry. Car-specific scenarios (wide LED arrays, fuel estimation, race finishes, etc.) are available as Storybook stories via `npm run storybook`.
 

@@ -42,6 +42,7 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
     tractionControlLevel: 2,
     absLevel: 3,
     fuelLevel: 28.3,
+    fuelLevelPct: 0.42,
     fuelPerLap: 2.8,
     fuelLapCount: 4,
     throttle,
@@ -273,6 +274,38 @@ function createStabilizingFuelScenarioSnapshot(nowMs: number): TelemetrySnapshot
   });
 }
 
+function createPitWindowScenarioSnapshot(nowMs: number): TelemetrySnapshot {
+  // 12s cycle: before window (4s) → in window / pulsing (4s) → after pit (4s)
+  const cycleMs = 12_000;
+  const phase = Math.floor((nowMs % cycleMs) / 4000);
+  const tankCapacity = 67;
+  const fuelPerLap = 3.0;
+
+  // Phase 0: too early to pit — full tank can't cover remaining laps
+  // Phase 1: pit window open — full tank covers it, current fuel doesn't
+  // Phase 2: just pitted — current fuel covers remaining laps
+  const fuelLevel = [45, 20, 60][phase] ?? 45;
+  const lapsRemain = [25, 10, 8][phase] ?? 25;
+  const currentLap = [5, 20, 22][phase] ?? 5;
+
+  return baseSnapshot({
+    carPath: 'bmwm4gt3',
+    gear: 4,
+    rpm: 6800,
+    maxRpm: 9000,
+    currentLap,
+    sessionLapsRemain: lapsRemain,
+    sessionLapsTotal: 30,
+    fuelLevel,
+    fuelLevelPct: fuelLevel / tankCapacity,
+    fuelPerLap,
+    fuelLapCount: 4,
+    brakeBiasPercent: 53.8,
+    tractionControlLevel: 2,
+    absLevel: 3,
+  });
+}
+
 export class MockTelemetryProvider implements TelemetryProvider {
   constructor(private readonly scenario: string = 'default') {}
 
@@ -292,6 +325,8 @@ export class MockTelemetryProvider implements TelemetryProvider {
         return createFuelScenarioSnapshot(nowMs);
       case 'stabilizing-fuel':
         return createStabilizingFuelScenarioSnapshot(nowMs);
+      case 'pit-window':
+        return createPitWindowScenarioSnapshot(nowMs);
       case 'mazda-sweep':
         return createSweepSnapshot({
           carPath: 'mx5 mx52016',

@@ -42,3 +42,20 @@ export function evaluateFuelStatus(
   const deficit = raceLapsRemaining - fuelLapsRemaining;
   return deficit <= 1.0 ? 'yellow' : 'red';
 }
+
+export function isPitWindowOpen(
+  fuelLevel: number,
+  fuelLevelPct: number,
+  fuelPerLap: number,
+  raceLapsRemaining: number,
+  fuelLapCount: number | null,
+): boolean {
+  if (fuelLapCount == null || fuelLapCount < 4) return false;
+  if (fuelLevelPct <= 0 || fuelPerLap <= 0) return false;
+
+  const tankCapacity = fuelLevel / fuelLevelPct;
+  const tankCapacityLaps = tankCapacity / fuelPerLap;
+  const fuelLaps = fuelLevel / fuelPerLap;
+
+  return tankCapacityLaps >= raceLapsRemaining && fuelLaps < raceLapsRemaining;
+}

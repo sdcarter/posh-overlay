@@ -5,6 +5,7 @@ export interface RibbonState {
   absText: string | null;
   fuelLapsText: string | null;
   fuelStatus: 'green' | 'yellow' | 'red' | 'stabilizing' | null;
+  pitWindowOpen: boolean;
   lapsRemaining: number | null;
   finished: boolean;
   lapInfoText: string;

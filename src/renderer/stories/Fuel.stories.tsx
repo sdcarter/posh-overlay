@@ -12,3 +12,4 @@ type Story = StoryObj<typeof meta>;
 
 export const FuelLevels: Story = { args: { scenario: 'fuel' } };
 export const Stabilizing: Story = { args: { scenario: 'stabilizing-fuel' } };
+export const PitWindow: Story = { args: { scenario: 'pit-window' } };

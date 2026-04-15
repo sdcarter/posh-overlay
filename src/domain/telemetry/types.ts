@@ -21,6 +21,7 @@ export interface TelemetrySnapshot {
   tractionControlLevel: number | null;
   absLevel: number | null;
   fuelLevel: number | null;
+  fuelLevelPct: number | null;
   fuelPerLap: number | null;
   fuelLapCount: number | null;
   throttle: number;
