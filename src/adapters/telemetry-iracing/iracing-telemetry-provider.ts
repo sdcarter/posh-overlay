@@ -186,7 +186,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         fuelLapCount: this.fuelUsedHistory.length,
         throttle: val(t.Throttle) ?? 0,
         brake: val(t.Brake) ?? 0,
-        absActive: false,
+        absActive: Boolean(t.BrakeABSactive?.value?.[0] ?? false),
         speedKmH: (val(t.Speed) ?? 0) * 3.6,
         sessionState,
         playerFinished,

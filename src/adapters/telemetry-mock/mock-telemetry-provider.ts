@@ -125,46 +125,45 @@ function createSweepSnapshot(config: SweepConfig, nowMs: number): TelemetrySnaps
 }
 
 function createFinishCountdownSnapshot(nowMs: number): TelemetrySnapshot {
-  const cycleMs = 10_000;
+  // 12s cycle: last lap (6s) → leader finished / checkered (3s) → player finished / DONE (3s)
+  const cycleMs = 12_000;
   const progress = (nowMs % cycleMs) / cycleMs;
 
-  if (progress < 0.55) {
-    const lapDistPct = 0.12 + (progress / 0.55) * 0.82;
+  if (progress < 0.5) {
+    const lapDistPct = 0.5 + (progress / 0.5) * 0.49;
     return baseSnapshot({
-      carPath: 'bmwm4gt3',
       currentLap: 20,
       lapDistPct,
       leaderLap: 20,
-      leaderLapDistPct: Math.min(0.99, lapDistPct + 0.01),
-      gear: lapDistPct > 0.72 ? 5 : 4,
-      rpm: Math.round(6200 + 2300 * Math.min(1, lapDistPct)),
-      maxRpm: 9000,
+      leaderLapDistPct: Math.min(0.99, lapDistPct + 0.03),
       sessionLapsRemain: 0,
       sessionLapsTotal: 20,
-      positionOverall: 7,
-      brakeBiasPercent: 53.8,
-      tractionControlLevel: 2,
-      absLevel: 3,
     });
   }
 
-  const postFinishProgress = (progress - 0.55) / 0.45;
+  if (progress < 0.75) {
+    const sub = (progress - 0.5) / 0.25;
+    return baseSnapshot({
+      currentLap: 20,
+      lapDistPct: 0.99 + sub * 0.005,
+      leaderLap: 21,
+      leaderLapDistPct: 0.02 + sub * 0.05,
+      sessionLapsRemain: 0,
+      sessionLapsTotal: 20,
+      leaderFinished: true,
+    });
+  }
+
+  const sub = (progress - 0.75) / 0.25;
   return baseSnapshot({
-    carPath: 'bmwm4gt3',
     currentLap: 21,
-    lapDistPct: 0.03 + postFinishProgress * 0.12,
+    lapDistPct: 0.02 + sub * 0.1,
     leaderLap: 21,
-    leaderLapDistPct: 0.06 + postFinishProgress * 0.12,
-    gear: 3,
-    rpm: Math.round(2500 + 500 * Math.sin(postFinishProgress * Math.PI)),
-    maxRpm: 9000,
+    leaderLapDistPct: 0.1 + sub * 0.1,
     sessionLapsRemain: 0,
     sessionLapsTotal: 20,
-    positionOverall: 7,
-    brakeBiasPercent: 53.8,
-    tractionControlLevel: 2,
-    absLevel: 3,
     leaderFinished: true,
+    playerFinished: true,
   });
 }
 function createFuelScenarioSnapshot(nowMs: number): TelemetrySnapshot {
@@ -173,8 +172,8 @@ function createFuelScenarioSnapshot(nowMs: number): TelemetrySnapshot {
   const phase = Math.floor((nowMs % cycleMs) / 3000);
   const lapsRemain = 10;
   const fuelPerLap = 3.0;
-  // green: 10.5 laps of fuel, yellow: 9.4 laps, red: 8.2 laps
-  const fuelLevel = [31.5, 28.2, 24.6][phase] ?? 31.5;
+  // green: 13.5 laps of fuel, yellow: 10.5 laps, red: 8.2 laps
+  const fuelLevel = [40.5, 31.5, 24.6][phase] ?? 40.5;
 
   return baseSnapshot({
     carPath: 'bmwm4gt3',
@@ -193,83 +192,61 @@ function createFuelScenarioSnapshot(nowMs: number): TelemetrySnapshot {
 }
 
 function createTimedRaceSnapshot(nowMs: number): TelemetrySnapshot {
-  // 30s cycle: 0-20s mid-race with timer counting down, 20-26s timer expired (pre-checkered),
-  // 26-30s leader finished (checkered flag)
-  const cycleMs = 30_000;
+  // 15s cycle: clock counting down (6s) → clock at 0 (3s) → leader finishes (3s) → player finishes (3s)
+  const cycleMs = 15_000;
   const progress = (nowMs % cycleMs) / cycleMs;
 
-  if (progress < 0.67) {
-    // Mid-race: timer counting down from 180s to 0
-    const timeRemain = Math.max(0, 180 * (1 - progress / 0.67));
-    const lapFraction = (progress / 0.67) * 5; // ~5 laps over this phase
-    const currentLap = 8 + Math.floor(lapFraction);
-    const lapDistPct = lapFraction % 1;
+  if (progress < 0.4) {
+    const timeRemain = Math.max(0, 30 * (1 - progress / 0.4));
     return baseSnapshot({
-      carPath: 'bmwm4gt3',
-      currentLap,
-      lapDistPct,
-      leaderLap: currentLap,
-      leaderLapDistPct: Math.min(0.99, lapDistPct + 0.05),
-      gear: 4,
-      rpm: Math.round(5500 + 2000 * lapDistPct),
-      maxRpm: 9000,
+      currentLap: 12,
+      lapDistPct: 0.3 + (progress / 0.4) * 0.6,
       sessionLapsRemain: null,
       sessionLapsTotal: null,
       sessionTimeRemainSeconds: timeRemain,
       sessionLastLapTimeSeconds: 91.2,
       sessionAvgLapTimeSeconds: 90.5,
-      positionOverall: 5,
-      brakeBiasPercent: 53.8,
-      tractionControlLevel: 2,
-      absLevel: 3,
     });
   }
 
-  if (progress < 0.87) {
-    // Timer expired but leader hasn't crossed the line yet
-    const lapDistPct = 0.3 + ((progress - 0.67) / 0.2) * 0.65;
+  if (progress < 0.6) {
+    const sub = (progress - 0.4) / 0.2;
     return baseSnapshot({
-      carPath: 'bmwm4gt3',
       currentLap: 13,
-      lapDistPct,
-      leaderLap: 13,
-      leaderLapDistPct: Math.min(0.99, lapDistPct + 0.05),
-      gear: lapDistPct > 0.7 ? 5 : 4,
-      rpm: Math.round(5500 + 2500 * lapDistPct),
-      maxRpm: 9000,
+      lapDistPct: 0.1 + sub * 0.85,
       sessionLapsRemain: null,
       sessionLapsTotal: null,
       sessionTimeRemainSeconds: 0,
       sessionLastLapTimeSeconds: 91.2,
       sessionAvgLapTimeSeconds: 90.5,
-      positionOverall: 5,
-      brakeBiasPercent: 53.8,
-      tractionControlLevel: 2,
-      absLevel: 3,
     });
   }
 
-  // Leader has finished — checkered flag
-  const postProgress = (progress - 0.87) / 0.13;
+  if (progress < 0.8) {
+    const sub = (progress - 0.6) / 0.2;
+    return baseSnapshot({
+      currentLap: 13,
+      lapDistPct: 0.95 + sub * 0.04,
+      leaderLap: 14,
+      leaderLapDistPct: 0.02 + sub * 0.05,
+      sessionLapsRemain: null,
+      sessionLapsTotal: null,
+      sessionTimeRemainSeconds: 0,
+      leaderFinished: true,
+    });
+  }
+
+  const sub = (progress - 0.8) / 0.2;
   return baseSnapshot({
-    carPath: 'bmwm4gt3',
     currentLap: 14,
-    lapDistPct: 0.05 + postProgress * 0.4,
+    lapDistPct: 0.02 + sub * 0.1,
     leaderLap: 14,
-    leaderLapDistPct: 0.1 + postProgress * 0.4,
-    gear: 3,
-    rpm: Math.round(3000 + 1000 * Math.sin(postProgress * Math.PI)),
-    maxRpm: 9000,
+    leaderLapDistPct: 0.1 + sub * 0.1,
     sessionLapsRemain: null,
     sessionLapsTotal: null,
     sessionTimeRemainSeconds: 0,
-    sessionLastLapTimeSeconds: 91.2,
-    sessionAvgLapTimeSeconds: 90.5,
-    positionOverall: 5,
-    brakeBiasPercent: 53.8,
-    tractionControlLevel: 2,
-    absLevel: 3,
     leaderFinished: true,
+    playerFinished: true,
   });
 }
 
@@ -347,7 +324,7 @@ export class MockTelemetryProvider implements TelemetryProvider {
         }, nowMs);
       case 'mustang-sweep':
         return createSweepSnapshot({
-          carPath: 'stockcars2 ford mustang',
+          carPath: 'stockcars2 mustang2019',
           maxRpm: 8400,
           gearCount: 4,
           positionOverall: 1,
@@ -381,8 +358,7 @@ export class MockTelemetryProvider implements TelemetryProvider {
           sessionType: 'time-based',
         });
       case 'road-finish':
-
-        return createRoadFinishScenarioSnapshot(nowMs);
+        return createFinishCountdownSnapshot(nowMs);
       case 'garage':
         return baseSnapshot({ isOnTrack: false, isReplayPlaying: false, rpm: 0, gear: 0, speedKmH: 0 });
       case 'replay':
@@ -392,79 +368,4 @@ export class MockTelemetryProvider implements TelemetryProvider {
         return baseSnapshot({});
     }
   }
-}
-
-function createRoadFinishScenarioSnapshot(nowMs: number): TelemetrySnapshot {
-  // 30s cycle: 0-20s final lap, 20-25s leader finishes, 25-30s player finishes
-  const cycleMs = 30_000;
-  const progress = (nowMs % cycleMs) / cycleMs;
-
-  if (progress < 0.67) {
-    // Final lap - leader and player closing in
-    const lapDistPct = 0.8 + (progress / 0.67) * 0.19;
-    return baseSnapshot({
-      carPath: 'bmwm4gt3',
-      currentLap: 20,
-      lapDistPct,
-      leaderLap: 20,
-      leaderLapDistPct: Math.min(0.995, lapDistPct + 0.05),
-      gear: 5,
-      rpm: Math.round(6500 + 1500 * (progress / 0.67)),
-      maxRpm: 9000,
-      speedKmH: Math.round(180 + 40 * (progress / 0.67)),
-      sessionLapsRemain: 0,
-      sessionLapsTotal: 20,
-      positionOverall: 4,
-      brakeBiasPercent: 53.8,
-      tractionControlLevel: 2,
-      absLevel: 3,
-    });
-  }
-
-  if (progress < 0.83) {
-    // Leader has finished, player still racing
-    const subProgress = (progress - 0.67) / 0.16;
-    const lapDistPct = 0.99 + subProgress * 0.005; // very close to line
-    return baseSnapshot({
-      carPath: 'bmwm4gt3',
-      currentLap: 20,
-      lapDistPct: Math.min(0.999, lapDistPct),
-      leaderLap: 21,
-      leaderLapDistPct: 0.05 + subProgress * 0.05,
-      gear: 5,
-      rpm: 8200,
-      maxRpm: 9000,
-      speedKmH: 225,
-      sessionLapsRemain: 0,
-      sessionLapsTotal: 20,
-      positionOverall: 4,
-      brakeBiasPercent: 53.8,
-      tractionControlLevel: 2,
-      absLevel: 3,
-      leaderFinished: true,
-      playerFinished: false,
-    });
-  }
-
-  // Both have finished
-  const subProgress = (progress - 0.83) / 0.17;
-  return baseSnapshot({
-    carPath: 'bmwm4gt3',
-    currentLap: 21,
-    lapDistPct: 0.05 + subProgress * 0.1,
-    leaderLap: 21,
-    leaderLapDistPct: 0.1 + subProgress * 0.1,
-    gear: 3,
-    rpm: Math.round(4000 - 1500 * subProgress),
-    maxRpm: 9000,
-    speedKmH: Math.round(120 - 60 * subProgress),
-    sessionLapsRemain: 0,
-    sessionLapsTotal: 20,
-    positionOverall: 4,
-    brakeBiasPercent: 53.8,
-    tractionControlLevel: 2,
-    absLevel: 3,
-    leaderFinished: true,
-    playerFinished: true,
-  });
 }

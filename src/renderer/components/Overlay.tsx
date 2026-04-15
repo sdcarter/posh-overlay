@@ -328,6 +328,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
   ].filter(Boolean) : [];
 
   const finished = frame?.ribbon.finished ?? false;
+  const leaderFinished = frame?.snapshot.leaderFinished && !finished;
   const positionText = frame?.snapshot.positionOverall != null ? `P${frame.snapshot.positionOverall}` : '--';
   const sessionText = frame?.ribbon.lapInfoText ?? '--';
   const gearText = frame ? formatGear(frame.snapshot.gear) : '--';
@@ -340,7 +341,8 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
   const safeZoneWidth = size.w - pillWidth - pillHeight - (2 * corePadding) - 40; // 40px safe margin
   const baseLedWidth = Math.max(14, size.h * 0.22);
   const baseGap = 3;
-  const totalLedWidth = ledCount * (baseLedWidth + baseGap);
+  const ledContainerPadding = 20; // 10px left + 10px right
+  const totalLedWidth = ledCount * (baseLedWidth + baseGap) + ledContainerPadding;
   
   const spacingScale = (totalLedWidth > safeZoneWidth && ledCount > 0) 
     ? safeZoneWidth / totalLedWidth 
@@ -373,7 +375,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
         </div>
 
         {/* Center Column (fixed centering) */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', gap: Math.max(7, 8 * scale), minWidth: 0, height: '100%', overflow: 'visible', paddingBottom: 4 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', gap: Math.max(7, 8 * scale), minWidth: 0, flex: 1, height: '100%', overflow: 'visible', paddingBottom: 4 }}>
           {frame.revStrip ? <RevDots key={`${frame.revStrip.flashMode}-${frame.revStrip.redlineBlinkInterval}`} state={frame.revStrip} height={size.h} spacingScale={spacingScale} yOffset={yOffset} /> : <div style={{ height: Math.max(6, size.h * 0.08) }} />}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: centerStackGap, minWidth: 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '1px solid white', padding: '4px 8px', borderRadius: 0 }}>
@@ -400,8 +402,11 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
 
         {/* Right Column (Session info) */}
         <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-          <div style={rightPillStyle}>
-            <div style={{ fontSize: `${0.16 * pillHeight}px`, letterSpacing: '0.1em', fontWeight: 700, opacity: 0.82 }}>{finished ? 'DONE' : 'SESSION'}</div>
+          <div style={{
+            ...rightPillStyle,
+            ...(leaderFinished ? { border: '1.6px solid #fadb14', boxShadow: '0 0 12px rgba(250, 219, 20, 0.5), inset 0 1px 0 rgba(255,255,255,0.08)' } : {}),
+          }}>
+            <div style={{ fontSize: `${0.16 * pillHeight}px`, letterSpacing: '0.1em', fontWeight: 700, opacity: 0.82 }}>{finished ? 'DONE' : leaderFinished ? 'LAST LAP' : 'SESSION'}</div>
             {finished ? (
               <CheckeredFlagIcon size={Math.max(20, pillHeight * 0.42)} />
             ) : (
