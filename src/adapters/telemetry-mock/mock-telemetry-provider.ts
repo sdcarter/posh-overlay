@@ -387,6 +387,16 @@ export class MockTelemetryProvider implements TelemetryProvider {
           tractionControlLevel: 1,
           absLevel: 2,
         }, nowMs);
+      case 'no-leds':
+        return createSweepSnapshot({
+          carPath: 'unknown-car-no-leds',
+          maxRpm: 7200,
+          gearCount: 5,
+          positionOverall: 5,
+          brakeBiasPercent: 52.0,
+          tractionControlLevel: null,
+          absLevel: null,
+        }, nowMs);
       case 'practice-long':
         return baseSnapshot({
           sessionTimeRemainSeconds: 168 * 3600, // 168 hours

@@ -15,7 +15,7 @@ interface FrameState {
   useMock: boolean;
 }
 
-export function MockOverlayHoc({ scenario }: { scenario: string }) {
+export function MockOverlayHoc({ scenario, width = 840, height = 126 }: { scenario: string; width?: number; height?: number }) {
   const [frame, setFrame] = useState<FrameState | null>(null);
 
   useEffect(() => {
@@ -37,11 +37,12 @@ export function MockOverlayHoc({ scenario }: { scenario: string }) {
   }, [scenario]);
 
   return (
-    <div style={{ width: '840px', height: '126px', position: 'relative' }}>
+    <div style={{ width: `${width}px`, height: `${height}px`, position: 'relative' }}>
       <Overlay 
         frame={frame}
         waitingMessage={`Running Scenario: ${scenario}`}
         locked={true}
+        initialSize={{ w: width, h: height }}
       />
     </div>
   );

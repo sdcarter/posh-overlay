@@ -8,6 +8,7 @@ interface Props {
   frame: { snapshot: TelemetrySnapshot; revStrip: RevStripState | null; ribbon: RibbonState; useMock: boolean } | null;
   waitingMessage: string;
   locked: boolean;
+  initialSize?: { w: number; h: number };
 }
 
 const OFF_DOT = 'rgb(54, 62, 74)';
@@ -76,7 +77,7 @@ function CheckeredFlagIcon({ size }: { size: number }) {
   );
 }
 
-function RevDots({ state, height, spacingScale, yOffset }: { state: RevStripState; height: number; spacingScale: number; yOffset: number }) {
+function RevDots({ state, height, spacingScale }: { state: RevStripState; height: number; spacingScale: number }) {
   const [flashOn, setFlashOn] = useState(true);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -101,7 +102,6 @@ function RevDots({ state, height, spacingScale, yOffset }: { state: RevStripStat
       alignItems: 'center', 
       gap, 
       minHeight: blockHeight,
-      transform: `translateY(${yOffset}px)`,
       background: 'linear-gradient(180deg, rgba(15, 22, 33, 0.9) 0%, rgba(7, 11, 17, 0.95) 100%)',
       padding: '6px 10px 4px 10px', // Extra top padding for the stripe
       borderRadius: 2,
@@ -151,9 +151,9 @@ function RevDots({ state, height, spacingScale, yOffset }: { state: RevStripStat
   );
 }
 
-export function Overlay({ frame, waitingMessage, locked }: Props) {
+export function Overlay({ frame, waitingMessage, locked, initialSize }: Props) {
   const [pos, setPos] = useState({ x: 80, y: 40 });
-  const [size, setSize] = useState({ w: 840, h: 126 });
+  const [size, setSize] = useState({ w: initialSize?.w ?? 840, h: initialSize?.h ?? 126 });
   const dragging = useRef<'move' | 'resize' | null>(null);
   const dragStart = useRef({ mx: 0, my: 0, x: 0, y: 0, w: 0, h: 0 });
   const prevLocked = useRef(locked);
@@ -224,11 +224,11 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
   };
 
   const scale = Math.max(0.72, Math.min(1.2, size.h / 126));
-  const ribbonHeight = Math.max(20, 25 * scale);
+  const ribbonHeight = Math.max(26, 28 * scale);
   const capsuleGap = Math.max(4, 6 * scale);
   const mainHeight = Math.max(62, size.h - ribbonHeight - capsuleGap - 6);
   const pillWidth = 120 * scale;
-  const pillHeight = 60 * scale;
+  const pillHeight = Math.min(60 * scale, mainHeight - 8);
   const centerStackGap = Math.max(12, 18 * scale);
 
   const capsuleStyle: React.CSSProperties = {
@@ -297,20 +297,19 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
     alignSelf: 'center',
     width: 'fit-content',
     minWidth: Math.max(250, size.w * 0.34),
-    maxWidth: '95%',
-    height: ribbonHeight,
+    maxWidth: '100%',
+    minHeight: ribbonHeight,
     borderRadius: 0,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: Math.max(8, 12 * scale),
-    padding: `0 ${Math.max(10, 15 * scale)}px`,
+    padding: `${Math.max(2, 4 * scale)}px ${Math.max(10, 15 * scale)}px`,
     background: 'linear-gradient(180deg, rgba(43, 52, 65, 0.9) 0%, rgba(21, 27, 35, 0.95) 100%)',
     border: '1px solid rgba(166, 182, 199, 0.46)',
     boxShadow: '0 6px 12px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.07)',
-    overflow: 'hidden',
+    overflow: 'visible',
     whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
     boxSizing: 'border-box',
   };
 
@@ -353,16 +352,14 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
   const spacingScale = (totalLedWidth > safeZoneWidth && ledCount > 0) 
     ? safeZoneWidth / totalLedWidth 
     : 1.0;
-  
-  // yOffset to ensure 10px buffer from top of pills.
-  // Pills are centered in mainHeight; center column is bottom-anchored.
-  const yOffset = - (pillHeight * 0.22); // Shift up by ~22% of pill height for solid clearance
 
   const content = frame ? (
     <div style={capsuleStyle}>
       <div style={coreStyle}>
+        {/* LED strip anchored to top edge of main box */}
+        {frame.revStrip ? <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translate(-50%, -90%)', zIndex: 1 }}><RevDots key={`${frame.revStrip.flashMode}-${frame.revStrip.redlineBlinkInterval}`} state={frame.revStrip} height={size.h} spacingScale={spacingScale} /></div> : null}
         {/* Left Column (Position) */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
+        <div style={{ flex: '0 0 auto', display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
           <div style={leftPillStyle}>
             <div style={{ fontSize: `${0.16 * pillHeight}px`, letterSpacing: '0.1em', fontWeight: 700, opacity: 0.82 }}>POS</div>
             <div style={{ fontSize: `${0.45 * pillHeight}px`, lineHeight: 1, fontWeight: 800 }}>{positionText}</div>
@@ -381,9 +378,8 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
         </div>
 
         {/* Center Column (fixed centering) */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', gap: Math.max(7, 8 * scale), minWidth: 0, flex: 1, height: '100%', overflow: 'visible', paddingBottom: 4 }}>
-          {frame.revStrip ? <RevDots key={`${frame.revStrip.flashMode}-${frame.revStrip.redlineBlinkInterval}`} state={frame.revStrip} height={size.h} spacingScale={spacingScale} yOffset={yOffset} /> : <div style={{ height: Math.max(6, size.h * 0.08) }} />}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: centerStackGap, minWidth: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minWidth: 0, flex: 1, height: '100%', overflow: 'visible' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: centerStackGap, minWidth: 0, marginTop: frame.revStrip ? Math.max(6, 10 * scale) : 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '1px solid white', padding: '4px 8px', borderRadius: 0 }}>
               <div style={{ fontSize: `${Math.max(10, 10 * scale)}px`, letterSpacing: '0.14em', opacity: 0.82 }}>SPEED</div>
               <div style={{ fontSize: `${Math.max(24, 34 * scale)}px`, lineHeight: 0.95, fontWeight: 800, width: '2.2em', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>{speedText}</div>
@@ -407,7 +403,7 @@ export function Overlay({ frame, waitingMessage, locked }: Props) {
         </div>
 
         {/* Right Column (Session info) */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+        <div style={{ flex: '0 0 auto', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
           <div style={{
             ...rightPillStyle,
             ...(leaderFinished ? { border: '1.6px solid #fadb14', boxShadow: '0 0 12px rgba(250, 219, 20, 0.5), inset 0 1px 0 rgba(255,255,255,0.08)' } : {}),
