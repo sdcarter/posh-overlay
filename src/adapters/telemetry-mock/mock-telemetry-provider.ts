@@ -47,6 +47,7 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
     fuelLapCount: 4,
     throttle,
     brake,
+    clutch: overrides.clutch ?? 0,
     absActive,
     speedKmH: 120,
     sessionState: 4,
@@ -61,6 +62,16 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
 
   // Enforce sessionType based on total laps
   snapshot.sessionType = snapshot.sessionLapsTotal != null ? 'lap-based' : 'time-based';
+
+  // Ensure tractionControlLevels exists for newer UI; prefer explicit override, otherwise derive from tractionControlLevel if present
+  const snapAny = snapshot as unknown as { tractionControlLevels?: (number | null)[] | null; tractionControlLevel?: number | null };
+  if (snapAny.tractionControlLevels === undefined) {
+    if (snapAny.tractionControlLevel !== undefined && snapAny.tractionControlLevel != null) {
+      snapAny.tractionControlLevels = [snapAny.tractionControlLevel];
+    } else {
+      snapAny.tractionControlLevels = null;
+    }
+  }
 
   return snapshot;
 }

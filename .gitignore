@@ -8,3 +8,4 @@ release/
 src/domain/telemetry/lovely-car-data.json
 storybook-static/
 .agent/
+.gemini/settings.json

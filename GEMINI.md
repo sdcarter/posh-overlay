@@ -3,55 +3,42 @@
 ## Project: PoshDash (posh-overlay)
 
 ### Context & Goals
-PoshDash is a personal iRacing telemetry overlay project. It provides a transparent, always-on-top overlay for RPM rev lights, incident counts, and other live data.
-- **Primary Platform:** Windows (for iRacing), but supports macOS/Linux via mock telemetry.
-- **Goal:** Minimal, focused, and high-performance overlay.
+iRacing telemetry overlay. Transparent, always-on-top. RPM, incidents, live data.
+- **Platform:** Windows (native), macOS/Linux (mock).
+- **Goal:** Minimal, high-perf.
 
-### Architecture: Hexagonal (Ports-and-Adapters)
-Strict adherence to the hexagonal architecture is required.
-- **`src/domain/`**: Pure TypeScript. Contains business logic, telemetry types, and formatting rules. **No dependencies** on application or adapters.
-- **`src/application/`**: Use cases and port (interface) definitions.
-- **`src/adapters/`**: Implementations of ports (iRacing SDK, Mock, GitHub Release).
-- **`src/main/`**: Electron main process and preload.
-- **`src/renderer/`**: React UI components (Overlay, TelemetryGraph, etc.).
+### Architecture: Hexagonal
+Strict ports-and-adapters.
+- **`src/domain/`**: Pure TS. Logic, types, formatting. **No dependencies**.
+- **`src/application/`**: Use cases, port interfaces.
+- **`src/adapters/`**: Port implementations (iRacing SDK, Mock, GitHub).
+- **`src/main/`**: Electron main + preload.
+- **`src/renderer/`**: React UI. Presentational only.
 
 ### Engineering Standards
-- **Performance:** Maintain low overhead. Telemetry polling and IPC updates are tuned to ~60Hz (16ms) to match iRacing telemetry frequency and reduce CPU load.
-- **Separation of Concerns:** All telemetry processing and state computation (RevStripState, RibbonState) must happen in the main process/use-cases. Renderer should be purely presentational.
-- **TypeScript:** Use strict typing. Avoid `any` where possible.
-- **React:** Use functional components and hooks.
-- **Naming:** Follow existing camelCase for variables/functions and PascalCase for components/types.
-- **ESLint:** Adhere to the project's ESLint configuration (warn on `no-explicit-any` and `no-unused-vars` unless prefixed with `_`).
-- **Imports:** Use explicit paths; ensure separation between domain, application, and adapters.
+- **Performance:** 60Hz (16ms) polling/IPC. Low overhead.
+- **Logic:** Telemetry processing + state computation in main/use-cases.
+- **TS/React:** Strict typing. Functional components, hooks.
+- **Style:** camelCase (vars/fns), PascalCase (types/comps). ESLint rules.
+- **Imports:** Explicit paths. Enforce layer separation.
 
 ### Testing & Validation
-- **Mocks:** Use the built-in mock telemetry system for development and validation, especially on non-Windows platforms.
-- **Verification:** Always run `npm run lint` and `npm run build` to verify changes.
-- **Reproduce:** For bug fixes, use/create a mock scenario to reproduce the issue before applying a fix.
+- **Mocks:** Use mock telemetry for non-Windows dev.
+- **Checks:** Run `npm run lint` + `npm run build`.
+- **Reproduce:** Create mock scenario before fixing bugs.
 
 ### Tooling & Workflows
-- **Speckit:** Use the integrated speckit commands (found in `.gemini/commands/`) for planning and task management.
-- **Mocking:** Utilize `npm run mock:*` commands to test different car profiles and scenarios.
-- **Auto-Update:** Be mindful of the `electron-updater` integration and GitHub release feed client.
+- **Speckit:** Use commands in `.gemini/commands/`.
+- **Mocking:** `npm run mock:*` for car profiles/scenarios.
+- **Auto-Update:** Mind `electron-updater` + GitHub client.
 
 ### Mandates
-- **No Sandbox:** I am running in a "no sandbox" environment. This means I have direct access to your local filesystem and shell. I will exercise extra caution when executing commands or modifying files.
-- **Safety:** Never log or expose personal telemetry data or credentials if they appear.
-- **Style:** Maintain the clean, "minimalist" aesthetic of the overlay.
+- **Environment:** No sandbox. Direct FS/shell access. Use caution.
+- **Security:** No logging telemetry/creds.
+- **Aesthetic:** Clean, minimalist.
 
-## Recent Changes
-- 023-bulletproof-car-lookup: Implemented aggressive alphanumeric-only normalization and a fuzzy fallback mechanism for car profile lookups. This ensures Mustang/Camry/Camaro LEDs show up even if iRacing formats the car path with hidden characters or unexpected suffixes.
-- 022-nascar-led-count: Fixed a bug where the first LED threshold was being ignored due to incorrect array slicing. Verified that Next Gen cars now show all 9 LEDs correctly.
-- 021-test-session-text: Simplified the session display for local practices. Instead of showing countdowns for sessions longer than 24 hours (e.g. `>99:59:59`), the overlay now simply displays `TEST`.
-- 020-native-nascar-mapping: Transitioned to 100% native car path matching. Removed all normalization hacks as the car data fork now uses exact iRacing folder names (e.g., `stockcars ford mustang nextgen 2024`).
-- 019-nascar-2024-mapping: Fixed Mustang/Camry/Camaro Next Gen lookups by handling the `2024` suffix in iRacing's folder names. (Simplified in 020).
-- 018-nascar-rpm-fallback: Fixed an issue where NASCAR cars (Next Gen/Xfinity) would show no rev lights because they return `0` for SDK shift RPM variables. Added a robust fallback to ensure a non-zero `maxRpm` is always calculated.
-- 017-session-time-overflow: Capped session time display at `>99:59:59` and added CSS overflow protection to the session pill. Simplified lap counter (removed 'LAP' prefix, e.g., `20 / 20`). Fixed NASCAR Next Gen/Xfinity car profile lookups by adding a mapping for iRacing's folder paths to the new fork IDs.
-- 016-move-to-user-fork: Reverted the 'nascar' path normalization fix as the source of truth was updated in the user's fork (`sdcarter/lovely-car-data`). Updated mock telemetry provider and test script with new car IDs (e.g., `stockcars-nascarnextgen...`).
-- 015-adaptive-ui-led-collision: Transitioned to rectangular info boxes, implemented dynamic LED scaling/offset for collision avoidance, added a background container for the LED array, and added "On-Track Only" visibility logic using raw SDK variables. Fixed NASCAR/Stockcars car path lookup mismatch (reverted in 016).
-- 012-add-storybook: Added TypeScript 5.9+ + Vite 8.x, React 19.x, `storybook` (v8), `@storybook/react-vite`, `@storybook/react`
-- 003-add-speed-display: Added real-time speed display to the center stack.
-- 004-session-sync-fix: Added `leaderFinished` detection to fix lap count glitches at the end of races.
+## History & Regressions
+Consult [CHANGELOG.md](./CHANGELOG.md) for full history. Check there when investigating regressions.
 
 ## Active Technologies
-- TypeScript 5.9+ + Vite 8.x, React 19.x, `storybook` (v8), `@storybook/react-vite`, `@storybook/react` (012-add-storybook)
+- TS 5.9, Vite 8, React 19, Storybook 8 (012).

@@ -1,6 +1,6 @@
 import type { TelemetryProvider } from '../../application/ports/telemetry-provider.js';
 import type { TelemetrySnapshot } from '../../domain/telemetry/types.js';
-import { isLapConsumptionOutlier } from '../../domain/fuel/fuel-laps.js';
+import { isLapConsumptionOutlier, isGreenFlagCondition } from '../../domain/fuel/fuel-laps.js';
 
 interface TelVar { value: number[] }
 const UNLIMITED = 32767;
@@ -40,6 +40,8 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
   private computedFuelPerLap: number | null = null;
   private playerCheckeredLap: number | null = null;
   private lapTimeHistory: number[] = [];
+  private firstRecordedLap: number | null = null; // to detect and exclude the out-lap
+  private lapWasGreen: boolean = true; // tracks whether the current lap has been all-green
 
   async start() {
     try {
@@ -113,22 +115,32 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         playerFinished = true;
       }
 
+      // Track whether the current lap has been fully green (no caution/yellow/red)
+      const sessionFlags = val(t.SessionFlags) ?? 0;
+      if (!isGreenFlagCondition(sessionFlags)) {
+        this.lapWasGreen = false;
+      }
+
       if (currentLap != null && fuelLevel != null) {
         if (this.lastLapFuelLevel == null) {
           this.lastLapFuelLevel = fuelLevel;
+          this.firstRecordedLap = currentLap;
         } else if (this.latest != null && this.latest.currentLap != null && currentLap > this.latest.currentLap) {
           const consumed = this.lastLapFuelLevel - fuelLevel;
-          if (consumed > 0.01 && consumed < 150) {
-            const currentAvg = this.computedFuelPerLap ?? 0;
-            const isOutlier = this.fuelUsedHistory.length > 0 && isLapConsumptionOutlier(consumed, currentAvg);
+          const completedLap = this.latest.currentLap;
+          const isOutLap = completedLap === this.firstRecordedLap;
+
+          if (consumed > 0.01 && consumed < 150 && !isOutLap && this.lapWasGreen) {
+            const isOutlier = isLapConsumptionOutlier(consumed, this.fuelUsedHistory);
 
             if (!isOutlier) {
               this.fuelUsedHistory.push(consumed);
-              if (this.fuelUsedHistory.length > 4) this.fuelUsedHistory.shift();
+              if (this.fuelUsedHistory.length > 5) this.fuelUsedHistory.shift();
               this.computedFuelPerLap = this.fuelUsedHistory.reduce((a, b) => a + b, 0) / this.fuelUsedHistory.length;
             }
           }
           this.lastLapFuelLevel = fuelLevel;
+          this.lapWasGreen = true; // reset for the new lap
         }
       }
 
@@ -179,7 +191,27 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         incidentCount: val(t.PlayerCarMyIncidentCount) ?? val(t.PlayerCarDriverIncidentCount) ?? 0,
         incidentLimit: null,
         brakeBiasPercent: val(t.dcBrakeBias),
-        tractionControlLevel: val(t.dcTractionControl) != null ? Math.round(val(t.dcTractionControl)!) : null,
+        // Collect multiple traction control channels (dcTractionControl, dcTractionControl2, ...)
+        tractionControlLevels: (() => {
+          const keys = Object.keys(t).filter(k => k.startsWith('dcTractionControl'));
+          if (keys.length === 0) return null;
+          keys.sort((a, b) => {
+            const na = a.match(/(\d+)$/);
+            const nb = b.match(/(\d+)$/);
+            if (!na && !nb) return a.localeCompare(b);
+            if (!na) return -1;
+            if (!nb) return 1;
+            return Number(na[1]) - Number(nb[1]);
+          });
+          return keys.map(k => {
+            const v = val((t as Record<string, TelVar>)[k]);
+            return v != null ? Math.round(v) : null;
+          });
+        })(),
+        tractionControlLevel: (() => {
+          const v = val(t.dcTractionControl);
+          return v != null ? Math.round(v) : null;
+        })(),
         absLevel: val(t.dcABS) != null ? Math.round(val(t.dcABS)!) : null,
         fuelLevel,
         fuelLevelPct: val(t.FuelLevelPct),
@@ -187,6 +219,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         fuelLapCount: this.fuelUsedHistory.length,
         throttle: val(t.Throttle) ?? 0,
         brake: val(t.Brake) ?? 0,
+        clutch: val(t.Clutch) ?? 0,
         absActive: Boolean(t.BrakeABSactive?.value?.[0] ?? false),
         speedKmH: (val(t.Speed) ?? 0) * 3.6,
         sessionState,

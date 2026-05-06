@@ -298,13 +298,12 @@ export function Overlay({ frame, waitingMessage, locked, initialSize }: Props) {
     width: 'fit-content',
     minWidth: Math.max(250, size.w * 0.34),
     maxWidth: '100%',
-    minHeight: ribbonHeight,
     borderRadius: 0,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: Math.max(8, 12 * scale),
-    padding: `${Math.max(2, 4 * scale)}px ${Math.max(10, 15 * scale)}px`,
+    padding: `${Math.max(3, 4 * scale)}px ${Math.max(10, 15 * scale)}px`,
     background: 'linear-gradient(180deg, rgba(43, 52, 65, 0.9) 0%, rgba(21, 27, 35, 0.95) 100%)',
     border: '1px solid rgba(166, 182, 199, 0.46)',
     boxShadow: '0 6px 12px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.07)',
@@ -356,8 +355,6 @@ export function Overlay({ frame, waitingMessage, locked, initialSize }: Props) {
   const content = frame ? (
     <div style={capsuleStyle}>
       <div style={coreStyle}>
-        {/* LED strip anchored to top edge of main box */}
-        {frame.revStrip ? <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translate(-50%, -90%)', zIndex: 1 }}><RevDots key={`${frame.revStrip.flashMode}-${frame.revStrip.redlineBlinkInterval}`} state={frame.revStrip} height={size.h} spacingScale={spacingScale} /></div> : null}
         {/* Left Column (Position) */}
         <div style={{ flex: '0 0 auto', display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
           <div style={leftPillStyle}>
@@ -369,7 +366,7 @@ export function Overlay({ frame, waitingMessage, locked, initialSize }: Props) {
               right: '100%',
               top: '50%',
               transform: 'translateY(-50%)',
-              marginRight: 4,
+              marginRight: 16,
               zIndex: -1,
             }}>
               <TelemetryGraph snapshot={frame.snapshot} height={mainHeight * 0.75} scale={scale} />
@@ -378,13 +375,16 @@ export function Overlay({ frame, waitingMessage, locked, initialSize }: Props) {
         </div>
 
         {/* Center Column (fixed centering) */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minWidth: 0, flex: 1, height: '100%', overflow: 'visible' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: centerStackGap, minWidth: 0, marginTop: frame.revStrip ? Math.max(6, 10 * scale) : 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 0, flex: 1, height: '100%', overflow: 'visible', position: 'relative' }}>
+          {/* LED strip - bottom 10% overhangs into container */}
+          {frame.revStrip ? <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translate(-50%, -90%)', zIndex: 1 }}><RevDots key={`${frame.revStrip.flashMode}-${frame.revStrip.redlineBlinkInterval}`} state={frame.revStrip} height={size.h} spacingScale={spacingScale} /></div> : null}
+          {/* Speed/RPM/Gear - truly centered in the container */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: centerStackGap, minWidth: 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: '1px solid white', padding: '4px 8px', borderRadius: 0 }}>
               <div style={{ fontSize: `${Math.max(10, 10 * scale)}px`, letterSpacing: '0.14em', opacity: 0.82 }}>SPEED</div>
               <div style={{ fontSize: `${Math.max(24, 34 * scale)}px`, lineHeight: 0.95, fontWeight: 800, width: '2.2em', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>{speedText}</div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
               <div style={{ fontSize: `${Math.max(10, 10 * scale)}px`, letterSpacing: '0.14em', opacity: 0.82 }}>RPM</div>
               <div style={{ 
                 fontSize: `${Math.max(34, 48 * scale)}px`, 
@@ -399,6 +399,42 @@ export function Overlay({ frame, waitingMessage, locked, initialSize }: Props) {
               <div style={{ fontSize: `${Math.max(10, 10 * scale)}px`, letterSpacing: '0.14em', opacity: 0.82 }}>GEAR</div>
               <div style={{ fontSize: `${Math.max(24, 34 * scale)}px`, lineHeight: 0.95, fontWeight: 800, width: '1.4em', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>{gearText}</div>
             </div>
+          </div>
+          {/* Ribbon - top 10% overhangs into container */}
+          <div style={{ ...ribbonStyle, position: 'absolute', bottom: 0, left: '50%', transform: 'translate(-50%, 90%)', width: 'fit-content', marginTop: 0 }}>
+            {lowerItems.length > 0 ? lowerItems.map((item, i) => (
+              <React.Fragment key={`${String(item)}-${i}`}>
+                {i > 0 ? <span style={{ color: 'rgba(173,185,199,0.58)' }}>|</span> : null}
+                <span style={{ fontSize: `${Math.max(10, 12 * scale)}px`, fontWeight: 700, letterSpacing: '0.03em', color: '#edf3ff' }}>
+                  {item as string}
+                </span>
+              </React.Fragment>
+            )) : (!frame?.ribbon.fuelLapsText && <span style={{ fontSize: `${Math.max(10, 12 * scale)}px`, fontWeight: 700, color: 'rgba(237,243,255,0.72)' }}>Telemetry ready</span>)}
+            {frame?.ribbon.fuelLapsText != null && frame.ribbon.fuelStatus != null && (() => {
+              let dotColor: string;
+              switch (frame.ribbon.fuelStatus) {
+                case 'green': dotColor = '#00FF00'; break;
+                case 'yellow': dotColor = '#FFD400'; break;
+                case 'red': dotColor = '#FF3B30'; break;
+                case 'stabilizing': dotColor = '#3b82f6'; break;
+                default: dotColor = 'rgba(255,255,255,0.3)'; break;
+              }
+              return (
+                <>
+                  <span style={{ color: 'rgba(173,185,199,0.58)' }}>|</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: Math.max(4, 6 * scale), fontSize: `${Math.max(10, 12 * scale)}px`, fontWeight: 700, letterSpacing: '0.03em', color: '#edf3ff' }}>
+                    <span style={{ display: 'inline-block', width: Math.max(6, 8 * scale), height: Math.max(6, 8 * scale), borderRadius: '50%', background: dotColor, boxShadow: `0 0 ${Math.max(4, 6 * scale)}px ${dotColor}` }} />
+                    {frame.ribbon.fuelLapsText}
+                    {frame.ribbon.pitWindowOpen && (
+                      <>
+                        <span style={{ color: 'rgba(173,185,199,0.58)' }}>|</span>
+                        <span style={{ fontWeight: 900, color: '#FFD400', textShadow: '0 0 8px rgba(255,212,0,0.6)' }}>PIT!</span>
+                      </>
+                    )}
+                  </span>
+                </>
+              );
+            })()}
           </div>
         </div>
 
@@ -430,50 +466,6 @@ export function Overlay({ frame, waitingMessage, locked, initialSize }: Props) {
             )}
           </div>
         </div>
-      </div>
-
-      <div style={ribbonStyle}>
-        {lowerItems.length > 0 ? lowerItems.map((item, i) => (
-          <React.Fragment key={`${String(item)}-${i}`}>
-            {i > 0 ? <span style={{ color: 'rgba(173,185,199,0.58)' }}>|</span> : null}
-            <span style={{ fontSize: `${Math.max(10, 12 * scale)}px`, fontWeight: 700, letterSpacing: '0.03em', color: '#edf3ff' }}>
-              {item as string}
-            </span>
-          </React.Fragment>
-        )) : (!frame?.ribbon.fuelLapsText && <span style={{ fontSize: `${Math.max(10, 12 * scale)}px`, fontWeight: 700, color: 'rgba(237,243,255,0.72)' }}>Telemetry ready</span>)}
-        {frame?.ribbon.fuelLapsText != null && frame.ribbon.fuelStatus != null && (() => {
-          let dotColor: string;
-          switch (frame.ribbon.fuelStatus) {
-            case 'green': dotColor = '#00FF00'; break;
-            case 'yellow': dotColor = '#FFD400'; break;
-            case 'red': dotColor = '#FF3B30'; break;
-            case 'stabilizing': dotColor = '#3b82f6'; break;
-            default: dotColor = 'rgba(173,185,199,0.72)';
-          }
-          return (
-            <React.Fragment key="fuel">
-              {lowerItems.length > 0 && <span style={{ color: 'rgba(173,185,199,0.58)' }}>|</span>}
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ position: 'relative', width: 7, height: 7, display: 'inline-block', flexShrink: 0 }}>
-                  <span style={{ width: 7, height: 7, borderRadius: 0, backgroundColor: dotColor, display: 'block' }} />
-                  {frame.ribbon.pitWindowOpen && (
-                    <span style={{
-                      position: 'absolute',
-                      inset: -2,
-                      border: `1.5px solid ${dotColor}`,
-                      borderRadius: 0,
-                      animation: 'pit-window-ring 1.8s ease-out infinite',
-                      pointerEvents: 'none',
-                    }} />
-                  )}
-                </span>
-                <span style={{ fontSize: `${Math.max(10, 12 * scale)}px`, fontWeight: 700, letterSpacing: '0.03em', color: '#edf3ff' }}>
-                  {frame.ribbon.fuelLapsText}
-                </span>
-              </span>
-            </React.Fragment>
-          );
-        })()}
       </div>
 
       {!locked && (

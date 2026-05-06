@@ -1,6 +1,6 @@
 {
   "name": "posh-dash",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Sim racing telemetry overlay",
   "author": "sdcarter",
   "main": "dist/main/index.js",
@@ -25,11 +25,12 @@
     "directories": {
       "output": "release"
     },
+    "npmRebuild": false,
     "files": [
       "dist/**/*",
       "assets/**/*"
     ],
-    "icon": "assets/icon-256.png",
+    "icon": "assets/icon-512.png",
     "win": {
       "target": "nsis"
     },
@@ -47,21 +48,21 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@storybook/react": "^10.3.5",
-    "@storybook/react-vite": "^10.3.5",
+    "@storybook/react": "^10.3.6",
+    "@storybook/react-vite": "^10.3.6",
     "@types/node": "^25.5.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "concurrently": "^9.2.1",
-    "electron": "^41.2.0",
+    "electron": "^42.0.0",
     "electron-builder": "^26.8.1",
-    "eslint": "^10.2.0",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "storybook": "^10.3.5",
-    "typescript": "^6.0.2",
-    "typescript-eslint": "^8.58.1",
-    "vite": "^8.0.1"
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "storybook": "^10.3.6",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.2",
+    "vite": "^8.0.10"
   },
   "dependencies": {
     "electron-updater": "^6.8.3",
