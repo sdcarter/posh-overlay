@@ -191,11 +191,12 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         incidentCount: val(t.PlayerCarMyIncidentCount) ?? val(t.PlayerCarDriverIncidentCount) ?? 0,
         incidentLimit: null,
         brakeBiasPercent: val(t.dcBrakeBias),
+        hasTracionControl: ('dcTractionControl' in t) || Object.keys(t).some(k => /^dcTractionControl\d+$/.test(k)),
         // Collect multiple traction control channels (dcTractionControl, dcTractionControl2, ...)
-        // Note: dcTractionControl (no suffix) is the base single-channel key — exclude it from
-        // the multi-channel array to avoid a phantom extra channel.
+        // Use exact regex to avoid picking up non-channel keys like dcTractionControlMode/Target.
+        // Include the base dcTractionControl key (TC slip / primary channel) — it sorts first.
         tractionControlLevels: (() => {
-          const keys = Object.keys(t).filter(k => k.startsWith('dcTractionControl') && k !== 'dcTractionControl');
+          const keys = Object.keys(t).filter(k => k === 'dcTractionControl' || /^dcTractionControl\d+$/.test(k));
           if (keys.length === 0) return null;
           keys.sort((a, b) => {
             const na = a.match(/(\d+)$/);
@@ -214,6 +215,7 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
           const v = val(t.dcTractionControl);
           return v != null ? Math.round(v) : null;
         })(),
+        hasABSControl: 'dcABS' in t,
         absLevel: val(t.dcABS) != null ? Math.round(val(t.dcABS)!) : null,
         fuelLevel,
         fuelLevelPct: val(t.FuelLevelPct),

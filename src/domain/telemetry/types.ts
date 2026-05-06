@@ -18,9 +18,11 @@ export interface TelemetrySnapshot {
   incidentCount: number;
   incidentLimit: number | null;
   brakeBiasPercent: number | null;
+  hasTracionControl: boolean;
   tractionControlLevel: number | null;
   // Multiple traction control channels (TC1, TC2, ...) if the car exposes them
   tractionControlLevels?: (number | null)[] | null;
+  hasABSControl: boolean;
   absLevel: number | null;
   fuelLevel: number | null;
   fuelLevelPct: number | null;

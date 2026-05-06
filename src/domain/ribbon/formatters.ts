@@ -9,9 +9,13 @@ export function brakeBias(s: TelemetrySnapshot): string | null {
 }
 
 export function tractionControl(s: TelemetrySnapshot): string | null {
+  // Only show TC if the car has driver-adjustable traction control
+  if (!s.hasTracionControl) return null;
+
   // Prefer multiple-channel display when available
   if (s.tractionControlLevels && s.tractionControlLevels.length > 0) {
     const levels = s.tractionControlLevels.filter((v): v is number => v != null);
+    if (levels.length === 0) return null;  // all null → no valid channels
     if (levels.length === 1) return `TC ${levels[0]}`;
     const parts = s.tractionControlLevels
       .map((v, i) => v != null ? `TC${i + 1} ${v}` : null)
@@ -19,10 +23,14 @@ export function tractionControl(s: TelemetrySnapshot): string | null {
     return parts.length > 0 ? parts.join(' • ') : null;
   }
 
+  // Single channel (tractionControlLevel)
   return s.tractionControlLevel != null ? `TC ${s.tractionControlLevel}` : null;
 }
 
 export function absLevel(s: TelemetrySnapshot): string | null {
+  // Only show ABS if the car has driver-adjustable ABS
+  if (!s.hasABSControl) return null;
+  // Show the value (including 0 if user cut it)
   return s.absLevel != null ? `ABS ${s.absLevel}` : null;
 }
 
