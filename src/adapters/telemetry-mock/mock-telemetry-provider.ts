@@ -8,6 +8,7 @@ interface SweepConfig {
   positionOverall: number;
   brakeBiasPercent: number;
   tractionControlLevel: number | null;
+  tractionControlLevels?: (number | null)[] | null;
   absLevel: number | null;
 }
 
@@ -105,6 +106,7 @@ function createSweepSnapshot(config: SweepConfig, nowMs: number): TelemetrySnaps
       sessionLapsTotal: 12,
       brakeBiasPercent: config.brakeBiasPercent,
       tractionControlLevel: config.tractionControlLevel,
+      tractionControlLevels: config.tractionControlLevels ?? undefined,
       absLevel: config.absLevel,
     });
   }
@@ -136,6 +138,7 @@ function createSweepSnapshot(config: SweepConfig, nowMs: number): TelemetrySnaps
     sessionLapsTotal: 12,
     brakeBiasPercent: config.brakeBiasPercent,
     tractionControlLevel: config.tractionControlLevel,
+    tractionControlLevels: config.tractionControlLevels ?? undefined,
     absLevel: config.absLevel,
   });
 }
@@ -342,6 +345,17 @@ export class MockTelemetryProvider implements TelemetryProvider {
         return createStabilizingFuelScenarioSnapshot(nowMs);
       case 'pit-window':
         return createPitWindowScenarioSnapshot(nowMs);
+      case 'corvette-sweep':
+        return createSweepSnapshot({
+          carPath: 'corvettegte',
+          maxRpm: 7600,
+          gearCount: 6,
+          positionOverall: 5,
+          brakeBiasPercent: 51.2,
+          tractionControlLevel: null,
+          tractionControlLevels: [4, 2],
+          absLevel: 2,
+        }, nowMs);
       case 'mazda-sweep':
         return createSweepSnapshot({
           carPath: 'mx5 mx52016',

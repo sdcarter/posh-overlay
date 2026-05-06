@@ -11,6 +11,8 @@ export function brakeBias(s: TelemetrySnapshot): string | null {
 export function tractionControl(s: TelemetrySnapshot): string | null {
   // Prefer multiple-channel display when available
   if (s.tractionControlLevels && s.tractionControlLevels.length > 0) {
+    const levels = s.tractionControlLevels.filter((v): v is number => v != null);
+    if (levels.length === 1) return `TC ${levels[0]}`;
     const parts = s.tractionControlLevels
       .map((v, i) => v != null ? `TC${i + 1} ${v}` : null)
       .filter((p): p is string => p != null);
