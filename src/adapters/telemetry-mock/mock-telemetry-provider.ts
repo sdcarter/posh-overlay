@@ -16,6 +16,10 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
   const cycle = nowMs % 5000;
   const throttle = cycle < 2000 ? Math.min(1, cycle / 300) : 0;
   const brake = cycle > 2500 && cycle < 4000 ? Math.min(1, (cycle - 2500) / 200) : 0;
+  // Clutch: pressed (1.0 in our display = pedal down) briefly at the start of each cycle (simulating upshift)
+  // iRacing convention: 1.0 = released, so we store inverted here and un-invert in the graph
+  const clutchPressed = cycle < 200 || (cycle > 2400 && cycle < 2550);
+  const clutch = clutchPressed ? 0 : 1; // iRacing: 0 = pedal pressed, 1 = released
   const absActive = brake > 0.8 && (nowMs % 120 < 60);
 
   const snapshot: TelemetrySnapshot = {
@@ -47,7 +51,7 @@ function baseSnapshot(overrides: Partial<TelemetrySnapshot>): TelemetrySnapshot 
     fuelLapCount: 4,
     throttle,
     brake,
-    clutch: overrides.clutch ?? 0,
+    clutch,
     absActive,
     speedKmH: 120,
     sessionState: 4,

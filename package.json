@@ -1,6 +1,6 @@
 {
   "name": "posh-dash",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Sim racing telemetry overlay",
   "author": "sdcarter",
   "main": "dist/main/index.js",

@@ -426,10 +426,7 @@ export function Overlay({ frame, waitingMessage, locked, initialSize }: Props) {
                     <span style={{ display: 'inline-block', width: Math.max(6, 8 * scale), height: Math.max(6, 8 * scale), borderRadius: '50%', background: dotColor, boxShadow: `0 0 ${Math.max(4, 6 * scale)}px ${dotColor}` }} />
                     {frame.ribbon.fuelLapsText}
                     {frame.ribbon.pitWindowOpen && (
-                      <>
-                        <span style={{ color: 'rgba(173,185,199,0.58)' }}>|</span>
-                        <span style={{ fontWeight: 900, color: '#FFD400', textShadow: '0 0 8px rgba(255,212,0,0.6)' }}>PIT!</span>
-                      </>
+                      <span style={{ display: 'inline-block', width: Math.max(6, 8 * scale), height: Math.max(6, 8 * scale), borderRadius: '50%', background: '#009CDE', boxShadow: `0 0 ${Math.max(5, 8 * scale)}px #009CDE`, opacity: 0.9 }} />
                     )}
                   </span>
                 </>

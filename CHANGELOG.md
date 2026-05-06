@@ -1,5 +1,9 @@
 # CHANGELOG.md
 
+## v1.2.2
+- **fix**: mock telemetry now sends realistic clutch data (brief press on upshift/downshift).
+- **fix**: pit window indicator replaced with a subtle BMW M blue dot instead of "PIT!" text.
+
 ## v1.2.1
 - **fix**: clutch bar and trace now blue (not amber) and correctly inverted (1.0 = pedal pressed).
 - **fix**: phantom TC3 channel no longer appears on cars with only TC1/TC2.
