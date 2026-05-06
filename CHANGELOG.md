@@ -1,5 +1,9 @@
 # CHANGELOG.md
 
+## v1.2.1
+- **fix**: clutch bar and trace now blue (not amber) and correctly inverted (1.0 = pedal pressed).
+- **fix**: phantom TC3 channel no longer appears on cars with only TC1/TC2.
+
 ## v1.2.0
 - **feat**: live telemetry traces (throttle, brake, clutch) with 10s history, shown left of position box.
 - **feat**: live pedal bar indicators (B/T/C) to the right of telemetry trace.

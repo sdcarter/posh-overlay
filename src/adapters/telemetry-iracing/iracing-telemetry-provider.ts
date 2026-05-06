@@ -192,8 +192,10 @@ export class IRacingTelemetryProvider implements TelemetryProvider {
         incidentLimit: null,
         brakeBiasPercent: val(t.dcBrakeBias),
         // Collect multiple traction control channels (dcTractionControl, dcTractionControl2, ...)
+        // Note: dcTractionControl (no suffix) is the base single-channel key — exclude it from
+        // the multi-channel array to avoid a phantom extra channel.
         tractionControlLevels: (() => {
-          const keys = Object.keys(t).filter(k => k.startsWith('dcTractionControl'));
+          const keys = Object.keys(t).filter(k => k.startsWith('dcTractionControl') && k !== 'dcTractionControl');
           if (keys.length === 0) return null;
           keys.sort((a, b) => {
             const na = a.match(/(\d+)$/);

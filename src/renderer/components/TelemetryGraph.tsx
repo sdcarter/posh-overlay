@@ -124,9 +124,9 @@ export function TelemetryGraph({ snapshot, height, scale }: Props) {
       pt => pt.absActive ? '#fadb14' : '#f5222d'
     );
 
-    // Draw Clutch (Blue)
+    // Draw Clutch (Blue) — inverted: iRacing 1.0 = released, we want 1.0 = pressed
     drawLine(
-      pt => pt.clutch,
+      pt => 1 - pt.clutch,
       () => '#1890ff'
     );
 
@@ -135,12 +135,13 @@ export function TelemetryGraph({ snapshot, height, scale }: Props) {
 
   const throttle = snapshot.throttle ?? 0;
   const brake = snapshot.brake ?? 0;
-  const clutch = snapshot.clutch ?? 0;
+  // iRacing Clutch = 1.0 means pedal released (clutch engaged). Invert so 1.0 = pedal pressed.
+  const clutch = 1 - (snapshot.clutch ?? 0);
 
   const bars = [
     { value: brake,    color: '#f5222d', label: 'B' },
     { value: throttle, color: '#52c41a', label: 'T' },
-    { value: clutch,   color: '#faad14', label: 'C' },
+    { value: clutch,   color: '#1890ff', label: 'C' },
   ];
 
   const barWidth = Math.max(16, 18 * scale);
